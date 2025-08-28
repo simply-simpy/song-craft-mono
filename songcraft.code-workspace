@@ -1,0 +1,38 @@
+{
+  "folders": [
+    {
+      "name": "Root",
+      "path": ".",
+    },
+    {
+      "name": "Frontend",
+      "path": "./songcraft",
+    },
+    {
+      "name": "API",
+      "path": "./songcraft-api",
+    },
+    {
+      "name": "Shared",
+      "path": "./shared",
+    },
+  ],
+  "settings": {
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit",
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      "bradlc.vscode-tailwindcss",
+      "esbenp.prettier-vscode",
+      "biomejs.biome",
+      "ms-vscode.vscode-typescript-next",
+    ],
+  },
+}

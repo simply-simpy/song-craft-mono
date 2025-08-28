@@ -1,0 +1,19 @@
+{
+  "name": "@songcraft/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities, types, and configurations for Songcraft",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "zod": "^4.1.4"
+  }
+}

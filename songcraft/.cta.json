@@ -1,0 +1,29 @@
+{
+  "projectName": "songcraft",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "start",
+    "clerk",
+    "convex",
+    "db",
+    "form",
+    "mcp",
+    "neon",
+    "netlify",
+    "oRPC",
+    "sentry",
+    "shadcn",
+    "store",
+    "t3env",
+    "tRPC",
+    "table",
+    "tanstack-query"
+  ]
+}
