@@ -1,33 +1,35 @@
 @import "tailwindcss";
+@import "daisyui/daisyui.css";
+@import "daisyui/themes.css";
 @plugin "daisyui";
 
 body {
-	font-family: "Lato", sans-serif;
-	font-weight: 400;
-	font-style: normal;
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* Typography */
 .lato-light {
-	font-family: "Lato", sans-serif;
-	font-weight: 300;
-	font-style: normal;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: normal;
 }
 
 .lato-regular {
-	font-family: "Lato", sans-serif;
-	font-weight: 400;
-	font-style: normal;
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .lato-bold {
-	font-family: "Lato", sans-serif;
-	font-weight: 700;
-	font-style: normal;
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .lato-light-italic {
-	font-family: "Lato", sans-serif;
-	font-weight: 300;
-	font-style: italic;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: italic;
 }

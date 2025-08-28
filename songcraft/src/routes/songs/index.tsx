@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { extractPrefix } from "@songcraft/shared";
+import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -54,12 +55,15 @@ function RouteComponent() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Songs</h1>
-        <Link
-          to="/songs/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          New Song
-        </Link>
+        <div className="flex items-center gap-4">
+          <ThemeSwitcher />
+          <Link
+            to="/songs/new"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            New Song
+          </Link>
+        </div>
       </div>
 
       {songs.length === 0 ? (

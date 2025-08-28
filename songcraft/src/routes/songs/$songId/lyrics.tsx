@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, createFileRoute } from "@tanstack/react-router";
 import { isValidHumanReadableId, extractPrefix } from "@songcraft/shared";
+import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -85,11 +86,14 @@ function RouteComponent() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
-          <div className="text-sm text-gray-500">
-            ID:{" "}
-            <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-              {songId}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500">
+              ID:{" "}
+              <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                {songId}
+              </span>
+            </div>
+            <ThemeSwitcher />
           </div>
         </div>
       </div>
@@ -100,7 +104,7 @@ function RouteComponent() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-xl font-semibold mb-4">Edit Lyrics</h2>
             <textarea
-              className="w-full h-64 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="text-black w-full h-64 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               placeholder="Enter your lyrics here..."
             />
             <div className="flex justify-end mt-4 space-x-3">
