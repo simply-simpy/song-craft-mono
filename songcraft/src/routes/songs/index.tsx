@@ -138,7 +138,8 @@ function RouteComponent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Link
-                        to={`/songs/${shortId}/lyrics`}
+                        to="/songs/$songId/lyrics"
+                        params={{ songId: shortId }}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         View
