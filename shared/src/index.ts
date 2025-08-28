@@ -55,6 +55,47 @@ export const formatDate = (date: Date): string => {
   });
 };
 
+// Short ID generation utilities using nanoid
+import { nanoid } from "nanoid";
+
+export const generateShortId = (): string => {
+  // Generate a 6-character ID using nanoid
+  return nanoid(6);
+};
+
+export const generateHumanReadableId = (prefix: string): string => {
+  const shortId = generateShortId();
+  return `${prefix}-${shortId}`;
+};
+
+// Specific ID generators for different entity types
+export const generateSongId = (): string => generateHumanReadableId("song");
+export const generateUserId = (): string => generateHumanReadableId("user");
+export const generateCollaborationId = (): string =>
+  generateHumanReadableId("collab");
+
+// ID validation and parsing utilities
+export const isValidHumanReadableId = (id: string): boolean => {
+  const pattern = /^[a-z]+-[A-Za-z0-9]{6}$/;
+  return pattern.test(id);
+};
+
+export const parseHumanReadableId = (
+  id: string
+): { prefix: string; shortId: string } | null => {
+  if (!isValidHumanReadableId(id)) {
+    return null;
+  }
+  const [prefix, shortId] = id.split("-");
+  return { prefix, shortId };
+};
+
+export const extractPrefix = (id: string): string | null => {
+  const parsed = parseHumanReadableId(id);
+  return parsed?.prefix || null;
+};
+
+// Legacy function for backward compatibility
 export const generateId = (): string => {
   return Math.random().toString(36).substr(2, 9);
 };
