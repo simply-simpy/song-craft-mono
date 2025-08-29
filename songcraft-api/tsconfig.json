@@ -6,6 +6,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -15,9 +17,10 @@
     "declarationMap": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
-      "@songcraft/shared": ["../shared/src"],
-      "@songcraft/shared/*": ["../shared/src/*"]
+      "@songcraft/shared": ["../shared/dist"],
+      "@songcraft/shared/*": ["../shared/dist/*"]
     }
   },
   "include": ["src/**/*", "src/routes/songs.ts"],
