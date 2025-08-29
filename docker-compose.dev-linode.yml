@@ -1,0 +1,113 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-songcraft_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-songcraft}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./songcraft-api/drizzle/0000_high_jack_flag.sql:/docker-entrypoint-initdb.d/001_init.sql
+    ports:
+      - "5432:5432" # Expose for local development access
+    networks:
+      - songcraft_dev_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-songcraft}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API (Development with hot reload)
+  backend:
+    build:
+      context: .
+      dockerfile: songcraft-api/Dockerfile.dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-songcraft}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songcraft_dev}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - PORT=4500
+    ports:
+      - "4500:4500" # Expose for local development access
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - songcraft_dev_network
+    volumes:
+      - ./songcraft-api/src:/app/songcraft-api/src:ro
+      - ./shared:/app/shared:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4500/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend React App (Development with hot reload)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000" # Expose for local development access
+    environment:
+      - VITE_API_URL=http://localhost:4500
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - songcraft_dev_network
+    volumes:
+      - ./songcraft/src:/app/songcraft/src:ro
+      - ./songcraft/public:/app/songcraft/public:ro
+
+  # Nginx Reverse Proxy (Development)
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - songcraft_dev_network
+
+  # Optional: Redis for development (caching, sessions)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - songcraft_dev_network
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  songcraft_dev_network:
+    driver: bridge

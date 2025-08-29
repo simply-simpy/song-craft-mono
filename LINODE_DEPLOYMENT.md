@@ -92,7 +92,64 @@ If you prefer to set up manually, follow these steps:
 
 ## Step 4: Deploy the Application
 
-### Option A: Using the Deployment Script (Recommended)
+### Option A: Development Instance (Recommended for Learning)
+
+Perfect for testing, development, and learning the deployment process:
+
+1. **Set environment variables**:
+
+   ```bash
+   export LINODE_HOST=YOUR_SERVER_IP
+   export LINODE_USER=root
+   ```
+
+2. **Create development environment file**:
+
+   ```bash
+   cp env.dev-linode.example .env.dev-linode
+   # Edit with your development values
+   ```
+
+3. **Run the development deployment script**:
+   ```bash
+   chmod +x scripts/deploy-linode-dev.sh
+   ./scripts/deploy-linode-dev.sh
+   ```
+
+**Development Features:**
+
+- Hot reloading for frontend and backend
+- Exposed ports for direct access (3000, 4500, 5432)
+- Verbose logging and debugging
+- More permissive rate limiting
+- No caching for easier development
+- Self-signed SSL certificates
+
+### Option B: Production Instance
+
+For production use with real users:
+
+1. **Set environment variables**:
+
+   ```bash
+   export LINODE_HOST=YOUR_SERVER_IP
+   export LINODE_USER=root
+   ```
+
+2. **Create production environment file**:
+
+   ```bash
+   cp env.production.example .env.production
+   # Edit with your production values
+   ```
+
+3. **Run the production deployment script**:
+   ```bash
+   chmod +x scripts/deploy-linode.sh
+   ./scripts/deploy-linode.sh
+   ```
+
+### Option C: Manual Deployment
 
 1. **Set environment variables**:
 
