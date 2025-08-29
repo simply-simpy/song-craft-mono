@@ -1,0 +1,23 @@
+# Backend API Development Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy root package files first
+COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY songcraft/package*.json ./songcraft/
+COPY songcraft-api/package*.json ./songcraft-api/
+
+# Install ALL dependencies using workspace
+RUN npm ci --workspaces --include-workspace-root
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 4500
+
+# Start development server
+WORKDIR /app/songcraft-api
+CMD ["npm", "run", "dev"]

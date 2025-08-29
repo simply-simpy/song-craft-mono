@@ -14,7 +14,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "nanoid": "^5.1.5",
+    "nanoid": "^4.0.2",
     "zod": "^4.1.4"
   }
 }

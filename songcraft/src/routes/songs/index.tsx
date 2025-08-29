@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { extractPrefix } from "@songcraft/shared";
+import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -51,15 +52,18 @@ function RouteComponent() {
   const songs = songsData?.data || [];
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Songs</h1>
-        <Link
-          to="/songs/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          New Song
-        </Link>
+        <div className="flex items-center gap-4">
+          <ThemeSwitcher />
+          <Link
+            to="/songs/new"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            New Song
+          </Link>
+        </div>
       </div>
 
       {songs.length === 0 ? (
@@ -74,28 +78,28 @@ function RouteComponent() {
         </div>
       ) : (
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="w-full table-fixed divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                   Song ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/6">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                   Artist
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                   BPM
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                   Key
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                   Created
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                   Actions
                 </th>
               </tr>
@@ -138,7 +142,8 @@ function RouteComponent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Link
-                        to={`/songs/${shortId}/lyrics`}
+                        to="/songs/$songId/lyrics"
+                        params={{ songId: shortId }}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         View
