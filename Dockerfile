@@ -1,4 +1,4 @@
-# Frontend Dockerfile
+# Frontend Production Dockerfile
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -12,7 +12,7 @@ COPY songcraft/package*.json ./songcraft/
 COPY songcraft-api/package*.json ./songcraft-api/
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --workspaces --include-workspace-root
 
 # Build the app
 FROM base AS builder
@@ -32,7 +32,7 @@ WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/songcraft/dist .
 
 # Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.prod.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
