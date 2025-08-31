@@ -66,13 +66,13 @@ popd >/dev/null
 info "Ensuring remote path exists: $SERVER_PATH"
 ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" "mkdir -p '$SERVER_PATH'"
 
-# ========= Sync entire .output folder =========
-info "Rsyncing entire .output/ folder to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
-rsync -az --delete $RSYNC_INFO_FLAGS \
+# ========= Sync built assets (excluding node_modules) =========
+info "Rsyncing built assets to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/.output/"
+rsync -az --delete --exclude=node_modules $RSYNC_INFO_FLAGS \
   "$PROJECT_ROOT/$FRONTEND_DIR/.output/" \
   "${LINODE_USER}@${LINODE_HOST}":"$SERVER_PATH/.output/"
 
-ok "Static assets uploaded"
+ok "Built assets uploaded (excluding node_modules)"
 
 # ========= Start all services =========
 info "Starting all TanStack Start services on the server…"

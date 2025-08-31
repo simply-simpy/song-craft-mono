@@ -51,18 +51,22 @@ services:
       retries: 3
 
   # TanStack Start Frontend Server
+
   frontend:
     image: node:20-alpine
-    restart: unless-stopped
     working_dir: /app
-    volumes:
-      - ./.output:/app/.output:ro
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=3000
-    ports:
-      - "3000:3000"
-    command: ["node", ".output/server/index.mjs"]
+      # Add your auth env here, e.g. Clerk/NextAuth/etc:
+      # - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      # - AUTH_SECRET=${AUTH_SECRET}
+      # - BASE_URL=https://<your-preview-host>  # optional, if your app expects it
+    volumes:
+      - ./.output:/app/.output:ro # mount the built output
+    command: ["node", ".output/server/index.mjs"] # or index.js if your build emits .js
+    expose:
+      - "3000" # internal; nginx will proxy to this
     depends_on:
       - backend
     networks:
@@ -85,15 +89,14 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "8080:80" # keep 8080 if host nginx is already on 80/443
-      # - "8443:443"    # enable if you need TLS on the container
+      - "8080:80" # keep 8080 if host nginx handles 80/443
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
-
+      - ./.output/public:/usr/share/nginx/html:ro # serve built static assets
     depends_on:
-      - backend
       - frontend
+      - backend
     networks:
       - songcraft_dev_network
 
