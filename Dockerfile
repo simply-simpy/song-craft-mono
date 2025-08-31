@@ -22,7 +22,7 @@ COPY . .
 
 # Build frontend
 WORKDIR /app/songcraft
-RUN npm run build
+RUN npm run build:client
 
 # Production image
 FROM nginx:alpine AS runner

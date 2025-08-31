@@ -97,3 +97,9 @@ import { ... } from '@songcraft/shared';
 ```
 
 No additional installation required in workspace packages.
+
+## Deployment
+
+From your project root
+export LINODE_HOST=192.155.94.5
+./scripts/deploy-linode-dev.sh

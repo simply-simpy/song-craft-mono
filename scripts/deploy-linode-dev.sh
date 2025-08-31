@@ -42,7 +42,7 @@ need npm
 [ -f "$PROJECT_ROOT/$FRONTEND_DIR/package.json" ] || fail "package.json not found in $FRONTEND_DIR"
 
 # ========= Build frontend locally =========
-info "Building frontend in $FRONTEND_DIR (at $PROJECT_ROOT/$FRONTEND_DIR)…"
+info "Building TanStack Start frontend in $FRONTEND_DIR (at $PROJECT_ROOT/$FRONTEND_DIR)…"
 pushd "$PROJECT_ROOT/$FRONTEND_DIR" >/dev/null
 
 if [ -f package-lock.json ]; then
@@ -53,27 +53,29 @@ else
   npm install
 fi
 
-# Pass build-time env vars (e.g., VITE_API_URL=/api) to the build
-info "Running build with: $BUILD_ENV_VARS npm run build"
-eval "$BUILD_ENV_VARS npm run build"
+# Build TanStack Start app
+info "Running TanStack Start build..."
+npm run build
 
-[ -d ".output/public" ] || fail "Build output not found (.output/public). Check your build."
+[ -d ".output" ] || fail "Build output not found (.output). Check your build."
+[ -d ".output/server" ] || fail "Server output not found (.output/server). Check your build."
+[ -d ".output/public" ] || fail "Public output not found (.output/public). Check your build."
 popd >/dev/null
 
 # ========= Ensure remote directories exist =========
-info "Ensuring remote path exists: $SERVER_PUBLIC"
-ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" "mkdir -p '$SERVER_PUBLIC'"
+info "Ensuring remote path exists: $SERVER_PATH"
+ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" "mkdir -p '$SERVER_PATH'"
 
-# ========= Sync built assets =========
-info "Rsyncing .output/public/ to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PUBLIC/"
+# ========= Sync entire .output folder =========
+info "Rsyncing entire .output/ folder to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
 rsync -az --delete $RSYNC_INFO_FLAGS \
-  "$PROJECT_ROOT/$FRONTEND_DIR/.output/public/" \
-  "${LINODE_USER}@${LINODE_HOST}":"$SERVER_PUBLIC/"
+  "$PROJECT_ROOT/$FRONTEND_DIR/.output/" \
+  "${LINODE_USER}@${LINODE_HOST}":"$SERVER_PATH/.output/"
 
 ok "Static assets uploaded"
 
-# ========= Reload nginx in the container =========
-info "Reloading nginx inside the container (or starting it if needed)…"
+# ========= Start all services =========
+info "Starting all TanStack Start services on the server…"
 ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" bash -s <<'EOSH'
 set -euo pipefail
 SERVER_PATH="${SERVER_PATH:-/opt/tunecap-dev}"
@@ -87,23 +89,38 @@ fi
 
 cd "$SERVER_PATH"
 
-# Try reload; if container isn't running, (re)create it
-if ! $COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode exec -T nginx nginx -t >/dev/null 2>&1; then
-  $COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d nginx
-else
-  $COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode exec -T nginx nginx -s reload || \
-  $COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d nginx
-fi
+# Stop existing services
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode down || true
+
+# Start all services (db, backend, frontend, nginx, redis)
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d
+
+# Wait for services to be healthy
+info "Waiting for services to be healthy..."
+sleep 30
+
+# Check service status
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode ps
 EOSH
 
-ok "Nginx reloaded"
+ok "All services started"
 
 # ========= Verify =========
-info "Verifying from server…"
+info "Verifying TanStack Start deployment…"
 ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" '
   set -euo pipefail
-  (curl -sS -I http://localhost/ || curl -sS -I http://localhost:8080/) | sed -n "1,5p" || true
-  curl -sS http://localhost/health || curl -sS http://localhost:8080/health || true
+  echo "Checking frontend service (port 3000)..."
+  curl -sS -I http://localhost:3000/ | sed -n "1,5p" || true
+  
+  echo "Checking nginx proxy (port 8080)..."
+  curl -sS -I http://localhost:8080/ | sed -n "1,5p" || true
+  
+  echo "Checking backend API (port 4500)..."
+  curl -sS -I http://localhost:4500/health | sed -n "1,5p" || true
 ' || true
 
-ok "Deployment complete. Visit: http://$LINODE_HOST/"
+ok "TanStack Start deployment complete!"
+info "Your app should be accessible at:"
+info "- Frontend (direct): http://$LINODE_HOST:3000"
+info "- Nginx proxy: http://$LINODE_HOST:8080"
+info "- Backend API: http://$LINODE_HOST:4500"

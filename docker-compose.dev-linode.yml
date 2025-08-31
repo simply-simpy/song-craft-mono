@@ -50,6 +50,37 @@ services:
       timeout: 10s
       retries: 3
 
+  # TanStack Start Frontend Server
+  frontend:
+    image: node:20-alpine
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./.output:/app/.output:ro
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    command: ["node", ".output/server/index.mjs"]
+    depends_on:
+      - backend
+    networks:
+      - songcraft_dev_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -59,9 +90,10 @@ services:
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
-      - ./songcraft/dist:/usr/share/nginx/html:ro # serve the built app
+
     depends_on:
       - backend
+      - frontend
     networks:
       - songcraft_dev_network
 
