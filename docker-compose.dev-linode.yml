@@ -29,6 +29,9 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-songcraft}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songcraft_dev}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - PORT=4500
+      # CORS Configuration for Docker environment
+      - CORS_ORIGIN=http://192.155.94.5:3000,http://192.155.94.5:8080,http://frontend:3000
+      - ALLOW_HTTP=true
     ports:
       - "4500:4500"
     depends_on:
@@ -51,9 +54,9 @@ services:
       retries: 3
 
   # TanStack Start Frontend Server
-
   frontend:
     image: node:20-alpine
+    restart: unless-stopped
     working_dir: /app
     environment:
       - NODE_ENV=production
@@ -65,8 +68,8 @@ services:
     volumes:
       - ./.output:/app/.output:ro # mount the built output
     command: ["node", ".output/server/index.mjs"] # or index.js if your build emits .js
-    expose:
-      - "3000" # internal; nginx will proxy to this
+    ports:
+      - "3000:3000" # expose for debugging
     depends_on:
       - backend
     networks:
@@ -75,11 +78,9 @@ services:
       test:
         [
           "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1))",
         ]
       interval: 30s
       timeout: 10s
@@ -92,8 +93,7 @@ services:
       - "8080:80" # keep 8080 if host nginx handles 80/443
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - ./.output/public:/usr/share/nginx/html:ro # serve built static assets
+      # Removed SSL and static file serving - nginx will proxy to frontend
     depends_on:
       - frontend
       - backend

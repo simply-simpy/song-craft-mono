@@ -103,3 +103,20 @@ No additional installation required in workspace packages.
 From your project root
 export LINODE_HOST=192.155.94.5
 ./scripts/deploy-linode-dev.sh
+
+## Docker
+
+cd /opt/tunecap-dev
+docker-compose -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d
+
+### After starting services
+
+docker-compose -f docker-compose.dev-linode.yml ps
+
+1. Frontend (Direct):
+   http://192.155.94.5:3000 - Direct to TanStack Start service
+2. Nginx Proxy:
+   http://192.155.94.5:8080 - Through Nginx reverse proxy
+3. Backend API:
+   http://192.155.94.5:4500/health - Health check
+   http://192.155.94.5:4500/api/status - API status
