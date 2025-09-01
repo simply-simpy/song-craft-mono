@@ -1,30 +1,31 @@
 # Simple runtime for pre-built TanStack Start application
 FROM node:20-alpine
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
-
-# Create app directory
 WORKDIR /app
 
 # Copy pre-built application
 COPY .output/ ./.output/
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+# Install SSR runtime deps for the server bundle
+ENV NODE_ENV=production
+WORKDIR /app/.output/server
+# Use CI for deterministic install; omit dev deps
+RUN npm ci --omit=dev || npm install --omit=dev
 
-# Change ownership of the app directory
+# Back to app root
+WORKDIR /app
+
+# Non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Expose port
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"
+  CMD node -e "require('http').get('http://127.0.0.1:3000', (res) => process.exit(res.statusCode < 400 ? 0 : 1))"
 
-# Start the application
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", ".output/server/index.mjs"]
