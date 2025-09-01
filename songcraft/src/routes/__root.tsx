@@ -8,6 +8,9 @@ import {
 // app/routes/__root.tsx
 import * as React from "react";
 
+// Import styles
+import "../styles.css";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -23,10 +26,6 @@ export const Route = createRootRoute({
       },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: "/src/styles.css",
-      },
       // Google Fonts
       {
         rel: "preconnect",

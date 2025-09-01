@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "daisyui/daisyui.css";
-@import "daisyui/themes.css";
+
+/* DaisyUI */
 @plugin "daisyui";
 
 body {
