@@ -8,10 +8,8 @@ WORKDIR /app
 COPY .output/ ./.output/
 
 # Install SSR runtime deps for the server bundle
-ENV NODE_ENV=production
-WORKDIR /app/.output/server
-# Use CI for deterministic install; omit dev deps
-RUN npm ci --omit=dev || npm install --omit=dev
+ENV NODE_ENV=development
+npm ci || npm install
 
 # Back to app root
 WORKDIR /app
