@@ -55,7 +55,7 @@ fi
 
 # Build TanStack Start app
 info "Running TanStack Start build..."
-npm run build
+npm run build:tanstack
 
 [ -d ".output" ] || fail "Build output not found (.output). Check your build."
 [ -d ".output/server" ] || fail "Server output not found (.output/server). Check your build."
@@ -66,13 +66,13 @@ popd >/dev/null
 info "Ensuring remote path exists: $SERVER_PATH"
 ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" "mkdir -p '$SERVER_PATH'"
 
-# ========= Sync built assets (excluding node_modules) =========
-info "Rsyncing built assets to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/.output/"
-rsync -az --delete --exclude=node_modules $RSYNC_INFO_FLAGS \
-  "$PROJECT_ROOT/$FRONTEND_DIR/.output/" \
-  "${LINODE_USER}@${LINODE_HOST}":"$SERVER_PATH/.output/"
+# ========= Copy deployment files to server =========
+info "Copying deployment files to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS docker-compose.dev-linode.yml "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS nginx.dev.conf "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS Dockerfile.ssr "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
 
-ok "Built assets uploaded (excluding node_modules)"
+ok "Deployment files uploaded"
 
 # ========= Start all services =========
 info "Starting all TanStack Start services on the server…"

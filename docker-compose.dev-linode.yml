@@ -55,9 +55,10 @@ services:
 
   # TanStack Start Frontend Server
   frontend:
-    image: node:20-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.ssr
     restart: unless-stopped
-    working_dir: /app
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -70,26 +71,12 @@ services:
       # - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       # - AUTH_SECRET=${AUTH_SECRET}
       # - BASE_URL=https://<your-preview-host>  # optional, if your app expects it
-    volumes:
-      - ./.output:/app/.output:ro # mount the built output
-    command: ["node", ".output/server/index.mjs"] # TanStack Start SSR server
     ports:
       - "3000:3000" # expose for debugging
     depends_on:
       - backend
     networks:
       - songcraft_dev_network
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1))",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   nginx:
     image: nginx:alpine

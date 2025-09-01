@@ -1,0 +1,58 @@
+# Multi-stage build for TanStack Start SSR application
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files for dependency installation
+COPY songcraft/package*.json ./
+COPY songcraft/package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY songcraft/ ./
+
+# Build the application using TanStack Start
+RUN npm run build:tanstack
+
+# Production runtime stage
+FROM node:20-alpine AS runtime
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder /app/.output/ ./.output/
+
+# Copy package files to server directory if they don't exist
+RUN if [ ! -f .output/server/package.json ]; then \
+      cp package.json .output/server/package.json && \
+      cp package-lock.json .output/server/package-lock.json; \
+    fi
+
+# Install production dependencies in server directory
+RUN cd .output/server && npm ci --omit=dev
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Change ownership of the app directory
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"
+
+# Start the application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", ".output/server/index.mjs"]
