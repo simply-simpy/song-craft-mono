@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate, createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { API_ENDPOINTS } from "../../lib/api";
 
 export const Route = createFileRoute("/songs/new")({
   component: RouteComponent,
@@ -43,7 +42,7 @@ function RouteComponent() {
 
       console.log("🚀 Frontend sending song data:", requestBody);
 
-      const response = await fetch(`${API_URL}/songs`, {
+      const response = await fetch(API_ENDPOINTS.songs(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

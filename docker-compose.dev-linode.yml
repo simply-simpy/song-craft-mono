@@ -62,9 +62,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       # API Configuration for Docker environment
-      - API_BASE_URL=http://backend:4500
-      - BACKEND_URL=http://backend:4500
-      - API_URL=http://backend:4500
+      - VITE_API_URL=http://backend:4500
       # CORS and security
       - CORS_ORIGIN=*
       - ALLOW_HTTP=true
@@ -74,7 +72,7 @@ services:
       # - BASE_URL=https://<your-preview-host>  # optional, if your app expects it
     volumes:
       - ./.output:/app/.output:ro # mount the built output
-    command: ["node", ".output/server/index.mjs"] # or index.js if your build emits .js
+    command: ["node", ".output/server/index.mjs"] # TanStack Start SSR server
     ports:
       - "3000:3000" # expose for debugging
     depends_on:
@@ -100,7 +98,6 @@ services:
       - "8080:80" # keep 8080 if host nginx handles 80/443
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
-      # Removed SSL and static file serving - nginx will proxy to frontend
     depends_on:
       - frontend
       - backend

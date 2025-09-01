@@ -29,6 +29,11 @@ const config = defineConfig({
     }),
     viteReact(),
   ],
+
+  // Ensure CSS is processed and included in build
+  css: {
+    modules: false,
+  },
 });
 
 export default wrapVinxiConfigWithSentry(config, {

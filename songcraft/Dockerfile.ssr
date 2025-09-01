@@ -1,0 +1,37 @@
+# Build a minimal SSR runtime image for TanStack Start
+# Expectation:
+# - You have already built locally and rsync'ed .output/ to the server
+# - .output/server contains the SSR entry (index.mjs or index.js)
+# - .output/server/package.json (and optionally package-lock.json) exists
+#
+# If your build does not generate .output/server/package.json,
+# see the “If there’s no server package.json” note below.
+
+FROM node:20-alpine
+
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy the TanStack Start build output into the image
+COPY .output/ ./.output/
+
+# Install only production dependencies into .output/server/node_modules
+# Prefer npm ci if a lockfile is present; fall back to npm install otherwise.
+RUN set -e; \
+    if [ -f .output/server/package.json ]; then \
+      cd .output/server; \
+      if [ -f package-lock.json ]; then \
+        npm ci --omit=dev; \
+      else \
+        npm install --omit=dev; \
+      fi; \
+    else \
+      echo "ERROR: .output/server/package.json not found. \
+If your build does not generate it, copy your app's package.json into .output/server and re-run the build." >&2; \
+      exit 1; \
+    fi
+
+EXPOSE 3000
+# Adjust to index.js if that’s your SSR output
+CMD ["node", ".output/server/index.mjs"]

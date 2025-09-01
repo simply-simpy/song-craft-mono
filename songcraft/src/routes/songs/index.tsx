@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { API_ENDPOINTS } from "../../lib/api";
 
 interface Song {
   id: string;
@@ -23,7 +22,7 @@ function RouteComponent() {
   const { data: songsData, isLoading, error } = useQuery({
     queryKey: ["songs"],
     queryFn: async () => {
-      const response = await fetch(`${API_URL}/songs`);
+      const response = await fetch(API_ENDPOINTS.songs());
       if (!response.ok) {
         throw new Error("Failed to fetch songs");
       }
