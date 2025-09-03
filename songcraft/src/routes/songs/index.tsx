@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
@@ -19,6 +19,16 @@ export const Route = createFileRoute("/songs/")({
 });
 
 function RouteComponent() {
+  const queryClient = useQueryClient();
+  const handleDelete = async (id: string) => {
+    const ok =
+      typeof window !== "undefined"
+        ? window.confirm("Delete this song?")
+        : true;
+    if (!ok) return;
+    await fetch(API_ENDPOINTS.song(id), { method: "DELETE" });
+    await queryClient.invalidateQueries({ queryKey: ["songs"] });
+  };
   const { data: songsData, isLoading, error } = useQuery({
     queryKey: ["songs"],
     queryFn: async () => {
@@ -77,7 +87,7 @@ function RouteComponent() {
         </div>
       ) : (
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <table className="w-full table-fixed divide-y divide-gray-200">
+          <table className="w-full  divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
@@ -140,13 +150,22 @@ function RouteComponent() {
                         : "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link
-                        to="/songs/$songId/lyrics"
-                        params={{ songId: shortId }}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          to="/songs/$songId/lyrics"
+                          params={{ songId: shortId }}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          View
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(s.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

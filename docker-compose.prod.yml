@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-songcraft}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songcraft}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-songcraft}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songcraft_prod}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - PORT=4500
     depends_on:

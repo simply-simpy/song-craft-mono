@@ -6,6 +6,29 @@ import { eq } from "drizzle-orm";
 import { generateSongId } from "@songcraft/shared";
 
 export default async function songRoutes(fastify: FastifyInstance) {
+  // Delete song by short ID
+  fastify.delete("/songs/:shortId", async (request) => {
+    const { shortId } = request.params as { shortId: string };
+    try {
+      const song = await db
+        .select({ id: songs.id })
+        .from(songs)
+        .where(eq(songs.shortId, shortId))
+        .limit(1);
+      if (song.length === 0) {
+        return { success: false, error: "Song not found" };
+      }
+      const songId = song[0].id;
+      // Delete lyric versions first (FK)
+      await db.delete(lyricVersions).where(eq(lyricVersions.songId, songId));
+      // Delete the song
+      await db.delete(songs).where(eq(songs.id, songId));
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting song:", error);
+      return { success: false, error: "Failed to delete song" };
+    }
+  });
   // Get all songs
   fastify.get("/songs", async () => {
     try {

@@ -120,3 +120,24 @@ docker-compose -f docker-compose.dev-linode.yml ps
 3. Backend API:
    http://192.155.94.5:4500/health - Health check
    http://192.155.94.5:4500/api/status - API status
+
+### Run locally
+
+#### Check for local env
+
+cat > .env.dev-linode <<'EOF'
+POSTGRES_PASSWORD=localdev
+CLERK_SECRET_KEY=sk_test_dummy
+EOF
+
+#### Build
+
+cd songcraft
+npm ci
+npm run build:tanstack
+cd ..
+
+#### Run Docker in root folder
+
+/songcraft-mono
+docker compose -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d --build
