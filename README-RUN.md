@@ -20,7 +20,15 @@ VITE_API_URL="http://localhost:4500" npm run dev --workspace=songcraft
 API URL: http://localhost:4500 (docs at /documentation; health at /health)
 App URL: http://localhost:3000
 
-## If you see module errors from @songcraft/shared, run once:
+## If you see module errors from @songcraft/shared, run once
 
 cd /Users/scott/Sites/songcraft-mono/shared
 npm i && npm run build
+
+## Docker
+
+docker compose -f docker-compose.prod.yml up -d
+
+Dev (local containers): docker compose up -d
+Dev (Linode): docker compose -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d --build
+Prod: docker compose -f docker-compose.prod.yml up -d
