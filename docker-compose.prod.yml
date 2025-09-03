@@ -52,9 +52,11 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.ssr
     restart: unless-stopped
     environment:
+      - NODE_ENV=production
+      - PORT=3000
       - VITE_API_URL=http://backend:4500
     depends_on:
       - backend
