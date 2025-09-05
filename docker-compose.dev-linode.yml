@@ -14,7 +14,7 @@ services:
     networks:
       - songscribe_dev_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-songcraft}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-scribe}"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -97,7 +97,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - songcraft_dev_network
+      - songscribe_dev_network
     command: redis-server --appendonly yes
     volumes:
       - redis_dev_data:/data
