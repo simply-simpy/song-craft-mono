@@ -132,7 +132,7 @@ docker compose -f docker-compose.dev-linode.yml logs -f db
 Update to latest code:
 
 ```bash
-cd /opt/tunecap-dev
+cd /opt/songscribe-dev
 git pull
 docker compose -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d --build
 ```
