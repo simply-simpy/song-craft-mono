@@ -1,189 +1,126 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Linode Development Deployment Script for Songcraft
-# This script deploys the development version to a Linode server
-
-set -e
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-LINODE_HOST="${LINODE_HOST:-}"
+# ========= Config =========
+: "${LINODE_HOST:?export LINODE_HOST=<server_ip>}"
 LINODE_USER="${LINODE_USER:-root}"
-DEPLOY_PATH="${DEPLOY_PATH:-/opt/songcraft-dev}"
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-}"
 
-# Functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+# Frontend (local)
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)}"
+FRONTEND_DIR="${FRONTEND_DIR:-songcraft}"     # path to your frontend relative to PROJECT_ROOT
+BUILD_ENV_VARS="${BUILD_ENV_VARS:-VITE_API_URL=/api}"  # build-time vars; use same-origin /api
+
+# Server (remote)
+SERVER_PATH="${SERVER_PATH:-/opt/tunecap-dev}"         # where docker-compose lives on the server
+SERVER_PUBLIC="${SERVER_PUBLIC:-$SERVER_PATH/public}"   # bind-mounted in docker-compose as /usr/share/nginx/html
+
+SSH_OPTS="${SSH_OPTS:--o StrictHostKeyChecking=accept-new}"
+
+# Determine rsync verbosity/compat flags (macOS ships an older rsync without --info)
+if rsync --info=help >/dev/null 2>&1; then
+  RSYNC_INFO_FLAGS="--info=stats1,progress2"
+else
+  RSYNC_INFO_FLAGS="--progress --stats"
+fi
+
+# ========= Helpers =========
+info()  { printf "\033[0;34m[INFO]\033[0m %s\n" "$*"; }
+ok()    { printf "\033[0;32m[SUCCESS]\033[0m %s\n" "$*"; }
+warn()  { printf "\033[1;33m[WARN]\033[0m %s\n" "$*"; }
+fail()  { printf "\033[0;31m[ERROR]\033[0m %s\n" "$*"; exit 1; }
+
+need() {
+  command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
 }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
+# ========= Checks =========
+need ssh
+need rsync
+need npm
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+[ -d "$PROJECT_ROOT/$FRONTEND_DIR" ] || fail "Frontend dir not found: $PROJECT_ROOT/$FRONTEND_DIR"
+[ -f "$PROJECT_ROOT/$FRONTEND_DIR/package.json" ] || fail "package.json not found in $FRONTEND_DIR"
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# ========= Build frontend locally =========
+info "Building TanStack Start frontend in $FRONTEND_DIR (at $PROJECT_ROOT/$FRONTEND_DIR)…"
+pushd "$PROJECT_ROOT/$FRONTEND_DIR" >/dev/null
 
-check_requirements() {
-    log_info "Checking requirements..."
-    
-    if ! command -v docker &> /dev/null; then
-        log_error "Docker is not installed. Please install Docker first."
-        exit 1
-    fi
-    
-    if ! command -v docker-compose &> /dev/null; then
-        log_error "Docker Compose is not installed. Please install Docker Compose first."
-        exit 1
-    fi
-    
-    if [ -z "$LINODE_HOST" ]; then
-        log_error "LINODE_HOST environment variable is not set."
-        log_info "Please set it to your Linode server IP address:"
-        log_info "export LINODE_HOST=your_server_ip"
-        exit 1
-    fi
-    
-    log_success "Requirements check passed"
-}
+if [ -f package-lock.json ]; then
+  info "Using npm ci"
+  npm ci
+else
+  warn "package-lock.json not found; using npm install"
+  npm install
+fi
 
-build_dev_images() {
-    log_info "Building development Docker images..."
-    
-    cd "$PROJECT_ROOT"
-    
-    # Build frontend dev image
-    log_info "Building frontend development image..."
-    docker build -f Dockerfile.dev -t songcraft-frontend:dev .
-    
-    # Build backend dev image
-    log_info "Building backend development image..."
-    docker build -f songcraft-api/Dockerfile.dev -t songcraft-backend:dev .
-    
-    log_success "Development Docker images built successfully"
-}
+# Build TanStack Start app
+info "Running TanStack Start build..."
+npm run build:tanstack
 
-deploy_dev_to_linode() {
-    log_info "Deploying development version to Linode server: $LINODE_HOST"
-    
-    # Create deployment package
-    log_info "Creating development deployment package..."
-    DEPLOY_TEMP=$(mktemp -d)
-    
-    # Copy necessary files
-    cp docker-compose.dev-linode.yml "$DEPLOY_TEMP/"
-    cp nginx.dev.conf "$DEPLOY_TEMP/"
-    cp -r songcraft-api/drizzle "$DEPLOY_TEMP/"
-    
-    # Create development environment file if it doesn't exist
-    if [ ! -f "$PROJECT_ROOT/.env.dev-linode" ]; then
-        log_warning ".env.dev-linode not found. Please create it from env.dev-linode.example"
-        log_info "You can copy the example file and fill in your values:"
-        log_info "cp env.dev-linode.example .env.dev-linode"
-        exit 1
-    fi
-    
-    cp "$PROJECT_ROOT/.env.dev-linode" "$DEPLOY_TEMP/"
-    
-    # Create development deployment script
-    cat > "$DEPLOY_TEMP/deploy-dev.sh" << 'EOF'
-#!/bin/bash
-set -e
+[ -d ".output" ] || fail "Build output not found (.output). Check your build."
+[ -d ".output/server" ] || fail "Server output not found (.output/server). Check your build."
+[ -d ".output/public" ] || fail "Public output not found (.output/public). Check your build."
+popd >/dev/null
 
-echo "Starting development deployment on Linode server..."
+# ========= Ensure remote directories exist =========
+info "Ensuring remote path exists: $SERVER_PATH"
+ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" "mkdir -p '$SERVER_PATH'"
 
-# Stop existing containers
-docker-compose -f docker-compose.dev-linode.yml down || true
+# ========= Copy deployment files to server =========
+info "Copying deployment files to ${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS docker-compose.dev-linode.yml "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS nginx.dev.conf "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
+scp $SSH_OPTS Dockerfile.ssr "${LINODE_USER}@${LINODE_HOST}:$SERVER_PATH/"
 
-# Start development services
-docker-compose -f docker-compose.dev-linode.yml up -d
+ok "Deployment files uploaded"
+
+# ========= Start all services =========
+info "Starting all TanStack Start services on the server…"
+ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" bash -s <<'EOSH'
+set -euo pipefail
+SERVER_PATH="${SERVER_PATH:-/opt/tunecap-dev}"
+
+# Pick docker-compose or docker compose
+if command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE="docker-compose"
+else
+  COMPOSE="docker compose"
+fi
+
+cd "$SERVER_PATH"
+
+# Stop existing services
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode down || true
+
+# Start all services (db, backend, frontend, nginx, redis)
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode up -d
 
 # Wait for services to be healthy
-echo "Waiting for development services to be healthy..."
+info "Waiting for services to be healthy..."
 sleep 30
 
 # Check service status
-docker-compose -f docker-compose.dev-linode.yml ps
+$COMPOSE -f docker-compose.dev-linode.yml --env-file .env.dev-linode ps
+EOSH
 
-echo "Development deployment completed successfully!"
-echo "Your dev instance should be accessible at:"
-echo "- HTTP: http://$(hostname -I | awk '{print $1}')"
-echo "- HTTPS: https://$(hostname -I | awk '{print $1}') (self-signed cert)"
-echo "- Frontend Dev Server: http://$(hostname -I | awk '{print $1}'):3000"
-echo "- Backend API: http://$(hostname -I | awk '{print $1}'):4500"
-echo "- Database: $(hostname -I | awk '{print $1}'):5432"
-EOF
-    
-    chmod +x "$DEPLOY_TEMP/deploy-dev.sh"
-    
-    # Create SSL directory and self-signed certificate for development
-    mkdir -p "$DEPLOY_TEMP/ssl"
-    openssl req -x509 -newkey rsa:4096 -keyout "$DEPLOY_TEMP/ssl/key.pem" -out "$DEPLOY_TEMP/ssl/cert.pem" -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost" 2>/dev/null || {
-        log_warning "Could not generate self-signed certificate. You'll need to provide SSL certificates manually."
-        mkdir -p "$DEPLOY_TEMP/ssl"
-        touch "$DEPLOY_TEMP/ssl/cert.pem"
-        touch "$DEPLOY_TEMP/ssl/key.pem"
-    }
-    
-    # Create development deployment archive
-    cd "$DEPLOY_TEMP"
-    tar -czf songcraft-dev-deploy.tar.gz .
-    
-    # Transfer to Linode server
-    log_info "Transferring development deployment package to Linode server..."
-    scp -o StrictHostKeyChecking=no songcraft-dev-deploy.tar.gz "$LINODE_USER@$LINODE_HOST:/tmp/"
-    
-    # Execute deployment on Linode
-    log_info "Executing development deployment on Linode server..."
-    ssh -o StrictHostKeyChecking=no "$LINODE_USER@$LINODE_HOST" << 'ENDSSH'
-        cd /tmp
-        tar -xzf songcraft-dev-deploy.tar.gz
-        chmod +x deploy-dev.sh
-        ./deploy-dev.sh
-        rm -rf /tmp/songcraft-dev-deploy.tar.gz /tmp/deploy-dev.sh
-ENDSSH
-    
-    # Cleanup
-    rm -rf "$DEPLOY_TEMP"
-    
-    log_success "Development deployment completed successfully!"
-}
+ok "All services started"
 
-main() {
-    log_info "Starting Linode development deployment for Songcraft..."
-    
-    check_requirements
-    build_dev_images
-    deploy_dev_to_linode
-    
-    log_success "Development deployment completed!"
-    log_info "Your dev instance should be running on:"
-    log_info "- HTTP: http://$LINODE_HOST"
-    log_info "- HTTPS: https://$LINODE_HOST (self-signed cert)"
-    log_info "- Frontend Dev: http://$LINODE_HOST:3000"
-    log_info "- Backend API: http://$LINODE_HOST:4500"
-    log_info "- Database: $LINODE_HOST:5432"
-    log_info ""
-    log_info "Development features enabled:"
-    log_info "- Hot reloading for frontend and backend"
-    log_info "- Exposed ports for direct access"
-    log_info "- Verbose logging and debugging"
-    log_info "- More permissive rate limiting"
-    log_info "- No caching for easier development"
-}
+# ========= Verify =========
+info "Verifying TanStack Start deployment…"
+ssh $SSH_OPTS "${LINODE_USER}@${LINODE_HOST}" '
+  set -euo pipefail
+  echo "Checking frontend service (port 3000)..."
+  curl -sS -I http://localhost:3000/ | sed -n "1,5p" || true
+  
+  echo "Checking nginx proxy (port 8080)..."
+  curl -sS -I http://localhost:8080/ | sed -n "1,5p" || true
+  
+  echo "Checking backend API (port 4500)..."
+  curl -sS -I http://localhost:4500/health | sed -n "1,5p" || true
+' || true
 
-# Run main function
-main "$@"
+ok "TanStack Start deployment complete!"
+info "Your app should be accessible at:"
+info "- Frontend (direct): http://$LINODE_HOST:3000"
+info "- Nginx proxy: http://$LINODE_HOST:8080"
+info "- Backend API: http://$LINODE_HOST:4500"

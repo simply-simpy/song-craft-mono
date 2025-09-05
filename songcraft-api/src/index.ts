@@ -17,8 +17,28 @@ const server = Fastify({
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
+// CORS configuration driven by env
+// CORS_ORIGIN can be '*' or a comma-separated list of origins
+const rawCorsOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+const corsOrigin =
+  rawCorsOrigin === "*"
+    ? true
+    : rawCorsOrigin
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean);
+
+const rawMethods =
+  process.env.CORS_METHODS || "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS";
+const corsMethods = rawMethods
+  .split(",")
+  .map((m) => m.trim())
+  .filter(Boolean) as any;
+
 server.register(cors, {
-  origin: ["http://localhost:3000"],
+  origin: corsOrigin,
+  methods: corsMethods,
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 });
 

@@ -1,16 +1,14 @@
-version: "3.8"
-
 services:
   # PostgreSQL Database
   db:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: songcraft
+      POSTGRES_DB: songcraft_dev
       POSTGRES_USER: songcraft
       POSTGRES_PASSWORD: songcraft_dev_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./songcraft-api/drizzle/0000_high_jack_flag.sql:/docker-entrypoint-initdb.d/001_init.sql
@@ -23,7 +21,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_API_URL=http://localhost:4500
+      - VITE_API_URL=http://backend:4500
     depends_on:
       - backend
     restart: unless-stopped
@@ -40,7 +38,7 @@ services:
       - "4500:4500"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://songcraft:songcraft_dev_password@db:5432/songcraft
+      - DATABASE_URL=postgresql://songcraft:songcraft_dev_password@db:5432/songcraft_dev
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
     depends_on:
       - db

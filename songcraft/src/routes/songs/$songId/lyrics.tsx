@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, createFileRoute } from "@tanstack/react-router";
 import { isValidHumanReadableId, extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { API_ENDPOINTS } from "../../../lib/api";
 
 interface LyricVersion {
   id: string;
@@ -52,7 +51,7 @@ function RouteComponent() {
   const { data: versionsData, isLoading, error } = useQuery({
     queryKey: ["lyricVersions", songId],
     queryFn: async () => {
-      const response = await fetch(`${API_URL}/songs/${songId}/versions`);
+      const response = await fetch(API_ENDPOINTS.songVersions(songId));
       if (!response.ok) {
         throw new Error("Failed to fetch lyric versions");
       }
