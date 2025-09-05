@@ -3,8 +3,8 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-songcraft_dev}
-      POSTGRES_USER: ${POSTGRES_USER:-songcraft}
+      POSTGRES_DB: ${POSTGRES_DB:-songscribe_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-scribe}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - songcraft_dev_network
+      - songscribe_dev_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-songcraft}"]
       interval: 30s
@@ -26,7 +26,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-songcraft}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songcraft_dev}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-scribe}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-songscribe_dev}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - PORT=4500
       # CORS Configuration for Docker environment - Allow all origins for dev
@@ -38,7 +38,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - songcraft_dev_network
+      - songscribe_dev_network
     healthcheck:
       test:
         [
@@ -76,7 +76,7 @@ services:
     depends_on:
       - backend
     networks:
-      - songcraft_dev_network
+      - songscribe_dev_network
 
   nginx:
     image: nginx:alpine
@@ -89,7 +89,7 @@ services:
       - frontend
       - backend
     networks:
-      - songcraft_dev_network
+      - songscribe_dev_network
 
   redis:
     image: redis:7-alpine
@@ -107,5 +107,5 @@ volumes:
   redis_dev_data:
 
 networks:
-  songcraft_dev_network:
+  songscribe_dev_network:
     driver: bridge
