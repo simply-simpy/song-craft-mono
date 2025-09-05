@@ -1,6 +1,9 @@
 -- Migration to implement UUID primary keys with separate short_id columns
 -- This approach follows best practices for database design
 
+-- Ensure required extensions
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Drop existing tables (this will delete all data)
 DROP TABLE IF EXISTS "lyric_versions";
 DROP TABLE IF EXISTS "songs";
