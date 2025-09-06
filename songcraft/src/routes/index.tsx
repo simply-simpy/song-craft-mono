@@ -1,17 +1,16 @@
 // app/routes/index.page.tsx
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
-    // API should return { songId: string | null }
-    const res = await fetch("/api/core/me/last", { cache: "no-store" });
-    if (res.ok) {
-      const { songId } = await res.json();
-      if (songId)
-        throw redirect({ to: "/songs/$songId/lyrics", params: { songId } });
-    }
-    // fallback to songs list
-    throw redirect({ to: "/songs" });
-  },
-  component: () => null,
+  component: () => (
+    <>
+      <SignedIn>
+        <Navigate to="/songs" />
+      </SignedIn>
+      <SignedOut>
+        <Navigate to="/sign-in" />
+      </SignedOut>
+    </>
+  ),
 });
