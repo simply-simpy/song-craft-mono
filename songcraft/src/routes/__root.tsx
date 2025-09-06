@@ -86,7 +86,12 @@ function Root() {
           ) : (
             <>
               <SignedOut>
-                <Navigate to="/sign-in" />
+                <Navigate
+                  to="/sign-in"
+                  search={{
+                    returnTo: `${location.pathname}${location.search ?? ""}`,
+                  }}
+                />
               </SignedOut>
               <SignedIn>
                 <div className="h-screen grid grid-rows-[48px_1fr]">
