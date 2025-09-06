@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate, createFileRoute } from "@tanstack/react-router";
+import { requireAuth } from "../../lib/requireAuth.server";
 import { useMutation } from "@tanstack/react-query";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { API_ENDPOINTS } from "../../lib/api";
 
 export const Route = createFileRoute("/songs/new")({
+  beforeLoad: () => requireAuth(),
   component: RouteComponent,
 });
 

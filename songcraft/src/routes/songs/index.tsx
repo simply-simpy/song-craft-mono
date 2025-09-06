@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { requireAuth } from "../../lib/requireAuth.server";
 import { extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { API_ENDPOINTS } from "../../lib/api";
@@ -15,6 +16,7 @@ interface Song {
 }
 
 export const Route = createFileRoute("/songs/")({
+  beforeLoad: () => requireAuth(),
   component: RouteComponent,
 });
 
