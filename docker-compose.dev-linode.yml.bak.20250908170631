@@ -58,8 +58,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ssr
-      args:
-        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_Zml0LXNxdWlycmVsLTY0LmNsZXJrLmFjY291bnRzLmRldiQ}
+    args:
+      VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_Zml0LXNxdWlycmVsLTY0LmNsZXJrLmFjY291bnRzLmRldiQ}
     restart: unless-stopped
     environment:
       - NODE_ENV=production
