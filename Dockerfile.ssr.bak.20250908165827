@@ -1,0 +1,49 @@
+# Frontend SSR Dockerfile (build + runtime)
+
+# 1) Install dependencies across the monorepo
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY songcraft/package*.json ./songcraft/
+COPY songcraft-api/package*.json ./songcraft-api/
+RUN npm ci --workspaces --include-workspace-root
+
+# 2) Build the TanStack Start SSR output
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+WORKDIR /app/songcraft
+# Build SSR and client bundles into .output
+RUN npm run build
+
+# 3) Runtime image for SSR server
+FROM node:20-alpine AS runner
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+WORKDIR /app
+
+# Copy built SSR output
+COPY --from=builder /app/songcraft/.output ./.output
+
+# Environment
+ENV NODE_ENV=production
+
+# Install SSR runtime deps for the server bundle (if present)
+RUN if [ -f .output/server/package.json ]; then \
+      cd .output/server && (npm ci --omit=dev || npm install --omit=dev); \
+    fi
+
+# Non-root execution
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 && chown -R nextjs:nodejs /app
+USER nextjs
+
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:3000', (res) => process.exit(res.statusCode < 400 ? 0 : 1))"
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", ".output/server/index.mjs"]
