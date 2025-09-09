@@ -1,0 +1,9 @@
+flowchart TD
+  A[Pro user invites new Owner] --> B{Invitee has Pro seat?}
+  B -- Yes --> C[Add as Owner to Account]
+  B -- No --> D{Payer?}
+  D -- Pro user self-pays --> E[Checkout -> seat -> grant Owner]
+  D -- Under Org --> F[Account Manager allocates seat from Org pool]
+  E --> C
+  F --> C
+  C --> Z[Owner can create/delete songs & invite]

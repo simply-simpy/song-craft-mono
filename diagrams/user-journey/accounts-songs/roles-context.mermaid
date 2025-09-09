@@ -1,0 +1,23 @@
+flowchart TD
+  A[User sitewide] --> B{Active Context}
+  B -->|Org| C[Org: Payer/Allocator/Reporting]
+  B -->|Account| D[Account: Unit of work + limits + billing item]
+
+  subgraph Org Roles
+    O1[Org Owner/Org Admin]
+    O2[Account Manager within Org]
+  end
+
+  subgraph Account Roles
+    A1[Owner can create/delete songs, invite, manage]
+    A2[Collaborator edit/record; cannot create/delete]
+    A3[Viewer read + notes]
+  end
+
+  C --> O1
+  C --> O2
+  D --> A1
+  D --> A2
+  D --> A3
+
+%%   note over C,D: Switcher appears if >1 Accounts (any Org) or >1 Orgs

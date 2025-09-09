@@ -1,0 +1,9 @@
+flowchart TD
+  A[Open Song] --> B{Action}
+  B -- Create Final Version --> C[Branch from working draft -> New Final Version]
+  B -- Edit Lyrics/Audio --> D[Save change with author attribution]
+
+  C --> E[Mark version: name, date, notes]
+  D --> F[Track diffs: per-line contributors; per-take contributors]
+  F --> G[Update co-author list no primary author]
+  E --> G

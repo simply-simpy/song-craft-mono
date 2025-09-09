@@ -1,0 +1,13 @@
+flowchart TD
+  A[Load Songs View] --> B{Role & Scope}
+  B -->|Org Owner/Admin| C[Fetch ALL songs in Org]
+  B -->|Account Manager| D[Fetch songs in selected Account]
+  B -->|Account Owner| E[Fetch songs where user is author or Account Owner]
+  B -->|Collaborator| F[Fetch songs where user is an added author]
+  B -->|Viewer| G[Fetch songs shared to user read + notes]
+
+  C --> H[Sort/Filter: genre, author, title, keywords, date]
+  D --> H
+  E --> H
+  F --> H
+  G --> H
