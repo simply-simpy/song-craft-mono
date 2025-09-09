@@ -1,0 +1,24 @@
+flowchart TD
+  A[Entry: In app Upgrade to Publisher or /plans Publisher] --> B{Logged in?}
+  B -- No --> C[Clerk sign in or sign up]
+  C --> D[Return to upgrade intent]
+
+  B -- Yes --> D[Return to upgrade intent]
+
+  D --> E{User belongs to multiple accounts?}
+  E -- Yes --> F[Prompt: choose account to upgrade]
+  E -- No --> G[Use current account]
+
+  F --> H[Open checkout for selected account]
+  G --> H[Open checkout for current account]
+
+  H --> I{Already Publisher?}
+  I -- Yes --> J[Show message already on Publisher, link to billing settings]
+  I -- No --> K[Stripe checkout]
+
+  K --> L{Payment successful?}
+  L -- No --> M[Show error and allow retry]
+  L -- Yes --> N[Set plan Publisher on account]
+  N --> O[Ensure purchaser has Owner and Admin roles]
+  O --> P[Send receipt and publisher welcome email with brief instructions]
+  P --> Q[Redirect to New Song with Publisher features enabled]

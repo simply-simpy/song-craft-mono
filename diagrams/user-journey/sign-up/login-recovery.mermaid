@@ -1,0 +1,10 @@
+flowchart TD
+  A[User clicks: Can't log in?] --> B[Enter email]
+  B --> C{Email matches an account?}
+  C -- No --> D[Show generic message: If an account exists you will receive an email]
+  D --> E[End]
+
+  C -- Yes --> F[Send reset or magic link email]
+  F --> G[User opens link]
+  G --> H[Set new password or complete login]
+  H --> I[Route to Create New Song]
