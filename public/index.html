@@ -1,277 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SongScribe — Pro song collaboration</title>
-    <meta
-      name="description"
-      content="SongScribe — Pro song collaboration. Co‑write lyrics, manage versions, comment inline, and share takes securely."
-    />
-    <meta name="theme-color" content="#1a1f2e" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Songcraft Mermaid Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
     <style>
-      :root {
-        --bg-0: #0b1020;
-        --bg-1: #121933;
-        --bg-2: #1c2546;
-        --text: #e8ecf8;
-        --muted: #b9c0d9;
-        --accent: #7c5cff;
-        --accent-2: #22d3ee;
-        --card: rgba(255, 255, 255, 0.06);
-        --border: rgba(255, 255, 255, 0.12);
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        --radius: 18px;
-        --maxw: 1200px;
-      }
-      * {
-        box-sizing: border-box;
-      }
       body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
         margin: 0;
-        font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-          Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji",
-          "Segoe UI Emoji";
-        color: var(--text);
-        background: radial-gradient(
-            1200px 600px at 80% -10%,
-            rgba(124, 92, 255, 0.25),
-            transparent 60%
-          ),
-          radial-gradient(
-            900px 500px at 0% 10%,
-            rgba(34, 211, 238, 0.2),
-            transparent 60%
-          ),
-          linear-gradient(180deg, var(--bg-1), var(--bg-0));
-        min-height: 100vh;
-      }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-      img {
-        max-width: 100%;
-        display: block;
+        padding: 20px;
+        background-color: #f5f5f5;
       }
       .container {
-        max-width: var(--maxw);
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 24px;
-      }
-      .nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .logo {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 20px;
-      }
-      .logo svg {
-        width: 28px;
-        height: 28px;
-      }
-      .cta-btn {
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        border: none;
-        padding: 10px 16px;
-        border-radius: 999px;
-        color: #000;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .headline {
-        font-weight: 900;
-        font-size: clamp(32px, 6vw, 56px);
-      }
-      .tagline {
-        font-size: 18px;
-        color: var(--muted);
-      }
-      .features {
-        display: grid;
-        gap: 20px;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      }
-      .feat {
-        background: var(--card);
-        padding: 20px;
-        border-radius: var(--radius);
-      }
-      .hero {
-        display: grid;
-        gap: 30px;
-        grid-template-columns: 1fr 1fr;
-        align-items: center;
-      }
-      @media (max-width: 768px) {
-        .hero {
-          grid-template-columns: 1fr;
-        }
-      }
-      .hero-photos {
-        border-radius: var(--radius);
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        box-shadow: var(--shadow);
       }
-      .hero-photos img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
+      .header {
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        text-align: center;
       }
-      .footer {
-        border-top: 1px solid var(--border);
-        margin-top: 40px;
-        padding-top: 20px;
+      .content {
         display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        color: var(--muted);
+        height: calc(100vh - 120px);
+      }
+      .sidebar {
+        width: 300px;
+        background: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        overflow-y: auto;
+      }
+      .main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .file-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .file-item:hover {
+        background-color: #e9ecef;
+      }
+      .file-item.active {
+        background-color: #007bff;
+        color: white;
+      }
+      .file-item .file-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .file-item .file-path {
+        font-size: 12px;
+        color: #6c757d;
+      }
+      .file-item.active .file-path {
+        color: #e9ecef;
+      }
+      .diagram-container {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .diagram-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+      .mermaid {
+        text-align: center;
+      }
+      .loading {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px;
+      }
+      .error {
+        color: #dc3545;
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 20px 0;
       }
     </style>
   </head>
   <body>
-    <header class="container">
-      <nav class="nav">
-        <a class="logo" href="#">
-          <svg
-            viewBox="0 0 64 64"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#7c5cff" />
-                <stop offset="1" stop-color="#22d3ee" />
-              </linearGradient>
-            </defs>
-            <circle cx="32" cy="32" r="28" fill="url(#g)" opacity="0.3" />
-            <path
-              d="M44 18c-8.4 2.1-13.3 4.3-14.7 6.6-1.5 2.4-1 5.2 1.5 6.6 2 1.1 5 .8 8.8-.8v4.9c0 5.1-3.3 9.6-8.1 11.2-5.4 1.9-10.2-1.6-8.2-6 1.2-2.6 4.5-4.5 8-4.5 1.7 0 3.4.3 4.7.9"
-              fill="none"
-              stroke="url(#g)"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-            <circle cx="46" cy="19" r="3" fill="url(#g)" />
-          </svg>
-          <span>SongScribe</span>
-        </a>
-        <button class="cta-btn">Get Early Access</button>
-      </nav>
-    </header>
-
-    <main class="container">
-      <section class="hero">
-        <div>
-          <h1 class="headline">
-            Bring ideas to life with
-            <span class="grad">pro song collaboration</span>.
-          </h1>
-          <p class="tagline">
-            Draft lyrics, version changes, comment inline, and share takes — all
-            in a fast, focused space built for singer‑songwriters and teams.
-          </p>
-          <form class="signup" onsubmit="return mockSubmit(event)">
-            <input
-              type="email"
-              id="email"
-              placeholder="you@example.com"
-              required
-              style="
-                padding: 10px;
-                border-radius: 8px;
-                border: 1px solid var(--border);
-              "
-            />
-            <button type="submit" class="cta-btn">Notify Me</button>
-          </form>
-        </div>
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=80"
-            alt="Songwriter in studio"
-          />
-        </figure>
-      </section>
-
-      <section class="features">
-        <article class="feat">
-          <h3>Real‑time co‑writing</h3>
-          <p>
-            Edit lyrics together with presence cursors and conflict‑free
-            versions.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Takes & comments</h3>
-          <p>
-            Attach audio takes, time‑stamp notes, and resolve threads as you go.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Simple sharing</h3>
-          <p>
-            Private links and role‑based access keep your work safe by default.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Versions that make sense</h3>
-          <p>
-            Snapshots for verses, choruses, and alt lines — compare or roll back
-            instantly.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Structured lyric blocks</h3>
-          <p>
-            Verse/Chorus/Bridge blocks keep drafts tidy and performance‑ready.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Musician‑friendly by design</h3>
-          <p>Fast UI, great defaults, works great on stage or on the couch.</p>
-        </article>
-      </section>
-
-      <section
-        class="gallery"
-        style="display: grid; gap: 20px; grid-template-columns: 2fr 1fr;"
-      >
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=1600&q=80"
-            alt="Songwriter at a piano"
-          />
-        </figure>
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=80"
-            alt="Vocalist in booth"
-          />
-        </figure>
-      </section>
-    </main>
-
-    <footer class="container footer">
-      <p>© <span id="y"></span> SongScribe</p>
-      <div>
-        <a href="#">Privacy</a> · <a href="#">Terms</a> ·
-        <a href="#">Contact</a>
+    <div class="container">
+      <div class="header">
+        <h1>Songcraft Mermaid Diagrams</h1>
+        <p>Interactive diagram viewer for your project documentation</p>
       </div>
-    </footer>
+      <div class="content">
+        <div class="sidebar">
+          <ul class="file-list" id="fileList">
+            <li class="loading">Loading diagrams...</li>
+          </ul>
+        </div>
+        <div class="main" id="mainContent">
+          <div class="loading">Select a diagram to view</div>
+        </div>
+      </div>
+    </div>
 
     <script>
-      function mockSubmit(e) {
-        e.preventDefault();
-        alert("Thanks! You're on the early-access list.");
-        e.target.reset();
+      let diagrams = [];
+      let currentDiagram = null;
+
+      // Initialize Mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "default",
+        securityLevel: "loose",
+      });
+
+      // Load diagrams list
+      async function loadDiagrams() {
+        try {
+          const response = await fetch("/api/diagrams");
+          diagrams = await response.json();
+          renderFileList();
+        } catch (error) {
+          console.error("Error loading diagrams:", error);
+          document.getElementById("fileList").innerHTML =
+            '<li class="error">Error loading diagrams</li>';
+        }
       }
-      document.getElementById("y").textContent = new Date().getFullYear();
+
+      // Render file list
+      function renderFileList() {
+        const fileList = document.getElementById("fileList");
+        fileList.innerHTML = "";
+
+        if (diagrams.length === 0) {
+          fileList.innerHTML = '<li class="loading">No diagrams found</li>';
+          return;
+        }
+
+        diagrams.forEach((diagram, index) => {
+          const li = document.createElement("li");
+          li.className = "file-item";
+          li.innerHTML = `
+                    <div class="file-name">${diagram.name}</div>
+                    <div class="file-path">${diagram.path}</div>
+                `;
+          li.addEventListener("click", () => loadDiagram(diagram, index));
+          fileList.appendChild(li);
+        });
+      }
+
+      // Load and render diagram
+      async function loadDiagram(diagram, index) {
+        try {
+          // Update active file
+          document
+            .querySelectorAll(".file-item")
+            .forEach((item) => item.classList.remove("active"));
+          document
+            .querySelectorAll(".file-item")
+            [index].classList.add("active");
+
+          // Load diagram content
+          const response = await fetch(`/api/diagram/${diagram.path}`);
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          currentDiagram = diagram;
+          renderDiagram(diagram, data.content);
+        } catch (error) {
+          console.error("Error loading diagram:", error);
+          document.getElementById("mainContent").innerHTML = `
+                    <div class="error">
+                        <strong>Error loading diagram:</strong> ${error.message}
+                    </div>
+                `;
+        }
+      }
+
+      // Render diagram
+      function renderDiagram(diagram, content) {
+        const mainContent = document.getElementById("mainContent");
+
+        if (diagram.type === "mermaid") {
+          mainContent.innerHTML = `
+                    <div class="diagram-container">
+                        <div class="diagram-title">${diagram.name}</div>
+                        <div class="mermaid" id="diagram-${Date.now()}">${content}</div>
+                    </div>
+                `;
+
+          // Render Mermaid diagram
+          const diagramElement = document.querySelector(".mermaid");
+          mermaid
+            .render(`diagram-${Date.now()}`, content)
+            .then(({ svg }) => {
+              diagramElement.innerHTML = svg;
+            })
+            .catch((error) => {
+              diagramElement.innerHTML = `
+                        <div class="error">
+                            <strong>Mermaid rendering error:</strong> ${error.message}
+                        </div>
+                    `;
+            });
+        } else {
+          // For markdown files, just display the content
+          mainContent.innerHTML = `
+                    <div class="diagram-container">
+                        <div class="diagram-title">${diagram.name}</div>
+                        <pre style="white-space: pre-wrap; font-family: monospace;">${content}</pre>
+                    </div>
+                `;
+        }
+      }
+
+      // Initialize
+      loadDiagrams();
     </script>
   </body>
 </html>
