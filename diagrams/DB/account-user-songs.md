@@ -2,7 +2,7 @@
 
 ## Primary Entities
 
-- user (sitewide identity)
+- user (site wide identity)
 - org (payer/label)
 - account (bucket under an org) → account.org_id
 - song (global, stable ID) → has one current working bucket: song.account_id (the home)

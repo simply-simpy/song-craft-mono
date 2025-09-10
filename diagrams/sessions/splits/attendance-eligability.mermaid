@@ -1,0 +1,6 @@
+flowchart TD
+  A["Invite accepted"] --> B["At session time writer checks in"]
+  B --> C["Status present late or absent"]
+  C --> D["Present or late counts toward split"]
+  C --> E["Absent no show excluded and notified"]
+  E --> F["Notify owners and manager chain with auto exclusion reason"]
