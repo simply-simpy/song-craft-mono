@@ -1,0 +1,10 @@
+flowchart TD
+    A[User visits site] --> B{Logged in?}
+    B -->|No| C[Show login form]
+    B -->|Yes| D[Show dashboard]
+    C --> E[Enter credentials]
+    E --> F{Valid?}
+    F -->|No| G[Show error]
+    F -->|Yes| D
+    G --> C
+    D --> H[User can access features]

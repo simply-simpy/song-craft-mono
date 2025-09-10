@@ -2,6 +2,6 @@
   "name": "signup-with-plans.mermaid",
   "path": "user-journey/sign-up/signup-with-plans.mermaid",
   "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.733Z",
-  "content": "flowchart TD\n  A[Public site: Choose plan Free or Pro or Publisher] --> B{Auth method}\n  B -- Email and password --> C[Create Clerk user]\n  B -- Google OAuth --> C\n\n  C --> D{Email verified?}\n  D -- No --> E[Send verification email]\n  E --> F[User verifies email]\n  F --> G[Proceed]\n  D -- Yes --> G[Proceed]\n\n  G --> H{Selected plan}\n  H -- Free --> I[Create Personal account org]\n  I --> Z[Route to Create New Song with focus in first field]\n\n  H -- Pro --> J[Checkout page]\n  J --> K{Payment success?}\n  K -- No --> L[Show error and allow retry]\n  K -- Yes --> M[Create Personal account org]\n  M --> N[Send receipt and welcome email]\n  N --> Z[Route to Create New Song with focus in first field]\n\n  H -- Publisher --> P[Checkout page]\n  P --> Q{Payment success?}\n  Q -- No --> R[Show error and allow retry]\n  Q -- Yes --> S[Create Publisher org]\n  S --> T[Grant initial role Owner and Admin to purchaser]\n  T --> U[Send receipt and publisher welcome email with brief instructions]\n  U --> Z\n"
+  "svgPath": "user-journey/sign-up/signup-with-plans.svg",
+  "lastBuilt": "2025-09-10T20:15:50.427Z"
 }

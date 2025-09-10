@@ -2,6 +2,6 @@
   "name": "invite.mermaid",
   "path": "user-journey/split-sheets/invite.mermaid",
   "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.734Z",
-  "content": "flowchart TD\n  A[\"Owner sends invite\"] --> B[\"Create invite with ics and zoom\"]\n  B --> C[\"Send calendar email and in app notice\"]\n  C --> D[\"Invitee responds accept or decline\"]\n  D -->|accept| E[\"Mark accepted and pre add as pending participant\"]\n  D -->|decline| F[\"Mark declined and notify owners\"]\n  E --> G[\"Session starts and writers check in\"]\n  G --> H[\"Attendance recorded present or absent\"]\n  H -->|absent| I[\"Mark no_show notify owners and invitee\"]\n  H -->|present| J[\"Mark participated\"]\n"
+  "svgPath": "user-journey/split-sheets/invite.svg",
+  "lastBuilt": "2025-09-10T20:15:51.332Z"
 }

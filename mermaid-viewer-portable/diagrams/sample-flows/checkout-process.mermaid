@@ -1,0 +1,11 @@
+flowchart TD
+    A[Add to cart] --> B[View cart]
+    B --> C{Items in cart?}
+    C -->|No| D[Show empty cart]
+    C -->|Yes| E[Proceed to checkout]
+    E --> F[Enter shipping info]
+    F --> G[Enter payment info]
+    G --> H[Review order]
+    H --> I[Place order]
+    I --> J[Order confirmation]
+    J --> K[Send confirmation email]
