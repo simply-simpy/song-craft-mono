@@ -41,6 +41,16 @@
         flex: 1;
         padding: 20px;
         overflow-y: auto;
+        position: relative;
+      }
+      .main.full-width {
+        padding: 0;
+      }
+      .main.full-width .diagram-container {
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        min-height: calc(100vh - 120px);
       }
       .file-list {
         list-style: none;
@@ -71,6 +81,85 @@
       .file-item.active .file-path {
         color: #e9ecef;
       }
+      .folder-item {
+        padding: 8px 20px;
+        background: #e9ecef;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .folder-item:hover {
+        background: #dee2e6;
+      }
+      .folder-item .folder-icon {
+        margin-right: 8px;
+        transition: transform 0.2s;
+      }
+      .folder-item.expanded .folder-icon {
+        transform: rotate(90deg);
+      }
+      .folder-children {
+        display: none;
+        padding-left: 20px;
+      }
+      .folder-children.expanded {
+        display: block;
+      }
+      .controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+      }
+      .control-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background-color 0.2s;
+      }
+      .control-btn:hover {
+        background: #0056b3;
+      }
+      .control-btn.active {
+        background: #28a745;
+      }
+      .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: white;
+        padding: 5px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .zoom-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .zoom-btn:hover {
+        background: #5a6268;
+      }
+      .zoom-level {
+        font-size: 12px;
+        color: #495057;
+        min-width: 40px;
+        text-align: center;
+      }
       .diagram-container {
         background: white;
         border: 1px solid #dee2e6;
@@ -86,6 +175,22 @@
       }
       .mermaid {
         text-align: center;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mermaid svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      .mermaid:empty::after {
+        content: "Loading diagram...";
+        color: #6c757d;
+        font-style: italic;
       }
       .loading {
         text-align: center;
@@ -115,6 +220,15 @@
           </ul>
         </div>
         <div class="main" id="mainContent">
+          <div class="controls">
+            <button class="control-btn" id="fullWidthBtn">Full Width</button>
+            <div class="zoom-controls">
+              <button class="zoom-btn" id="zoomOutBtn">-</button>
+              <span class="zoom-level" id="zoomLevel">100%</span>
+              <button class="zoom-btn" id="zoomInBtn">+</button>
+              <button class="zoom-btn" id="resetZoomBtn">Reset</button>
+            </div>
+          </div>
           <div class="loading">Select a diagram to view</div>
         </div>
       </div>
@@ -123,6 +237,9 @@
     <script>
       let diagrams = [];
       let currentDiagram = null;
+      let isFullWidth = false;
+      let zoomLevel = 1;
+      let folderStructure = {};
 
       // Initialize Mermaid
       mermaid.initialize({
@@ -136,7 +253,9 @@
         try {
           const response = await fetch("/api/diagrams");
           diagrams = await response.json();
+          buildFolderStructure();
           renderFileList();
+          setupControls();
         } catch (error) {
           console.error("Error loading diagrams:", error);
           document.getElementById("fileList").innerHTML =
@@ -144,38 +263,105 @@
         }
       }
 
-      // Render file list
+      // Build hierarchical folder structure
+      function buildFolderStructure() {
+        folderStructure = {};
+
+        diagrams.forEach((diagram) => {
+          const pathParts = diagram.path.split("/");
+          let current = folderStructure;
+
+          // Build folder structure
+          for (let i = 0; i < pathParts.length - 1; i++) {
+            const part = pathParts[i];
+            if (!current[part]) {
+              current[part] = { _folders: {} };
+            }
+            current = current[part]._folders;
+          }
+
+          // Add file to the correct location
+          const fileName = pathParts[pathParts.length - 1];
+          if (fileName) {
+            current[fileName] = diagram;
+          }
+        });
+
+        console.log("Built folder structure:", folderStructure);
+      }
+
+      // Render file list with folder structure
       function renderFileList() {
         const fileList = document.getElementById("fileList");
         fileList.innerHTML = "";
 
-        if (diagrams.length === 0) {
+        if (Object.keys(folderStructure).length === 0) {
           fileList.innerHTML = '<li class="loading">No diagrams found</li>';
           return;
         }
 
-        diagrams.forEach((diagram, index) => {
-          const li = document.createElement("li");
-          li.className = "file-item";
-          li.innerHTML = `
-                    <div class="file-name">${diagram.name}</div>
-                    <div class="file-path">${diagram.path}</div>
-                `;
-          li.addEventListener("click", () => loadDiagram(diagram, index));
-          fileList.appendChild(li);
+        renderFolder(folderStructure, fileList, "");
+      }
+
+      // Render folder recursively
+      function renderFolder(folder, container, path) {
+        Object.keys(folder).forEach((key) => {
+          if (key.startsWith("_")) return;
+
+          const item = folder[key];
+          if (item && typeof item === "object" && item._folders !== undefined) {
+            // It's a folder
+            const folderLi = document.createElement("li");
+            folderLi.className = "folder-item";
+            folderLi.innerHTML = `
+               <span>
+                 <span class="folder-icon">▶</span>
+                 ${key}
+               </span>
+             `;
+
+            const childrenContainer = document.createElement("ul");
+            childrenContainer.className = "folder-children";
+
+            folderLi.addEventListener("click", (e) => {
+              e.stopPropagation();
+              folderLi.classList.toggle("expanded");
+              childrenContainer.classList.toggle("expanded");
+            });
+
+            container.appendChild(folderLi);
+            container.appendChild(childrenContainer);
+
+            // Render subfolders and files
+            renderFolder(item._folders, childrenContainer, path + key + "/");
+          } else if (item && item.name && item.path) {
+            // It's a file
+            const fileLi = document.createElement("li");
+            fileLi.className = "file-item";
+            fileLi.innerHTML = `
+               <div class="file-name">${item.name}</div>
+               <div class="file-path">${item.path}</div>
+             `;
+            fileLi.addEventListener("click", () =>
+              loadDiagram(item, diagrams.indexOf(item))
+            );
+            container.appendChild(fileLi);
+          }
         });
       }
 
       // Load and render diagram
       async function loadDiagram(diagram, index) {
         try {
-          // Update active file
-          document
-            .querySelectorAll(".file-item")
-            .forEach((item) => item.classList.remove("active"));
-          document
-            .querySelectorAll(".file-item")
-            [index].classList.add("active");
+          console.log("Loading diagram:", diagram);
+
+          // Update active file - safely handle missing elements
+          const fileItems = document.querySelectorAll(".file-item");
+          fileItems.forEach((item) => item.classList.remove("active"));
+
+          if (fileItems[index]) {
+            fileItems[index].classList.add("active");
+          }
 
           // Load diagram content
           const response = await fetch(`/api/diagram/${diagram.path}`);
@@ -185,15 +371,71 @@
             throw new Error(data.error);
           }
 
+          console.log(
+            "Diagram content loaded:",
+            data.content.substring(0, 100) + "..."
+          );
           currentDiagram = diagram;
           renderDiagram(diagram, data.content);
         } catch (error) {
           console.error("Error loading diagram:", error);
           document.getElementById("mainContent").innerHTML = `
-                    <div class="error">
-                        <strong>Error loading diagram:</strong> ${error.message}
-                    </div>
-                `;
+                     <div class="error">
+                         <strong>Error loading diagram:</strong> ${error.message}
+                     </div>
+                 `;
+        }
+      }
+
+      // Setup control event listeners
+      function setupControls() {
+        document
+          .getElementById("fullWidthBtn")
+          .addEventListener("click", toggleFullWidth);
+        document
+          .getElementById("zoomInBtn")
+          .addEventListener("click", () => adjustZoom(0.1));
+        document
+          .getElementById("zoomOutBtn")
+          .addEventListener("click", () => adjustZoom(-0.1));
+        document
+          .getElementById("resetZoomBtn")
+          .addEventListener("click", resetZoom);
+      }
+
+      // Toggle full width mode
+      function toggleFullWidth() {
+        const main = document.getElementById("mainContent");
+        const btn = document.getElementById("fullWidthBtn");
+
+        isFullWidth = !isFullWidth;
+        main.classList.toggle("full-width", isFullWidth);
+        btn.classList.toggle("active", isFullWidth);
+        btn.textContent = isFullWidth ? "Normal Width" : "Full Width";
+      }
+
+      // Adjust zoom level
+      function adjustZoom(delta) {
+        zoomLevel = Math.max(0.1, Math.min(3, zoomLevel + delta));
+        updateZoom();
+      }
+
+      // Reset zoom
+      function resetZoom() {
+        zoomLevel = 1;
+        updateZoom();
+      }
+
+      // Update zoom display and apply transform
+      function updateZoom() {
+        const diagramElement = document.querySelector(".mermaid");
+        if (diagramElement) {
+          diagramElement.style.transform = `scale(${zoomLevel})`;
+        }
+
+        const zoomLevelElement = document.getElementById("zoomLevel");
+        if (zoomLevelElement) {
+          zoomLevelElement.textContent = Math.round(zoomLevel * 100) + "%";
         }
       }
 
@@ -203,34 +445,98 @@
 
         if (diagram.type === "mermaid") {
           mainContent.innerHTML = `
-                    <div class="diagram-container">
-                        <div class="diagram-title">${diagram.name}</div>
-                        <div class="mermaid" id="diagram-${Date.now()}">${content}</div>
-                    </div>
-                `;
+                     <div class="diagram-container">
+                         <div class="diagram-title">${diagram.name}</div>
+                         <div class="mermaid" id="diagram-${Date.now()}">${content}</div>
+                     </div>
+                 `;
 
           // Render Mermaid diagram
           const diagramElement = document.querySelector(".mermaid");
+          console.log(
+            "Rendering Mermaid diagram with content:",
+            content.substring(0, 200) + "..."
+          );
+
+          // Try the new render method first
           mermaid
             .render(`diagram-${Date.now()}`, content)
             .then(({ svg }) => {
+              console.log("Mermaid diagram rendered successfully");
+              console.log("SVG length:", svg.length);
+              console.log("SVG preview:", svg.substring(0, 200) + "...");
+
               diagramElement.innerHTML = svg;
+
+              // Force a reflow to ensure the SVG is visible
+              diagramElement.offsetHeight;
+
+              updateZoom(); // Apply current zoom level
+
+              console.log(
+                "Diagram element after render:",
+                diagramElement.innerHTML.length,
+                "characters"
+              );
+
+              // Check if the diagram is actually visible
+              setTimeout(() => {
+                const svgElement = diagramElement.querySelector("svg");
+                if (!svgElement || svgElement.offsetHeight === 0) {
+                  console.warn("SVG not visible, trying fallback method");
+                  tryFallbackRender(diagramElement, content);
+                }
+              }, 100);
             })
             .catch((error) => {
-              diagramElement.innerHTML = `
-                        <div class="error">
-                            <strong>Mermaid rendering error:</strong> ${error.message}
-                        </div>
-                    `;
+              console.error("Mermaid rendering error:", error);
+              console.log("Trying fallback render method");
+              tryFallbackRender(diagramElement, content, error);
             });
         } else {
           // For markdown files, just display the content
           mainContent.innerHTML = `
-                    <div class="diagram-container">
-                        <div class="diagram-title">${diagram.name}</div>
-                        <pre style="white-space: pre-wrap; font-family: monospace;">${content}</pre>
-                    </div>
-                `;
+                     <div class="diagram-container">
+                         <div class="diagram-title">${diagram.name}</div>
+                         <pre style="white-space: pre-wrap; font-family: monospace;">${content}</pre>
+                     </div>
+                 `;
+        }
+      }
+
+      // Fallback render method
+      function tryFallbackRender(
+        diagramElement,
+        content,
+        originalError = null
+      ) {
+        console.log("Using fallback render method");
+
+        // Clear the element
+        diagramElement.innerHTML = "";
+
+        // Create a new element with the content
+        const preElement = document.createElement("pre");
+        preElement.className = "mermaid";
+        preElement.textContent = content;
+        diagramElement.appendChild(preElement);
+
+        // Try to initialize Mermaid on this element
+        try {
+          mermaid.init(undefined, preElement);
+          console.log("Fallback render successful");
+        } catch (error) {
+          console.error("Fallback render failed:", error);
+          diagramElement.innerHTML = `
+             <div class="error">
+               <strong>Mermaid rendering failed:</strong> ${
+                 originalError ? originalError.message : error.message
+               }
+               <br><br>
+               <strong>Content:</strong>
+               <pre style="font-size: 12px; margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto;">${content}</pre>
+             </div>
+           `;
         }
       }
 

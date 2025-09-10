@@ -54,11 +54,21 @@ app.get('/api/diagrams', (req, res) => {
 app.get('/api/diagram/:path(*)', (req, res) => {
   const diagramPath = path.join(__dirname, 'diagrams', req.params.path);
   
+  console.log('Requesting diagram:', req.params.path);
+  console.log('Full path:', diagramPath);
+  
   try {
+    if (!fs.existsSync(diagramPath)) {
+      console.log('File does not exist:', diagramPath);
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
     const content = fs.readFileSync(diagramPath, 'utf8');
+    console.log('File content length:', content.length);
     res.json({ content });
   } catch (error) {
-    res.status(404).json({ error: 'File not found' });
+    console.error('Error reading file:', error);
+    res.status(500).json({ error: 'Error reading file: ' + error.message });
   }
 });
 
