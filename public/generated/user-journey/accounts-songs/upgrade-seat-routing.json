@@ -1,0 +1,7 @@
+{
+  "name": "upgrade-seat-routing.mermaid",
+  "path": "user-journey/accounts-songs/upgrade-seat-routing.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.729Z",
+  "content": "flowchart TD\n  A[Pro user invites new Owner] --> B{Invitee has Pro seat?}\n  B -- Yes --> C[Add as Owner to Account]\n  B -- No --> D{Payer?}\n  D -- Pro user self-pays --> E[Checkout -> seat -> grant Owner]\n  D -- Under Org --> F[Account Manager allocates seat from Org pool]\n  E --> C\n  F --> C\n  C --> Z[Owner can create/delete songs & invite]\n"
+}

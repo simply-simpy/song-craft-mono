@@ -1,0 +1,7 @@
+{
+  "name": "account-switch.mermaid",
+  "path": "user-journey/sign-up/account-switch.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.730Z",
+  "content": "flowchart TD\n  A[User opens account switcher (avatar menu)] --> B[List accounts user belongs to]\n  B --> C[Select account]\n  C --> D[Persist last-selected account (cookie/localStorage/server)]\n  D --> E[Reload context: projects/songs for that account]\n"
+}

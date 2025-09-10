@@ -1,0 +1,23 @@
+flowchart TD
+  A[Entry: In app Upgrade button or /plans Pro] --> B{Logged in?}
+  B -- No --> C[Clerk sign in or sign up]
+  C --> D[Return to upgrade intent]
+
+  B -- Yes --> D[Return to upgrade intent]
+
+  D --> E{User belongs to multiple accounts?}
+  E -- Yes --> F[Prompt: choose account to upgrade]
+  E -- No --> G[Use current account]
+
+  F --> H[Open checkout for selected account]
+  G --> H[Open checkout for current account]
+
+  H --> I{Already on Pro or higher?}
+  I -- Yes --> J[Show message already Pro, link to billing settings]
+  I -- No --> K[Stripe checkout]
+
+  K --> L{Payment successful?}
+  L -- No --> M[Show error and allow retry]
+  L -- Yes --> N[Set plan Pro on account]
+  N --> O[Send receipt and plan change email]
+  O --> P[Redirect to New Song with Pro features enabled]

@@ -1,0 +1,218 @@
+{
+  "buildTime": "2025-09-10T19:36:40.735Z",
+  "totalFiles": 30,
+  "success": 30,
+  "failed": 0,
+  "files": [
+    {
+      "name": "account-user-songs.mermaid",
+      "path": "DB/account-user-songs.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.721Z",
+      "content": "erDiagram\n  USER {\n    uuid id\n    text email\n    text display_name\n    datetime created_at\n    datetime updated_at\n  }\n\n  ORG {\n    uuid id\n    text name\n    text domain_policy\n    datetime created_at\n    datetime updated_at\n  }\n\n  ACCOUNT {\n    uuid id\n    uuid org_id\n    text name\n    text plan\n    boolean is_default\n    datetime created_at\n    datetime updated_at\n  }\n\n  MEMBERSHIP {\n    uuid id\n    uuid user_id\n    uuid account_id\n    text role\n    datetime created_at\n  }\n\n  SONG {\n    uuid id\n    uuid account_id\n    text title\n    text status\n    datetime created_at\n    datetime updated_at\n  }\n\n  SONG_VERSION {\n    uuid id\n    uuid song_id\n    text label\n    boolean is_final\n    text lyrics_md\n    datetime created_at\n  }\n\n  SONG_AUTHOR {\n    uuid id\n    uuid song_id\n    uuid user_id\n    text role\n    numeric split_pct\n    datetime created_at\n  }\n\n  SONG_ACCESS {\n    uuid id\n    uuid song_id\n    uuid account_id\n    text permission\n    datetime created_at\n  }\n\n  LINE_CONTRIBUTION {\n    uuid id\n    uuid song_version_id\n    uuid user_id\n    int line_number\n    text note\n    datetime created_at\n  }\n\n  RECORDING {\n    uuid id\n    uuid song_id\n    uuid user_id\n    text storage_key\n    int duration_seconds\n    text take_label\n    datetime created_at\n  }\n\n  SONG_OWNERSHIP_HISTORY {\n    uuid id\n    uuid song_id\n    uuid from_account_id\n    uuid to_account_id\n    text method\n    datetime effective_at\n  }\n\n  RIGHTS_HOLDER {\n    uuid id\n    uuid song_id\n    text holder_type\n    uuid holder_id\n    text rights_type\n    datetime start_at\n    datetime end_at\n  }\n\n  TAG {\n    uuid id\n    text name\n  }\n\n  SONG_TAG {\n    uuid id\n    uuid song_id\n    uuid tag_id\n  }\n\n  GENRE {\n    uuid id\n    text name\n  }\n\n  SONG_GENRE {\n    uuid id\n    uuid song_id\n    uuid genre_id\n  }\n\n  %% Relationships\n  ORG ||--o{ ACCOUNT : contains\n  ACCOUNT ||--o{ MEMBERSHIP : has_members\n  USER ||--o{ MEMBERSHIP : joins\n  ACCOUNT ||--o{ SONG : owns\n  SONG ||--o{ SONG_VERSION : versions\n  SONG ||--o{ SONG_AUTHOR : has_authors\n  USER ||--o{ SONG_AUTHOR : credited_as\n  SONG ||--o{ SONG_ACCESS : shared_with\n  ACCOUNT ||--o{ SONG_ACCESS : gets_access\n  SONG_VERSION ||--o{ LINE_CONTRIBUTION : has_lines_by\n  USER ||--o{ LINE_CONTRIBUTION : contributes\n  SONG ||--o{ RECORDING : has_recordings\n  USER ||--o{ RECORDING : records\n  SONG ||--o{ SONG_OWNERSHIP_HISTORY : transfer_log\n  ACCOUNT ||--o{ SONG_OWNERSHIP_HISTORY : from_account\n  ACCOUNT ||--o{ SONG_OWNERSHIP_HISTORY : to_account\n  SONG ||--o{ RIGHTS_HOLDER : rights\n  ORG ||--o{ RIGHTS_HOLDER : may_hold\n  ACCOUNT ||--o{ RIGHTS_HOLDER : may_hold\n  SONG ||--o{ SONG_TAG : tagged\n  TAG ||--o{ SONG_TAG : tag_map\n  SONG ||--o{ SONG_GENRE : genre_map\n  GENRE ||--o{ SONG_GENRE : genre_map\n"
+    },
+    {
+      "name": "db.01.mermaid",
+      "path": "DB/db.01.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.722Z",
+      "content": "erDiagram\n  User ||--o{ Membership : \"sitewide → many accounts\"\n  Account ||--o{ Membership : \"role: owner/admin/editor/viewer\"\n  Account ||--o{ Catalog : \"logical bucket for works\"\n  Account ||--o{ Project : \"collections/playlists/releases\"\n  Project ||--o{ ProjectItem : \"links Work/Version/Asset\"\n\n  %% Catalog (works vs versions/recordings)\n  Catalog ||--o{ Work : \"Song (composition)\"\n  Work ||--o{ Version : \"Arrangement / recording / mix\"\n  Version ||--o{ Asset : \"stems/mix/midi/ref\"\n  Version ||--o{ Lyric : \"history\"\n  Version ||--o{ Section : \"structure/chords\"\n  Version ||--o{ TempoMap : \"\"\n\n  %% Splits / Rights\n  Work ||--o{ Split : \"percentages per work\"\n  Party ||--o{ Split : \"User or External (writer/publisher)\"\n  Party }o--|| Account : \"owned or referenced by\"\n\n  %% AI pipeline\n  Account ||--o{ ProviderAccount : \"API creds per provider\"\n  Provider ||--o{ ProviderAccount : \"\"\n  Account ||--o{ AIJob : \"queued/running/succeeded/failed\"\n  AIJob }o--|| Version : \"input context\"\n  AIJob }o--|| Asset : \"inputAsset (optional)\"\n  AIJob ||--o{ JobOutput : \"→ Assets created\"\n  JobOutput }o--|| Asset : \"\"\n\n  %% Billing / limits\n  Account ||--o{ Subscription : \"plan, renewsAt, spendCap\"\n  Subscription ||--o{ MeterReading : \"usage counters\"\n\n  %% Collab + access\n  Account ||--o{ Invite : \"email + role + target scope\"\n  ACL }o--|| User : \"optional per-object override\"\n  ACL }o--|| SecuredObject : \"Work/Version/Project\"\n\n  %% Integrations / Ops\n  Account ||--o{ WebhookEndpoint : \"\"\n  WebhookEndpoint ||--o{ WebhookDelivery : \"status/retries\"\n  Account ||--o{ AuditEvent : \"who/what/when\"\n"
+    },
+    {
+      "name": "full-site-flow.mermaid",
+      "path": "full-site-flow.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.723Z",
+      "content": "flowchart TD\n  %% Entry\n  PUB[Public Site] --> PLANS[Choose Plan Free Pro Org]\n  PLANS -->|Free| SIGNUP[/Sign Up/]\n  PLANS -->|Pro/Org| SIGNUP\n  SIGNUP --> VERIFY[Email Verify] --> CHECKOUT[Checkout if Pro/Org] --> FIRSTRUN[First Run Route]\n\n  %% Context & landing\n  FIRSTRUN -->|Has unfinished| EDITOR[Workspace Editor]\n  FIRSTRUN -->|None| NEWSONG[Blank New Song]\n\n  %% Switcher\n  SW[Org › Account Switcher] --> CTX[Set Active Context]\n  CTX --> EDITOR\n  CTX --> GADMIN[Global Admin per Account]\n  CTX --> OADMIN[Org Admin]\n\n  %% Workspace\n  EDITOR --> AUTOSAVE[Autosave every 5 min]\n  EDITOR --> VERSION[Manual Save Version]\n  EDITOR --> SESSION[Create Session]\n  EDITOR --> SONGADMIN[Song Admin]\n\n  %% Sessions & Splits\n  SESSION --> INVITES[Send ICS + Zoom Invites]\n  INVITES --> ATTEND[Attendance Check-in]\n  ATTEND --> LOCKSPLIT[Lock Split to Attendees]\n  LOCKSPLIT --> EXPORTSPLIT[Generate Split Sheet PDF]\n  LOCKSPLIT --> CONTEST[Writers can Contest]\n  CONTEST --> RESOLVE[Org Admin Resolves]\n  RESOLVE -->|Change| NOTIFY[Notify all + Audit]\n  LOCKSPLIT --> NOTIFY\n\n  %% Song Admin\n  SONGADMIN --> META[Metadata, Permissions]\n  SONGADMIN --> HISTORY[Session History, Audit]\n  SONGADMIN --> EXPORTSPLIT\n\n  %% Global Admin\n  GADMIN --> DEFAULTS[Defaults: splits, policies, PRO info]\n  GADMIN --> BILLING[Billing, Seats, Quotas]\n  GADMIN --> GAUDIT[Account Audit]\n\n  %% Org Admin\n  OADMIN --> ACCOUNTS[Create/Manage Accounts]\n  OADMIN --> ORGPOLICY[Domain Rules, Reporting]\n  OADMIN --> ORGREAD[Cross-Account Read-only Views]\n\n  %% Catalog Ops\n  SONGADMIN --> TRANSFER[Transfer Song to Another Account/Org]\n  TRANSFER --> AUDIT[Write Ownership History]\n"
+    },
+    {
+      "name": "nav.mermaid",
+      "path": "nav/nav.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.724Z",
+      "content": "flowchart TD\n  subgraph Workspace\n    W1[\"Open Song Editor\"]\n    W2[\"Autosave every 5 min\"]\n    W3[\"Manual Save Version\"]\n    W4[\"Inline: Add Co-Writer, Propose Split, Export Split Sheet\"]\n  end\n\n  subgraph SongAdmin\n    SA1[\"Metadata: genre, tempo, tags\"]\n    SA2[\"Overrides splits autosave invites\"]\n    SA3[\"Session setup: Zoom link, attendance\"]\n    SA4[\"Audit log: per-song changes\"]\n  end\n\n  subgraph GlobalAdmin\n    GA1[\"Default splits: even\"]\n    GA2[\"Publisher/PRO info\"]\n    GA3[\"Domain restrictions for invites\"]\n    GA4[\"Billing, seat assignments\"]\n    GA5[\"Audit log: all songs in account\"]\n  end\n\n  subgraph Switcher\n    S1[\"Select Account A\"]\n    S2[\"Select Account B\"]\n    S3[\"Select Org X or Org Y\"]\n  end\n\n  %% Navigation flows\n  W1 -->|Owner/Admin| SA1\n  W1 -->|Owner/Admin| SA2\n  W1 -->|Owner/Admin| SA3\n  W1 -->|Owner/Admin| SA4\n\n  SA1 --> GA1\n  SA2 --> GA2\n  SA3 --> GA3\n  SA4 --> GA5\n\n  S1 -->|Choose account/org| GA1\n  S2 -->|Choose account/org| GA1\n  S3 -->|Choose account/org| GA1\n  S1 -->|Choose account/org| W1\n  S2 -->|Choose account/org| W1\n  S3 -->|Choose account/org| W1\n"
+    },
+    {
+      "name": "attendance-eligability.mermaid",
+      "path": "sessions/splits/attendance-eligability.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.724Z",
+      "content": "flowchart TD\n  A[\"Invite accepted\"] --> B[\"At session time writer checks in\"]\n  B --> C[\"Status present late or absent\"]\n  C --> D[\"Present or late counts toward split\"]\n  C --> E[\"Absent no show excluded and notified\"]\n  E --> F[\"Notify owners and manager chain with auto exclusion reason\"]\n"
+    },
+    {
+      "name": "contest-split-flow.mermaid",
+      "path": "sessions/splits/contest-split-flow.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.725Z",
+      "content": "flowchart TD\n  A[\"Writer files contest with reason\"] --> B[\"Notify Org Admin and record audit\"]\n  B --> C[\"Org Admin reviews context session attendance prior versions and policy\"]\n  C --> D[\"Org Admin decision uphold or modify\"]\n  D --> E[\"If modify follow change flow and notify all parties\"]\n  E --> F[\"Record final decision in audit with timestamp and actor\"]\n"
+    },
+    {
+      "name": "email-comm.mermaid",
+      "path": "sessions/splits/email-comm/email-comm.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.725Z",
+      "content": "flowchart TD\n  subgraph EmailTemplates[\"Email Templates for Splits & Sessions\"]\n    A1[Session Invite Email] -->|Recipients| W[Writers Invited]\n    A1 -->|CC| O1[Org Owner]\n    A1 -->|CC| AM1[Account Manager]\n\n    A2[Session Reminder Email] --> W\n    A2 -->|CC| AM1\n\n    A3[Split Locked Email] --> W\n    A3 --> O1\n    A3 --> AM1\n    A3 --> OA1[Org Admin]\n\n    A4[No-Show Exclusion Email] --> WNoShow[No-Show Writer]\n    A4 --> O1\n    A4 --> AM1\n    A4 --> OA1\n\n    A5[Split Changed Email] --> AllWriters[All Writers on Song]\n    A5 --> O1\n    A5 --> AM1\n    A5 --> OA1\n\n    A6[Contest Filed Email] --> OA1\n    A6 --> O1\n    A6 --> AM1\n\n    A7[Contest Resolution Email] --> AllWriters\n    A7 --> O1\n    A7 --> AM1\n  end\n"
+    },
+    {
+      "name": "sessions-lifecycle.mermaid",
+      "path": "sessions/splits/sessions-lifecycle.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.725Z",
+      "content": "flowchart TD\n  A[\"Session created by privileged role\"] --> B[\"Add invitees and default even split\"]\n  B --> C[\"Send calendar invite with split and session details\"]\n  C --> D[\"Invitee accepts or declines\"]\n  D --> E[\"Session starts and attendance recorded\"]\n  E --> F[\"Build eligible writers list from attendance\"]\n  F --> G[\"Lock split to eligible writers\"]\n  G --> H[\"Owners and collaborators see locked split read only\"]\n"
+    },
+    {
+      "name": "split-change.mermaid",
+      "path": "sessions/splits/split-change.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.726Z",
+      "content": "flowchart TD\n  A[\"Need to change split identified\"] --> B[\"Account Manager or above opens change form\"]\n  B --> C[\"Propose new split and reason\"]\n  C --> D[\"Save change and write audit with before and after\"]\n  D --> E[\"Send notifications to org owner org admin account manager and all writers\"]\n  E --> F[\"Change is live and visible\"]\n"
+    },
+    {
+      "name": "collaborator-invite-and-scope.mermaid",
+      "path": "user-journey/accounts-songs/collaborator-invite-and-scope.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.726Z",
+      "content": "flowchart TD\n  A[Owner opens a Song] --> B[Invite Collaborator by email]\n  B --> C[Create song-level permission + Account membership Collaborator]\n  C --> D[Send email invite]\n  D --> E[Collaborator accepts -> auth]\n  E --> F[Can edit/record on permitted songs]\n  F --> G[Cannot create or delete songs in this Account]\n  G --> H[All contributions tracked + auto co-author credit]\n"
+    },
+    {
+      "name": "invite-writer-under-org.mermaid",
+      "path": "user-journey/accounts-songs/invite-writer-under-org.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.727Z",
+      "content": "flowchart TD\n  A[Account Manager: Invite Writer] --> B[Enter email]\n  B --> C{Email domain allowed? Org policy}\n  C -- No --> D[Block invite; show policy + allowed domains]\n  C -- Yes --> E{Has existing user?}\n  E -- Yes --> F[Attach membership to Account as Owner if seat available]\n  E -- No --> G[Send signup link; upon signup attach as Owner if seat available]\n\n  F --> H[Seat available?] -->|Yes| I[Owner access granted]\n  H -->|No| J[Allocate seat or purchase; then grant]\n  G --> H\n  I --> Z[Writer can create/delete songs, invite collaborators]\n"
+    },
+    {
+      "name": "org-wide-observer-views.mermaid",
+      "path": "user-journey/accounts-songs/org-wide-observer-views.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.727Z",
+      "content": "flowchart TD\n  A[Org Owner/Admin: Open Org Overview] --> B[Aggregate all Accounts' songs]\n  B --> C[Filters: genre, account, author, date, keywords]\n  C --> D[Open read-only song detail]\n  D --> E[No edit capabilities; can export/report]\n  E --> F[Can assign splits to writers]\n  F --> G[Can view splits/rights history]\n  G --> H[Can view AI job history]\n  H --> I[Can view billing history]\n"
+    },
+    {
+      "name": "owner-promotion-flow.mermaid",
+      "path": "user-journey/accounts-songs/owner-promotion-flow.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.728Z",
+      "content": "flowchart TD\n  A[Account Owner opens People] --> B[Select member Jimbo]\n  B --> C[Click Promote to Owner]\n  C --> D{Has paid Pro seat?}\n  D -- Yes --> E[Grant Owner role on this Account]\n  E --> F[Notify Jimbo; Owners: Sally, Jimbo]\n  F --> Z[Done]\n\n  D -- No --> G{Who allocates seat?}\n  G -- Org has seat pool --> H[Account Manager assigns seat from pool]\n  H --> E\n  G -- No seat available --> I[Prompt purchase or request allocation]\n  I --> J{Approved?}\n  J -- Yes --> E\n  J -- No --> K[Show: cannot promote without Pro seat]\n"
+    },
+    {
+      "name": "roles-context.mermaid",
+      "path": "user-journey/accounts-songs/roles-context.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.728Z",
+      "content": "flowchart TD\n  A[User sitewide] --> B{Active Context}\n  B -->|Org| C[Org: Payer/Allocator/Reporting]\n  B -->|Account| D[Account: Unit of work + limits + billing item]\n\n  subgraph Org Roles\n    O1[Org Owner/Org Admin]\n    O2[Account Manager within Org]\n  end\n\n  subgraph Account Roles\n    A1[Owner can create/delete songs, invite, manage]\n    A2[Collaborator edit/record; cannot create/delete]\n    A3[Viewer read + notes]\n  end\n\n  C --> O1\n  C --> O2\n  D --> A1\n  D --> A2\n  D --> A3\n\n%%   note over C,D: Switcher appears if >1 Accounts (any Org) or >1 Orgs\n"
+    },
+    {
+      "name": "song-versioning-and-contributions.mermaid",
+      "path": "user-journey/accounts-songs/song-versioning-and-contributions.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.728Z",
+      "content": "flowchart TD\n  A[Open Song] --> B{Action}\n  B -- Create Final Version --> C[Branch from working draft -> New Final Version]\n  B -- Edit Lyrics/Audio --> D[Save change with author attribution]\n\n  C --> E[Mark version: name, date, notes]\n  D --> F[Track diffs: per-line contributors; per-take contributors]\n  F --> G[Update co-author list no primary author]\n  E --> G\n"
+    },
+    {
+      "name": "song-visibiltiy-by-role.mermaid",
+      "path": "user-journey/accounts-songs/song-visibiltiy-by-role.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.729Z",
+      "content": "flowchart TD\n  A[Load Songs View] --> B{Role & Scope}\n  B -->|Org Owner/Admin| C[Fetch ALL songs in Org]\n  B -->|Account Manager| D[Fetch songs in selected Account]\n  B -->|Account Owner| E[Fetch songs where user is author or Account Owner]\n  B -->|Collaborator| F[Fetch songs where user is an added author]\n  B -->|Viewer| G[Fetch songs shared to user read + notes]\n\n  C --> H[Sort/Filter: genre, author, title, keywords, date]\n  D --> H\n  E --> H\n  F --> H\n  G --> H\n"
+    },
+    {
+      "name": "upgrade-seat-routing.mermaid",
+      "path": "user-journey/accounts-songs/upgrade-seat-routing.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.729Z",
+      "content": "flowchart TD\n  A[Pro user invites new Owner] --> B{Invitee has Pro seat?}\n  B -- Yes --> C[Add as Owner to Account]\n  B -- No --> D{Payer?}\n  D -- Pro user self-pays --> E[Checkout -> seat -> grant Owner]\n  D -- Under Org --> F[Account Manager allocates seat from Org pool]\n  E --> C\n  F --> C\n  C --> Z[Owner can create/delete songs & invite]\n"
+    },
+    {
+      "name": "accept-invite.mermaid",
+      "path": "user-journey/sign-up/accept-invite.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.730Z",
+      "content": "flowchart TD\n  A[Owner or Admin sends invite by email] --> B[Create pending invite expiring in 90 days]\n  B --> C[Send invite email with accept link]\n  C --> D[Invitee clicks accept link]\n  D --> E{Has account?}\n  E -- No --> F[Sign up via Clerk and verify email]\n  E -- Yes --> G[Authenticate via Clerk]\n  F --> H[Accept invite and join inviter account with assigned role]\n  G --> H\n  H --> I{User belongs to multiple accounts?}\n  I -- Yes --> J[Show account switcher]\n  I -- No --> K[Continue in inviter account]\n  J --> L[User selects account]\n  K --> Z[Route to Create New Song]\n \n"
+    },
+    {
+      "name": "account-switch.mermaid",
+      "path": "user-journey/sign-up/account-switch.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.730Z",
+      "content": "flowchart TD\n  A[User opens account switcher (avatar menu)] --> B[List accounts user belongs to]\n  B --> C[Select account]\n  C --> D[Persist last-selected account (cookie/localStorage/server)]\n  D --> E[Reload context: projects/songs for that account]\n"
+    },
+    {
+      "name": "invite.mermaid",
+      "path": "user-journey/sign-up/invite.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.731Z",
+      "content": "flowchart TD\n  A[Owner/Admin: Invite by email] --> B[Create invite: email + role + account_id + expires_at=90d]\n  B --> C[Send invite email with accept link]\n  C --> D{Invitee has SongScribe account?}\n  D -- No --> E[Sign up via Clerk] --> F[Accept invite]\n  D -- Yes --> F[Accept invite auth via Clerk]\n  F --> G[Join inviter's account with role]\n  G --> H[If user has multiple accounts, show account switcher]\n  H --> I[Land on Create New Song within selected account]\n"
+    },
+    {
+      "name": "login-recovery.mermaid",
+      "path": "user-journey/sign-up/login-recovery.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.731Z",
+      "content": "flowchart TD\n  A[User clicks: Can't log in?] --> B[Enter email]\n  B --> C{Email matches an account?}\n  C -- No --> D[Show generic message: If an account exists you will receive an email]\n  D --> E[End]\n\n  C -- Yes --> F[Send reset or magic link email]\n  F --> G[User opens link]\n  G --> H[Set new password or complete login]\n  H --> I[Route to Create New Song]\n"
+    },
+    {
+      "name": "plan-chooser.mermaid",
+      "path": "user-journey/sign-up/plan-chooser.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.731Z",
+      "content": "flowchart TD\n  A[Public site: Click Get Started] --> B[Choose Plan: Free / Pro / Publisher]\n\n  B -- Free --> C[Redirect to Clerk signup email+PW or Google]\n  C --> D[After verification: Create Personal org]\n  D --> Z[Route to Create New Song]\n\n  B -- Pro --> E[Redirect to Clerk signup email+PW or Google]\n  E --> F[After verification: Checkout page]\n  F --> G{Payment successful?}\n  G -- No --> H[Show error, allow retry]\n  G -- Yes --> I[Create Personal org with Pro tier]\n  I --> J[Send receipt + welcome email]\n  J --> Z[Route to Create New Song]\n\n  B -- Publisher --> K[Redirect to Clerk signup email+PW or Google]\n  K --> L[After verification: Checkout page]\n  L\n"
+    },
+    {
+      "name": "signup-existing-user.mermaid",
+      "path": "user-journey/sign-up/signup-existing-user.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.732Z",
+      "content": "flowchart TD\n  A[Visit /signup] --> B{Already logged in?}\n\n  B -- Yes --> C[Redirect to New Song]\n\n  B -- No --> D[Clerk signup attempt]\n  D --> E{Email already exists?}\n  E -- Yes --> F[Show: Already have an account → Log in or Reset password]\n  E -- No --> G[Create new account on Free tier]\n  G --> H[Route to New Song]\n"
+    },
+    {
+      "name": "signup-verify-start.mermaid",
+      "path": "user-journey/sign-up/signup-verify-start.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.733Z",
+      "content": "flowchart TD\n  A[Signup: Email+PW or Google via Clerk] --> B{Email Verified?}\n  B -- No --> C[Clerk sends verification email]\n  C --> D[User clicks verify link]\n  D --> E[Session active]\n  B -- Yes --> E[Session active]\n  E --> F[Create New Song view]\n  F --> G[Focus cursor in first text field]\n"
+    },
+    {
+      "name": "signup-with-plans.mermaid",
+      "path": "user-journey/sign-up/signup-with-plans.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.733Z",
+      "content": "flowchart TD\n  A[Public site: Choose plan Free or Pro or Publisher] --> B{Auth method}\n  B -- Email and password --> C[Create Clerk user]\n  B -- Google OAuth --> C\n\n  C --> D{Email verified?}\n  D -- No --> E[Send verification email]\n  E --> F[User verifies email]\n  F --> G[Proceed]\n  D -- Yes --> G[Proceed]\n\n  G --> H{Selected plan}\n  H -- Free --> I[Create Personal account org]\n  I --> Z[Route to Create New Song with focus in first field]\n\n  H -- Pro --> J[Checkout page]\n  J --> K{Payment success?}\n  K -- No --> L[Show error and allow retry]\n  K -- Yes --> M[Create Personal account org]\n  M --> N[Send receipt and welcome email]\n  N --> Z[Route to Create New Song with focus in first field]\n\n  H -- Publisher --> P[Checkout page]\n  P --> Q{Payment success?}\n  Q -- No --> R[Show error and allow retry]\n  Q -- Yes --> S[Create Publisher org]\n  S --> T[Grant initial role Owner and Admin to purchaser]\n  T --> U[Send receipt and publisher welcome email with brief instructions]\n  U --> Z\n"
+    },
+    {
+      "name": "invite.mermaid",
+      "path": "user-journey/split-sheets/invite.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.734Z",
+      "content": "flowchart TD\n  A[\"Owner sends invite\"] --> B[\"Create invite with ics and zoom\"]\n  B --> C[\"Send calendar email and in app notice\"]\n  C --> D[\"Invitee responds accept or decline\"]\n  D -->|accept| E[\"Mark accepted and pre add as pending participant\"]\n  D -->|decline| F[\"Mark declined and notify owners\"]\n  E --> G[\"Session starts and writers check in\"]\n  G --> H[\"Attendance recorded present or absent\"]\n  H -->|absent| I[\"Mark no_show notify owners and invitee\"]\n  H -->|present| J[\"Mark participated\"]\n"
+    },
+    {
+      "name": "split-creation.mermaid",
+      "path": "user-journey/split-sheets/split-creation.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.734Z",
+      "content": "flowchart TD\n    A[\"Session ends\"] --> B[\"Build participant list from attendance\"]\n  B --> C[\"Auto propose even split for participants\"]\n  C --> D[\"Owners review and optionally edit to custom\"]\n  D --> E[\"Send split proposal for signatures\"]\n  E --> F[\"Writers sign or reject\"]\n  F -->|all signed| G[\"Finalize split and version\"]\n  F -->|someone rejects| H[\"Return to owners with reasons\"]\n  G --> I[\"Generate PDF split sheet and store\"]\n  I --> J[\"Register with admin or publisher pipeline\"]\n"
+    },
+    {
+      "name": "down-grade-cancel.mermaid",
+      "path": "user-journey/upgrade/down-grade-cancel.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.735Z",
+      "content": "flowchart TD\n  A[Billing settings: Change plan] --> B{Target plan}\n  B -- Downgrade to Pro --> C[Confirm feature loss summary]\n  B -- Downgrade to Free --> C\n  B -- Cancel auto renew --> D[Confirm end of term date]\n\n  C --> E[Apply new plan at next billing cycle or immediately if prorated]\n  E --> F[Send plan change email]\n  F --> G[Redirect back to app]\n\n  D --> H[Mark subscription non renewing]\n  H --> I[Send confirmation email]\n  I --> G[Redirect back to app]\n"
+    },
+    {
+      "name": "updgrade-to-published.mermaid",
+      "path": "user-journey/upgrade/updgrade-to-published.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.735Z",
+      "content": "flowchart TD\n  A[Entry: In app Upgrade to Publisher or /plans Publisher] --> B{Logged in?}\n  B -- No --> C[Clerk sign in or sign up]\n  C --> D[Return to upgrade intent]\n\n  B -- Yes --> D[Return to upgrade intent]\n\n  D --> E{User belongs to multiple accounts?}\n  E -- Yes --> F[Prompt: choose account to upgrade]\n  E -- No --> G[Use current account]\n\n  F --> H[Open checkout for selected account]\n  G --> H[Open checkout for current account]\n\n  H --> I{Already Publisher?}\n  I -- Yes --> J[Show message already on Publisher, link to billing settings]\n  I -- No --> K[Stripe checkout]\n\n  K --> L{Payment successful?}\n  L -- No --> M[Show error and allow retry]\n  L -- Yes --> N[Set plan Publisher on account]\n  N --> O[Ensure purchaser has Owner and Admin roles]\n  O --> P[Send receipt and publisher welcome email with brief instructions]\n  P --> Q[Redirect to New Song with Publisher features enabled]\n"
+    },
+    {
+      "name": "upgrade-to-pro.mermaid",
+      "path": "user-journey/upgrade/upgrade-to-pro.mermaid",
+      "type": "mermaid",
+      "lastBuilt": "2025-09-10T19:36:40.735Z",
+      "content": "flowchart TD\n  A[Entry: In app Upgrade button or /plans Pro] --> B{Logged in?}\n  B -- No --> C[Clerk sign in or sign up]\n  C --> D[Return to upgrade intent]\n\n  B -- Yes --> D[Return to upgrade intent]\n\n  D --> E{User belongs to multiple accounts?}\n  E -- Yes --> F[Prompt: choose account to upgrade]\n  E -- No --> G[Use current account]\n\n  F --> H[Open checkout for selected account]\n  G --> H[Open checkout for current account]\n\n  H --> I{Already on Pro or higher?}\n  I -- Yes --> J[Show message already Pro, link to billing settings]\n  I -- No --> K[Stripe checkout]\n\n  K --> L{Payment successful?}\n  L -- No --> M[Show error and allow retry]\n  L -- Yes --> N[Set plan Pro on account]\n  N --> O[Send receipt and plan change email]\n  O --> P[Redirect to New Song with Pro features enabled]\n"
+    }
+  ]
+}

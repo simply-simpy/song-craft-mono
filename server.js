@@ -15,57 +15,99 @@ app.use(express.static('public'));
 
 // API endpoint to get diagram files
 app.get('/api/diagrams', (req, res) => {
-  const diagramsDir = path.join(__dirname, 'diagrams');
-  const files = [];
+  const buildDir = path.join(__dirname, 'public', 'generated');
+  const manifestPath = path.join(buildDir, 'manifest.json');
   
-  function scanDirectory(dir, relativePath = '') {
-    const items = fs.readdirSync(dir);
-    
-    items.forEach(item => {
-      const fullPath = path.join(dir, item);
-      const relativeItemPath = path.join(relativePath, item);
-      const stat = fs.statSync(fullPath);
+  try {
+    if (fs.existsSync(manifestPath)) {
+      // Use pre-built diagrams
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const files = manifest.files.map(file => ({
+        name: file.name,
+        path: file.path,
+        type: file.type,
+        svgPath: file.svgPath,
+        lastBuilt: file.lastBuilt
+      }));
+      res.json(files);
+    } else {
+      // Fallback to scanning diagrams directory
+      const diagramsDir = path.join(__dirname, 'diagrams');
+      const files = [];
       
-      if (stat.isDirectory()) {
-        scanDirectory(fullPath, relativeItemPath);
-      } else if (item.endsWith('.mermaid') || item.endsWith('.mmd')) {
-        files.push({
-          name: item,
-          path: relativeItemPath,
-          fullPath: fullPath,
-          type: 'mermaid'
-        });
-      } else if (item.endsWith('.md')) {
-        files.push({
-          name: item,
-          path: relativeItemPath,
-          fullPath: fullPath,
-          type: 'markdown'
+      function scanDirectory(dir, relativePath = '') {
+        const items = fs.readdirSync(dir);
+        
+        items.forEach(item => {
+          const fullPath = path.join(dir, item);
+          const relativeItemPath = path.join(relativePath, item);
+          const stat = fs.statSync(fullPath);
+          
+          if (stat.isDirectory()) {
+            scanDirectory(fullPath, relativeItemPath);
+          } else if (item.endsWith('.mermaid') || item.endsWith('.mmd')) {
+            files.push({
+              name: item,
+              path: relativeItemPath,
+              fullPath: fullPath,
+              type: 'mermaid'
+            });
+          } else if (item.endsWith('.md')) {
+            files.push({
+              name: item,
+              path: relativeItemPath,
+              fullPath: fullPath,
+              type: 'markdown'
+            });
+          }
         });
       }
-    });
+      
+      scanDirectory(diagramsDir);
+      res.json(files);
+    }
+  } catch (error) {
+    console.error('Error loading diagrams:', error);
+    res.status(500).json({ error: 'Failed to load diagrams' });
   }
-  
-  scanDirectory(diagramsDir);
-  res.json(files);
 });
 
 // API endpoint to get diagram content
 app.get('/api/diagram/:path(*)', (req, res) => {
-  const diagramPath = path.join(__dirname, 'diagrams', req.params.path);
+  const buildDir = path.join(__dirname, 'public', 'generated');
+  const svgPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.svg'));
+  const metadataPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.json'));
   
   console.log('Requesting diagram:', req.params.path);
-  console.log('Full path:', diagramPath);
   
   try {
-    if (!fs.existsSync(diagramPath)) {
-      console.log('File does not exist:', diagramPath);
-      return res.status(404).json({ error: 'File not found' });
+    // Try to serve pre-built SVG first
+    if (fs.existsSync(svgPath) && fs.existsSync(metadataPath)) {
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      const svg = fs.readFileSync(svgPath, 'utf8');
+      
+      console.log('Serving pre-built SVG:', svgPath);
+      res.json({ 
+        content: svg,
+        type: 'svg',
+        lastBuilt: metadata.lastBuilt
+      });
+    } else {
+      // Fallback to original Mermaid content
+      const diagramPath = path.join(__dirname, 'diagrams', req.params.path);
+      
+      if (!fs.existsSync(diagramPath)) {
+        console.log('File does not exist:', diagramPath);
+        return res.status(404).json({ error: 'File not found' });
+      }
+      
+      const content = fs.readFileSync(diagramPath, 'utf8');
+      console.log('Serving original Mermaid content:', diagramPath);
+      res.json({ 
+        content,
+        type: 'mermaid'
+      });
     }
-    
-    const content = fs.readFileSync(diagramPath, 'utf8');
-    console.log('File content length:', content.length);
-    res.json({ content });
   } catch (error) {
     console.error('Error reading file:', error);
     res.status(500).json({ error: 'Error reading file: ' + error.message });

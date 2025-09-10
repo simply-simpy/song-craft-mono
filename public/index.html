@@ -14,7 +14,7 @@
         background-color: #f5f5f5;
       }
       .container {
-        max-width: 1200px;
+        /* max-width: 1200px; */
         margin: 0 auto;
         background: white;
         border-radius: 8px;
@@ -240,6 +240,7 @@
       let isFullWidth = false;
       let zoomLevel = 1;
       let folderStructure = {};
+      let isLoading = false;
 
       // Initialize Mermaid
       mermaid.initialize({
@@ -355,6 +356,19 @@
         try {
           console.log("Loading diagram:", diagram);
 
+          // Prevent multiple simultaneous loads
+          if (isLoading) {
+            console.log("Already loading, skipping...");
+            return;
+          }
+
+          if (currentDiagram && currentDiagram.path === diagram.path) {
+            console.log("Diagram already loaded, skipping...");
+            return;
+          }
+
+          isLoading = true;
+
           // Update active file - safely handle missing elements
           const fileItems = document.querySelectorAll(".file-item");
           fileItems.forEach((item) => item.classList.remove("active"));
@@ -362,6 +376,17 @@
           if (fileItems[index]) {
             fileItems[index].classList.add("active");
           }
+
+          // Show loading state
+          const mainContent = document.getElementById("mainContent");
+          mainContent.innerHTML = `
+             <div class="diagram-container">
+               <div class="diagram-title">${diagram.name}</div>
+               <div class="loading">Loading diagram...</div>
+             </div>
+           `;
+
+          console.log("DOM cleared, starting fetch...");
 
           // Load diagram content
           const response = await fetch(`/api/diagram/${diagram.path}`);
@@ -375,10 +400,15 @@
             "Diagram content loaded:",
             data.content.substring(0, 100) + "..."
           );
+          console.log("Content type:", data.type || "mermaid");
+
           currentDiagram = diagram;
-          renderDiagram(diagram, data.content);
+          renderDiagram(diagram, data.content, data.type || "mermaid");
+
+          isLoading = false;
         } catch (error) {
           console.error("Error loading diagram:", error);
+          isLoading = false;
           document.getElementById("mainContent").innerHTML = `
                      <div class="error">
                          <strong>Error loading diagram:</strong> ${error.message}
@@ -440,67 +470,122 @@
       }
 
       // Render diagram
-      function renderDiagram(diagram, content) {
+      function renderDiagram(diagram, content, contentType = "mermaid") {
         const mainContent = document.getElementById("mainContent");
 
+        // Clear any existing content first
+        mainContent.innerHTML = "";
+
         if (diagram.type === "mermaid") {
-          mainContent.innerHTML = `
-                     <div class="diagram-container">
-                         <div class="diagram-title">${diagram.name}</div>
-                         <div class="mermaid" id="diagram-${Date.now()}">${content}</div>
-                     </div>
-                 `;
+          // Create the container structure
+          const container = document.createElement("div");
+          container.className = "diagram-container";
 
-          // Render Mermaid diagram
-          const diagramElement = document.querySelector(".mermaid");
-          console.log(
-            "Rendering Mermaid diagram with content:",
-            content.substring(0, 200) + "..."
-          );
+          const title = document.createElement("div");
+          title.className = "diagram-title";
+          title.textContent = diagram.name;
 
-          // Try the new render method first
-          mermaid
-            .render(`diagram-${Date.now()}`, content)
-            .then(({ svg }) => {
-              console.log("Mermaid diagram rendered successfully");
-              console.log("SVG length:", svg.length);
-              console.log("SVG preview:", svg.substring(0, 200) + "...");
+          const diagramDiv = document.createElement("div");
+          diagramDiv.className = "mermaid";
+          diagramDiv.id = `diagram-${Date.now()}`;
 
-              diagramElement.innerHTML = svg;
+          container.appendChild(title);
+          container.appendChild(diagramDiv);
+          mainContent.appendChild(container);
 
-              // Force a reflow to ensure the SVG is visible
-              diagramElement.offsetHeight;
+          if (contentType === "svg") {
+            // Serve pre-built SVG directly
+            console.log("Rendering pre-built SVG");
+            console.log("SVG length:", content.length);
+            console.log("SVG preview:", content.substring(0, 200) + "...");
 
-              updateZoom(); // Apply current zoom level
+            diagramDiv.innerHTML = content;
+            updateZoom();
 
-              console.log(
-                "Diagram element after render:",
-                diagramElement.innerHTML.length,
-                "characters"
-              );
+            console.log("Pre-built SVG rendered successfully");
+          } else {
+            // Render Mermaid diagram on-the-fly (fallback)
+            console.log(
+              "Rendering Mermaid diagram with content:",
+              content.substring(0, 200) + "..."
+            );
 
-              // Check if the diagram is actually visible
-              setTimeout(() => {
-                const svgElement = diagramElement.querySelector("svg");
-                if (!svgElement || svgElement.offsetHeight === 0) {
-                  console.warn("SVG not visible, trying fallback method");
-                  tryFallbackRender(diagramElement, content);
-                }
-              }, 100);
-            })
-            .catch((error) => {
-              console.error("Mermaid rendering error:", error);
-              console.log("Trying fallback render method");
-              tryFallbackRender(diagramElement, content, error);
-            });
+            // Store reference to prevent garbage collection
+            const elementRef = diagramDiv;
+            const containerRef = container;
+
+            // Use a timeout to ensure DOM is stable
+            setTimeout(() => {
+              // Double-check element still exists
+              if (!elementRef || !elementRef.parentNode) {
+                console.warn("Element removed before rendering, skipping...");
+                return;
+              }
+
+              mermaid
+                .render(`diagram-${Date.now()}`, content)
+                .then(({ svg }) => {
+                  console.log("Mermaid diagram rendered successfully");
+                  console.log("SVG length:", svg.length);
+                  console.log("SVG preview:", svg.substring(0, 200) + "...");
+
+                  // Check if the element still exists before updating
+                  if (
+                    elementRef &&
+                    elementRef.parentNode &&
+                    containerRef &&
+                    containerRef.parentNode
+                  ) {
+                    elementRef.innerHTML = svg;
+                    elementRef.offsetHeight; // Force reflow
+                    updateZoom();
+
+                    console.log(
+                      "Diagram element after render:",
+                      elementRef.innerHTML.length,
+                      "characters"
+                    );
+                  } else {
+                    console.warn(
+                      "Diagram element was removed during rendering"
+                    );
+                    // Try to re-render by calling loadDiagram again
+                    console.log("Attempting to re-render...");
+                    setTimeout(() => {
+                      const currentIndex = diagrams.findIndex(
+                        (d) => d.path === diagram.path
+                      );
+                      if (currentIndex !== -1) {
+                        loadDiagram(diagram, currentIndex);
+                      }
+                    }, 100);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Mermaid rendering error:", error);
+                  if (elementRef && elementRef.parentNode) {
+                    tryFallbackRender(elementRef, content, error);
+                  }
+                });
+            }, 100); // Increased delay to ensure DOM is stable
+          }
         } else {
           // For markdown files, just display the content
-          mainContent.innerHTML = `
-                     <div class="diagram-container">
-                         <div class="diagram-title">${diagram.name}</div>
-                         <pre style="white-space: pre-wrap; font-family: monospace;">${content}</pre>
-                     </div>
-                 `;
+          const container = document.createElement("div");
+          container.className = "diagram-container";
+
+          const title = document.createElement("div");
+          title.className = "diagram-title";
+          title.textContent = diagram.name;
+
+          const pre = document.createElement("pre");
+          pre.style.whiteSpace = "pre-wrap";
+          pre.style.fontFamily = "monospace";
+          pre.textContent = content;
+
+          container.appendChild(title);
+          container.appendChild(pre);
+          mainContent.appendChild(container);
         }
       }
 

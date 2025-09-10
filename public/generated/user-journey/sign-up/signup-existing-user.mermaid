@@ -1,0 +1,10 @@
+flowchart TD
+  A[Visit /signup] --> B{Already logged in?}
+
+  B -- Yes --> C[Redirect to New Song]
+
+  B -- No --> D[Clerk signup attempt]
+  D --> E{Email already exists?}
+  E -- Yes --> F[Show: Already have an account → Log in or Reset password]
+  E -- No --> G[Create new account on Free tier]
+  G --> H[Route to New Song]

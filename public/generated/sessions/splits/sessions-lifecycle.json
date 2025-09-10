@@ -1,0 +1,7 @@
+{
+  "name": "sessions-lifecycle.mermaid",
+  "path": "sessions/splits/sessions-lifecycle.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.725Z",
+  "content": "flowchart TD\n  A[\"Session created by privileged role\"] --> B[\"Add invitees and default even split\"]\n  B --> C[\"Send calendar invite with split and session details\"]\n  C --> D[\"Invitee accepts or declines\"]\n  D --> E[\"Session starts and attendance recorded\"]\n  E --> F[\"Build eligible writers list from attendance\"]\n  F --> G[\"Lock split to eligible writers\"]\n  G --> H[\"Owners and collaborators see locked split read only\"]\n"
+}

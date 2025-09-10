@@ -1,0 +1,7 @@
+{
+  "name": "invite-writer-under-org.mermaid",
+  "path": "user-journey/accounts-songs/invite-writer-under-org.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.727Z",
+  "content": "flowchart TD\n  A[Account Manager: Invite Writer] --> B[Enter email]\n  B --> C{Email domain allowed? Org policy}\n  C -- No --> D[Block invite; show policy + allowed domains]\n  C -- Yes --> E{Has existing user?}\n  E -- Yes --> F[Attach membership to Account as Owner if seat available]\n  E -- No --> G[Send signup link; upon signup attach as Owner if seat available]\n\n  F --> H[Seat available?] -->|Yes| I[Owner access granted]\n  H -->|No| J[Allocate seat or purchase; then grant]\n  G --> H\n  I --> Z[Writer can create/delete songs, invite collaborators]\n"
+}

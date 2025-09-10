@@ -1,0 +1,7 @@
+{
+  "name": "upgrade-to-pro.mermaid",
+  "path": "user-journey/upgrade/upgrade-to-pro.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.735Z",
+  "content": "flowchart TD\n  A[Entry: In app Upgrade button or /plans Pro] --> B{Logged in?}\n  B -- No --> C[Clerk sign in or sign up]\n  C --> D[Return to upgrade intent]\n\n  B -- Yes --> D[Return to upgrade intent]\n\n  D --> E{User belongs to multiple accounts?}\n  E -- Yes --> F[Prompt: choose account to upgrade]\n  E -- No --> G[Use current account]\n\n  F --> H[Open checkout for selected account]\n  G --> H[Open checkout for current account]\n\n  H --> I{Already on Pro or higher?}\n  I -- Yes --> J[Show message already Pro, link to billing settings]\n  I -- No --> K[Stripe checkout]\n\n  K --> L{Payment successful?}\n  L -- No --> M[Show error and allow retry]\n  L -- Yes --> N[Set plan Pro on account]\n  N --> O[Send receipt and plan change email]\n  O --> P[Redirect to New Song with Pro features enabled]\n"
+}

@@ -1,6 +1,6 @@
 # Mermaid Diagrams Server
 
-A local server for viewing and managing Mermaid diagrams in the Songcraft project.
+A local server for viewing and managing Mermaid diagrams in the Songcraft project with pre-built SVG generation for reliable rendering.
 
 ## Setup
 
@@ -10,7 +10,13 @@ A local server for viewing and managing Mermaid diagrams in the Songcraft projec
 npm install
 ```
 
-2. Start the server:
+2. Start the development server (with auto-rebuild):
+
+```bash
+npm run dev
+```
+
+Or start the production server:
 
 ```bash
 npm start
@@ -21,6 +27,21 @@ npm start
 ```
 http://localhost:4200
 ```
+
+## Development Mode
+
+The development mode (`npm run dev`) includes:
+- **File watcher** that automatically rebuilds SVGs when you edit `.mermaid` files
+- **Live server** that serves the pre-built diagrams
+- **Instant updates** without manual rebuilds
+
+## Build System
+
+The server now uses a build system that:
+- **Pre-generates SVGs** using Puppeteer for consistent rendering
+- **Eliminates race conditions** by serving static SVGs instead of client-side rendering
+- **Provides fallback** to client-side rendering if pre-built SVGs aren't available
+- **Auto-rebuilds** when files change during development
 
 ## Features
 

@@ -1,0 +1,7 @@
+{
+  "name": "down-grade-cancel.mermaid",
+  "path": "user-journey/upgrade/down-grade-cancel.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.735Z",
+  "content": "flowchart TD\n  A[Billing settings: Change plan] --> B{Target plan}\n  B -- Downgrade to Pro --> C[Confirm feature loss summary]\n  B -- Downgrade to Free --> C\n  B -- Cancel auto renew --> D[Confirm end of term date]\n\n  C --> E[Apply new plan at next billing cycle or immediately if prorated]\n  E --> F[Send plan change email]\n  F --> G[Redirect back to app]\n\n  D --> H[Mark subscription non renewing]\n  H --> I[Send confirmation email]\n  I --> G[Redirect back to app]\n"
+}

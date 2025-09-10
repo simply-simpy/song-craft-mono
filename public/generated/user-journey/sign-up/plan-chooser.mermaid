@@ -1,0 +1,18 @@
+flowchart TD
+  A[Public site: Click Get Started] --> B[Choose Plan: Free / Pro / Publisher]
+
+  B -- Free --> C[Redirect to Clerk signup email+PW or Google]
+  C --> D[After verification: Create Personal org]
+  D --> Z[Route to Create New Song]
+
+  B -- Pro --> E[Redirect to Clerk signup email+PW or Google]
+  E --> F[After verification: Checkout page]
+  F --> G{Payment successful?}
+  G -- No --> H[Show error, allow retry]
+  G -- Yes --> I[Create Personal org with Pro tier]
+  I --> J[Send receipt + welcome email]
+  J --> Z[Route to Create New Song]
+
+  B -- Publisher --> K[Redirect to Clerk signup email+PW or Google]
+  K --> L[After verification: Checkout page]
+  L

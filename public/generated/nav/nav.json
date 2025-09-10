@@ -1,0 +1,7 @@
+{
+  "name": "nav.mermaid",
+  "path": "nav/nav.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.724Z",
+  "content": "flowchart TD\n  subgraph Workspace\n    W1[\"Open Song Editor\"]\n    W2[\"Autosave every 5 min\"]\n    W3[\"Manual Save Version\"]\n    W4[\"Inline: Add Co-Writer, Propose Split, Export Split Sheet\"]\n  end\n\n  subgraph SongAdmin\n    SA1[\"Metadata: genre, tempo, tags\"]\n    SA2[\"Overrides splits autosave invites\"]\n    SA3[\"Session setup: Zoom link, attendance\"]\n    SA4[\"Audit log: per-song changes\"]\n  end\n\n  subgraph GlobalAdmin\n    GA1[\"Default splits: even\"]\n    GA2[\"Publisher/PRO info\"]\n    GA3[\"Domain restrictions for invites\"]\n    GA4[\"Billing, seat assignments\"]\n    GA5[\"Audit log: all songs in account\"]\n  end\n\n  subgraph Switcher\n    S1[\"Select Account A\"]\n    S2[\"Select Account B\"]\n    S3[\"Select Org X or Org Y\"]\n  end\n\n  %% Navigation flows\n  W1 -->|Owner/Admin| SA1\n  W1 -->|Owner/Admin| SA2\n  W1 -->|Owner/Admin| SA3\n  W1 -->|Owner/Admin| SA4\n\n  SA1 --> GA1\n  SA2 --> GA2\n  SA3 --> GA3\n  SA4 --> GA5\n\n  S1 -->|Choose account/org| GA1\n  S2 -->|Choose account/org| GA1\n  S3 -->|Choose account/org| GA1\n  S1 -->|Choose account/org| W1\n  S2 -->|Choose account/org| W1\n  S3 -->|Choose account/org| W1\n"
+}

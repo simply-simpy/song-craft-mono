@@ -1,0 +1,7 @@
+{
+  "name": "collaborator-invite-and-scope.mermaid",
+  "path": "user-journey/accounts-songs/collaborator-invite-and-scope.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.726Z",
+  "content": "flowchart TD\n  A[Owner opens a Song] --> B[Invite Collaborator by email]\n  B --> C[Create song-level permission + Account membership Collaborator]\n  C --> D[Send email invite]\n  D --> E[Collaborator accepts -> auth]\n  E --> F[Can edit/record on permitted songs]\n  F --> G[Cannot create or delete songs in this Account]\n  G --> H[All contributions tracked + auto co-author credit]\n"
+}

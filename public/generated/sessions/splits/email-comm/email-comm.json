@@ -1,0 +1,7 @@
+{
+  "name": "email-comm.mermaid",
+  "path": "sessions/splits/email-comm/email-comm.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.725Z",
+  "content": "flowchart TD\n  subgraph EmailTemplates[\"Email Templates for Splits & Sessions\"]\n    A1[Session Invite Email] -->|Recipients| W[Writers Invited]\n    A1 -->|CC| O1[Org Owner]\n    A1 -->|CC| AM1[Account Manager]\n\n    A2[Session Reminder Email] --> W\n    A2 -->|CC| AM1\n\n    A3[Split Locked Email] --> W\n    A3 --> O1\n    A3 --> AM1\n    A3 --> OA1[Org Admin]\n\n    A4[No-Show Exclusion Email] --> WNoShow[No-Show Writer]\n    A4 --> O1\n    A4 --> AM1\n    A4 --> OA1\n\n    A5[Split Changed Email] --> AllWriters[All Writers on Song]\n    A5 --> O1\n    A5 --> AM1\n    A5 --> OA1\n\n    A6[Contest Filed Email] --> OA1\n    A6 --> O1\n    A6 --> AM1\n\n    A7[Contest Resolution Email] --> AllWriters\n    A7 --> O1\n    A7 --> AM1\n  end\n"
+}

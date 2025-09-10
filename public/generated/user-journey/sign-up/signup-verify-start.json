@@ -1,0 +1,7 @@
+{
+  "name": "signup-verify-start.mermaid",
+  "path": "user-journey/sign-up/signup-verify-start.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.733Z",
+  "content": "flowchart TD\n  A[Signup: Email+PW or Google via Clerk] --> B{Email Verified?}\n  B -- No --> C[Clerk sends verification email]\n  C --> D[User clicks verify link]\n  D --> E[Session active]\n  B -- Yes --> E[Session active]\n  E --> F[Create New Song view]\n  F --> G[Focus cursor in first text field]\n"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "split-creation.mermaid",
+  "path": "user-journey/split-sheets/split-creation.mermaid",
+  "type": "mermaid",
+  "lastBuilt": "2025-09-10T19:36:40.734Z",
+  "content": "flowchart TD\n    A[\"Session ends\"] --> B[\"Build participant list from attendance\"]\n  B --> C[\"Auto propose even split for participants\"]\n  C --> D[\"Owners review and optionally edit to custom\"]\n  D --> E[\"Send split proposal for signatures\"]\n  E --> F[\"Writers sign or reject\"]\n  F -->|all signed| G[\"Finalize split and version\"]\n  F -->|someone rejects| H[\"Return to owners with reasons\"]\n  G --> I[\"Generate PDF split sheet and store\"]\n  I --> J[\"Register with admin or publisher pipeline\"]\n"
+}

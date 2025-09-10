@@ -1,0 +1,29 @@
+flowchart TD
+  A[Public site: Choose plan Free or Pro or Publisher] --> B{Auth method}
+  B -- Email and password --> C[Create Clerk user]
+  B -- Google OAuth --> C
+
+  C --> D{Email verified?}
+  D -- No --> E[Send verification email]
+  E --> F[User verifies email]
+  F --> G[Proceed]
+  D -- Yes --> G[Proceed]
+
+  G --> H{Selected plan}
+  H -- Free --> I[Create Personal account org]
+  I --> Z[Route to Create New Song with focus in first field]
+
+  H -- Pro --> J[Checkout page]
+  J --> K{Payment success?}
+  K -- No --> L[Show error and allow retry]
+  K -- Yes --> M[Create Personal account org]
+  M --> N[Send receipt and welcome email]
+  N --> Z[Route to Create New Song with focus in first field]
+
+  H -- Publisher --> P[Checkout page]
+  P --> Q{Payment success?}
+  Q -- No --> R[Show error and allow retry]
+  Q -- Yes --> S[Create Publisher org]
+  S --> T[Grant initial role Owner and Admin to purchaser]
+  T --> U[Send receipt and publisher welcome email with brief instructions]
+  U --> Z
