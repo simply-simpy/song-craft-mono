@@ -1,7 +1,7 @@
 {
-  "buildTime": "2025-09-10T21:03:54.094Z",
-  "totalFiles": 30,
-  "success": 30,
+  "buildTime": "2025-09-11T18:03:43.653Z",
+  "totalFiles": 37,
+  "success": 37,
   "failed": 0,
   "files": [
     {
@@ -9,210 +9,259 @@
       "path": "01-auth/accept-invite-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/accept-invite-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:29.027Z"
+      "lastBuilt": "2025-09-11T18:03:12.823Z"
     },
     {
       "name": "cant-login-flow.mermaid",
       "path": "01-auth/cant-login-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/cant-login-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:29.843Z"
+      "lastBuilt": "2025-09-11T18:03:13.735Z"
     },
     {
       "name": "platform-invite-flow.mermaid",
       "path": "01-auth/platform-invite-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/platform-invite-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:30.749Z"
+      "lastBuilt": "2025-09-11T18:03:14.502Z"
     },
     {
       "name": "signup-existing-user-flow.mermaid",
       "path": "01-auth/signup-existing-user-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/signup-existing-user-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:31.557Z"
+      "lastBuilt": "2025-09-11T18:03:15.368Z"
     },
     {
       "name": "signup-verify-flow.mermaid",
       "path": "01-auth/signup-verify-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/signup-verify-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:32.418Z"
+      "lastBuilt": "2025-09-11T18:03:16.154Z"
     },
     {
       "name": "signup-with-plans-flow.mermaid",
       "path": "01-auth/signup-with-plans-flow.mermaid",
       "type": "mermaid",
       "svgPath": "01-auth/signup-with-plans-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:33.232Z"
+      "lastBuilt": "2025-09-11T18:03:17.028Z"
     },
     {
       "name": "downgrade-cancel-flow.mermaid",
       "path": "02-plans/downgrade-cancel-flow.mermaid",
       "type": "mermaid",
       "svgPath": "02-plans/downgrade-cancel-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:34.010Z"
+      "lastBuilt": "2025-09-11T18:03:17.800Z"
     },
     {
       "name": "plan-chooser-flow.mermaid",
       "path": "02-plans/plan-chooser-flow.mermaid",
       "type": "mermaid",
       "svgPath": "02-plans/plan-chooser-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:34.791Z"
+      "lastBuilt": "2025-09-11T18:03:18.591Z"
     },
     {
       "name": "seat-routing-flow.mermaid",
       "path": "02-plans/seat-routing-flow.mermaid",
       "type": "mermaid",
       "svgPath": "02-plans/seat-routing-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:35.554Z"
+      "lastBuilt": "2025-09-11T18:03:19.347Z"
     },
     {
       "name": "upgrade-to-org-flow.mermaid",
       "path": "02-plans/upgrade-to-org-flow.mermaid",
       "type": "mermaid",
       "svgPath": "02-plans/upgrade-to-org-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:36.858Z"
+      "lastBuilt": "2025-09-11T18:03:20.239Z"
     },
     {
       "name": "upgrade-to-pro-flow.mermaid",
       "path": "02-plans/upgrade-to-pro-flow.mermaid",
       "type": "mermaid",
       "svgPath": "02-plans/upgrade-to-pro-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:37.705Z"
+      "lastBuilt": "2025-09-11T18:03:21.106Z"
     },
     {
       "name": "account-switcher-flow.mermaid",
       "path": "03-context/account-switcher-flow.mermaid",
       "type": "mermaid",
       "svgPath": "03-context/account-switcher-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:38.563Z"
+      "lastBuilt": "2025-09-11T18:03:21.894Z"
     },
     {
       "name": "roles-context-flow.mermaid",
       "path": "03-context/roles-context-flow.mermaid",
       "type": "mermaid",
       "svgPath": "03-context/roles-context-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:39.387Z"
+      "lastBuilt": "2025-09-11T18:03:22.903Z"
     },
     {
       "name": "site-nav-flow.mermaid",
       "path": "03-context/site-nav-flow.mermaid",
       "type": "mermaid",
       "svgPath": "03-context/site-nav-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:40.351Z"
+      "lastBuilt": "2025-09-11T18:03:23.957Z"
     },
     {
       "name": "song-versioning-and-contributions-flow.mermaid",
       "path": "04-workspace/song-versioning-and-contributions-flow.mermaid",
       "type": "mermaid",
       "svgPath": "04-workspace/song-versioning-and-contributions-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:41.238Z"
+      "lastBuilt": "2025-09-11T18:03:24.960Z"
     },
     {
       "name": "attendance-eligibility-flow.mermaid",
       "path": "05-sessions-splits/attendance-eligibility-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/attendance-eligibility-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:42.018Z"
+      "lastBuilt": "2025-09-11T18:03:25.956Z"
     },
     {
       "name": "session-invite-flow.mermaid",
       "path": "05-sessions-splits/session-invite-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/session-invite-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:42.934Z"
+      "lastBuilt": "2025-09-11T18:03:26.833Z"
     },
     {
       "name": "session-lifecycle-flow.mermaid",
       "path": "05-sessions-splits/session-lifecycle-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/session-lifecycle-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:43.706Z"
+      "lastBuilt": "2025-09-11T18:03:27.687Z"
     },
     {
       "name": "split-change-flow.mermaid",
       "path": "05-sessions-splits/split-change-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/split-change-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:44.474Z"
+      "lastBuilt": "2025-09-11T18:03:28.529Z"
     },
     {
       "name": "split-contest-flow.mermaid",
       "path": "05-sessions-splits/split-contest-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/split-contest-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:45.258Z"
+      "lastBuilt": "2025-09-11T18:03:29.358Z"
     },
     {
       "name": "split-creation-flow.mermaid",
       "path": "05-sessions-splits/split-creation-flow.mermaid",
       "type": "mermaid",
       "svgPath": "05-sessions-splits/split-creation-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:46.064Z"
+      "lastBuilt": "2025-09-11T18:03:30.117Z"
     },
     {
       "name": "account-owner-promotion-flow.mermaid",
       "path": "06-admin/account-owner-promotion-flow.mermaid",
       "type": "mermaid",
       "svgPath": "06-admin/account-owner-promotion-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:46.861Z"
+      "lastBuilt": "2025-09-11T18:03:30.880Z"
     },
     {
       "name": "collaborator-invite-and-scope-flow.mermaid",
       "path": "06-admin/collaborator-invite-and-scope-flow.mermaid",
       "type": "mermaid",
       "svgPath": "06-admin/collaborator-invite-and-scope-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:47.644Z"
+      "lastBuilt": "2025-09-11T18:03:31.677Z"
     },
     {
       "name": "org-invite-writer-flow.mermaid",
       "path": "06-admin/org-invite-writer-flow.mermaid",
       "type": "mermaid",
       "svgPath": "06-admin/org-invite-writer-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:48.549Z"
+      "lastBuilt": "2025-09-11T18:03:32.613Z"
     },
     {
       "name": "org-wide-observer-views-flow.mermaid",
       "path": "06-admin/org-wide-observer-views-flow.mermaid",
       "type": "mermaid",
       "svgPath": "06-admin/org-wide-observer-views-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:49.367Z"
+      "lastBuilt": "2025-09-11T18:03:33.409Z"
     },
     {
       "name": "song-visibility-by-role-flow.mermaid",
       "path": "06-admin/song-visibility-by-role-flow.mermaid",
       "type": "mermaid",
       "svgPath": "06-admin/song-visibility-by-role-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:50.281Z"
+      "lastBuilt": "2025-09-11T18:03:34.239Z"
     },
     {
       "name": "email-comm-flow.mermaid",
       "path": "08-comm/email-comm-flow.mermaid",
       "type": "mermaid",
       "svgPath": "08-comm/email-comm-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:51.154Z"
+      "lastBuilt": "2025-09-11T18:03:35.048Z"
+    },
+    {
+      "name": "access-control-erd.mermaid",
+      "path": "09-db/access-control-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/access-control-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:35.863Z"
     },
     {
       "name": "account-user-songs-erd.mermaid",
       "path": "09-db/account-user-songs-erd.mermaid",
       "type": "mermaid",
       "svgPath": "09-db/account-user-songs-erd.svg",
-      "lastBuilt": "2025-09-10T21:03:52.000Z"
+      "lastBuilt": "2025-09-11T18:03:36.636Z"
+    },
+    {
+      "name": "all-erds.mermaid",
+      "path": "09-db/all-erds.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/all-erds.svg",
+      "lastBuilt": "2025-09-11T18:03:37.415Z"
+    },
+    {
+      "name": "billing-subscriptions-erd.mermaid",
+      "path": "09-db/billing-subscriptions-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/billing-subscriptions-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:38.159Z"
+    },
+    {
+      "name": "comms-notifications-erd.mermaid",
+      "path": "09-db/comms-notifications-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/comms-notifications-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:39.012Z"
+    },
+    {
+      "name": "core-identity-erd.mermaid",
+      "path": "09-db/core-identity-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/core-identity-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:39.784Z"
     },
     {
       "name": "schema-01-db.mermaid",
       "path": "09-db/schema-01-db.mermaid",
       "type": "mermaid",
       "svgPath": "09-db/schema-01-db.svg",
-      "lastBuilt": "2025-09-10T21:03:52.992Z"
+      "lastBuilt": "2025-09-11T18:03:40.622Z"
+    },
+    {
+      "name": "sessions-splits-erd.mermaid",
+      "path": "09-db/sessions-splits-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/sessions-splits-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:41.476Z"
+    },
+    {
+      "name": "songs-collab-erd.mermaid",
+      "path": "09-db/songs-collab-erd.mermaid",
+      "type": "mermaid",
+      "svgPath": "09-db/songs-collab-erd.svg",
+      "lastBuilt": "2025-09-11T18:03:42.294Z"
     },
     {
       "name": "full-site-overview-flow.mermaid",
       "path": "99-overview/full-site-overview-flow.mermaid",
       "type": "mermaid",
       "svgPath": "99-overview/full-site-overview-flow.svg",
-      "lastBuilt": "2025-09-10T21:03:54.094Z"
+      "lastBuilt": "2025-09-11T18:03:43.653Z"
     }
   ]
 }
