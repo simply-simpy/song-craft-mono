@@ -5,14 +5,16 @@ set -euo pipefail
 ROOT="$(pwd)"
 echo "Validating under: $ROOT"
 
-# 1) Find all flow files
-mapfile -t flows < <(find . -type f -name "*-flow.mermaid" | sort)
+flows=()
+while IFS= read -r f; do
+  flows+=("$f")
+done < <(find . -type f -name "*-flow.mermaid" | sort)
 
 missing_pairs=()
 orphan_effects=()
 bad_mermaid_names=()
 
-# 2) For each flow, ensure a sibling -db-effects.md exists
+# For each flow, ensure a sibling -db-effects.md exists
 for f in "${flows[@]}"; do
   base="${f%-flow.mermaid}"
   effects="${base}-db-effects.md"
@@ -21,8 +23,12 @@ for f in "${flows[@]}"; do
   fi
 done
 
-# 3) Any db-effects without a matching flow?
-mapfile -t effects < <(find . -type f -name "*-db-effects.md" | sort)
+effects=()
+while IFS= read -r e; do
+  effects+=("$e")
+done < <(find . -type f -name "*-db-effects.md" | sort)
+
+# Any db-effects without a matching flow?
 for e in "${effects[@]}"; do
   base="${e%-db-effects.md}"
   flow="${base}-flow.mermaid"
@@ -31,17 +37,17 @@ for e in "${effects[@]}"; do
   fi
 done
 
-# 4) Naming check: any .mermaid not ending in allowed suffixes?
+# Naming check: any .mermaid not ending in allowed suffixes?
 while IFS= read -r m; do
   case "$m" in
-    *-flow.mermaid|*-ui.mermaid|*-db.mermaid|*-erd.mermaid|./09-db/all-erds.mermaid) ;; # allowed
+    *-flow.mermaid|*-ui.mermaid|*-db.mermaid|*-erd.mermaid|./09-db/all-erds.mermaid) ;;
     *)
       bad_mermaid_names+=("$m")
       ;;
   esac
 done < <(find . -type f -name "*.mermaid" | sort)
 
-# 5) Report
+# Report
 echo
 echo "=== VALIDATION REPORT ==="
 if ((${#missing_pairs[@]})); then
@@ -67,7 +73,7 @@ else
   echo "All .mermaid files use approved suffixes ✅"
 fi
 
-# 6) Exit non-zero if any issues
+# Exit non-zero if any issues
 if ((${#missing_pairs[@]} + ${#orphan_effects[@]} + ${#bad_mermaid_names[@]})); then
   exit 1
 fi

@@ -13,8 +13,8 @@ if (!fs.existsSync(buildDir)) {
   fs.mkdirSync(buildDir, { recursive: true });
 }
 
-// Find all Mermaid files
-function findMermaidFiles(dir, relativePath = '') {
+// Find all diagram and documentation files
+function findAllFiles(dir, relativePath = '') {
   const files = [];
   const items = fs.readdirSync(dir);
   
@@ -24,8 +24,8 @@ function findMermaidFiles(dir, relativePath = '') {
     const stat = fs.statSync(fullPath);
     
     if (stat.isDirectory()) {
-      files.push(...findMermaidFiles(fullPath, relativeItemPath));
-    } else if (item.endsWith('.mermaid') || item.endsWith('.mmd')) {
+      files.push(...findAllFiles(fullPath, relativeItemPath));
+    } else if (item.endsWith('.mermaid') || item.endsWith('.mmd') || item.endsWith('.md')) {
       files.push({
         name: item,
         path: relativeItemPath,
@@ -37,12 +37,15 @@ function findMermaidFiles(dir, relativePath = '') {
   return files;
 }
 
-// Build all diagrams (just copy and prepare for client-side rendering)
+// Build all diagrams and documentation files
 async function buildDiagrams() {
-  console.log('🔨 Preparing Mermaid diagrams for client-side rendering...');
+  console.log('🔨 Preparing diagrams and documentation for client-side rendering...');
   
-  const mermaidFiles = findMermaidFiles(diagramsDir);
-  console.log(`Found ${mermaidFiles.length} Mermaid files`);
+  const allFiles = findAllFiles(diagramsDir);
+  const mermaidFiles = allFiles.filter(f => f.name.endsWith('.mermaid') || f.name.endsWith('.mmd'));
+  const markdownFiles = allFiles.filter(f => f.name.endsWith('.md'));
+  
+  console.log(`Found ${mermaidFiles.length} Mermaid files and ${markdownFiles.length} Markdown files`);
   
   const results = {
     success: 0,
@@ -50,6 +53,7 @@ async function buildDiagrams() {
     files: []
   };
   
+  // Process Mermaid files
   for (const file of mermaidFiles) {
     try {
       console.log(`Preparing: ${file.path}`);
@@ -87,10 +91,50 @@ async function buildDiagrams() {
     }
   }
   
+  // Process Markdown files
+  for (const file of markdownFiles) {
+    try {
+      console.log(`Preparing: ${file.path}`);
+      
+      const content = fs.readFileSync(file.fullPath, 'utf8');
+      
+      // Create output directory structure
+      const outputDir = path.join(buildDir, path.dirname(file.path));
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
+      // Copy Markdown content
+      const outputPath = path.join(buildDir, file.path);
+      fs.writeFileSync(outputPath, content);
+      
+      // Save metadata
+      const metadata = {
+        name: file.name,
+        path: file.path,
+        type: 'markdown',
+        lastBuilt: new Date().toISOString(),
+        content: content
+      };
+      
+      const metadataPath = path.join(buildDir, file.path.replace(/\.md$/, '.json'));
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+      
+      results.success++;
+      results.files.push(metadata);
+      console.log(`✅ Prepared: ${file.path}`);
+    } catch (error) {
+      console.error(`❌ Failed to prepare ${file.path}:`, error.message);
+      results.failed++;
+    }
+  }
+  
   // Save build manifest
   const manifest = {
     buildTime: new Date().toISOString(),
-    totalFiles: mermaidFiles.length,
+    totalFiles: allFiles.length,
+    mermaidFiles: mermaidFiles.length,
+    markdownFiles: markdownFiles.length,
     success: results.success,
     failed: results.failed,
     files: results.files

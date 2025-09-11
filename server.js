@@ -75,37 +75,54 @@ app.get('/api/diagrams', (req, res) => {
 // API endpoint to get diagram content
 app.get('/api/diagram/:path(*)', (req, res) => {
   const buildDir = path.join(__dirname, 'public', 'generated');
-  const svgPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.svg'));
-  const metadataPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.json'));
+  const filePath = path.join(__dirname, 'diagrams', req.params.path);
+  const fileExtension = path.extname(req.params.path).toLowerCase();
   
-  console.log('Requesting diagram:', req.params.path);
+  console.log('Requesting file:', req.params.path, 'Extension:', fileExtension);
   
   try {
-    // Try to serve pre-built SVG first
-    if (fs.existsSync(svgPath) && fs.existsSync(metadataPath)) {
-      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
-      const svg = fs.readFileSync(svgPath, 'utf8');
-      
-      console.log('Serving pre-built SVG:', svgPath);
-      res.json({ 
-        content: svg,
-        type: 'svg',
-        lastBuilt: metadata.lastBuilt
-      });
-    } else {
-      // Fallback to original Mermaid content
-      const diagramPath = path.join(__dirname, 'diagrams', req.params.path);
-      
-      if (!fs.existsSync(diagramPath)) {
-        console.log('File does not exist:', diagramPath);
-        return res.status(404).json({ error: 'File not found' });
-      }
-      
-      const content = fs.readFileSync(diagramPath, 'utf8');
-      console.log('Serving original Mermaid content:', diagramPath);
+    if (!fs.existsSync(filePath)) {
+      console.log('File does not exist:', filePath);
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    // Handle different file types
+    if (fileExtension === '.md') {
+      console.log('Serving markdown content:', filePath);
       res.json({ 
         content,
-        type: 'mermaid'
+        type: 'markdown'
+      });
+    } else if (fileExtension === '.mermaid' || fileExtension === '.mmd') {
+      // Try to serve pre-built SVG first for Mermaid files
+      const svgPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.svg'));
+      const metadataPath = path.join(buildDir, req.params.path.replace(/\.(mermaid|mmd)$/, '.json'));
+      
+      if (fs.existsSync(svgPath) && fs.existsSync(metadataPath)) {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        const svg = fs.readFileSync(svgPath, 'utf8');
+        
+        console.log('Serving pre-built SVG:', svgPath);
+        res.json({ 
+          content: svg,
+          type: 'svg',
+          lastBuilt: metadata.lastBuilt
+        });
+      } else {
+        console.log('Serving original Mermaid content:', filePath);
+        res.json({ 
+          content,
+          type: 'mermaid'
+        });
+      }
+    } else {
+      // Default to text content
+      console.log('Serving text content:', filePath);
+      res.json({ 
+        content,
+        type: 'text'
       });
     }
   } catch (error) {
