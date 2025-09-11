@@ -1,0 +1,74 @@
+erDiagram
+  ACCOUNT {
+    uuid id PK
+    uuid org_id FK
+    string plan        // Free Pro
+    string status
+  }
+
+  ORG {
+    uuid id PK
+    string name
+    string status
+  }
+
+  PLAN_SUBSCRIPTION {
+    uuid id PK
+    string scope_type   // org account
+    uuid scope_id
+    string plan         // Free Pro Org
+    string status       // active canceled cancel_at_period_end
+    timestamp current_period_end
+    timestamp created_at
+  }
+
+  CHECKOUT_SESSION {
+    uuid id PK
+    string scope_type    // org account
+    uuid scope_id
+    string plan
+    string provider_session_id UNIQUE
+    string status        // pending succeeded failed canceled
+    int amount
+    string currency
+    timestamp created_at
+  }
+
+  PAYMENT {
+    uuid id PK
+    string scope_type
+    uuid scope_id
+    string provider_charge_id UNIQUE
+    int amount
+    string currency
+    string status        // succeeded failed refunded
+    timestamp created_at
+  }
+
+  SEAT_ALLOCATION {
+    uuid id PK
+    uuid org_id FK
+    int seats_total
+    int seats_available
+    timestamp updated_at
+  }
+
+  SEAT_ASSIGNMENT {
+    uuid id PK
+    uuid org_id FK
+    uuid user_id FK
+    string seat_type     // pro
+    string status        // active revoked
+    timestamp assigned_at
+    UNIQUE org_id user_id seat_type status
+  }
+
+  ACCOUNT ||--o{ PLAN_SUBSCRIPTION : may_have
+  ORG ||--o{ PLAN_SUBSCRIPTION : may_have
+  ACCOUNT ||--o{ CHECKOUT_SESSION : starts
+  ORG ||--o{ CHECKOUT_SESSION : starts
+  ACCOUNT ||--o{ PAYMENT : records
+  ORG ||--o{ PAYMENT : records
+  ORG ||--o{ SEAT_ALLOCATION : manages
+  ORG ||--o{ SEAT_ASSIGNMENT : assigns
+  USER ||--o{ SEAT_ASSIGNMENT : receives

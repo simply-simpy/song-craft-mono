@@ -1,0 +1,64 @@
+erDiagram
+  USER {
+    uuid id PK
+    string email UNIQUE
+    string display_name
+    jsonb last_context   // {org_id, account_id, ts}
+    timestamp created_at
+  }
+
+  ORG {
+    uuid id PK
+    string name
+    string type          // personal organization
+    string status        // pending_activation active suspended
+    timestamp created_at
+  }
+
+  ACCOUNT {
+    uuid id PK
+    uuid org_id FK
+    string name
+    string plan          // Free Pro
+    string status        // pending_activation active suspended
+    boolean is_default
+    timestamp created_at
+  }
+
+  MEMBERSHIP {
+    uuid id PK
+    uuid user_id FK
+    uuid account_id FK
+    string role          // owner manager collaborator viewer
+    timestamp created_at
+    UNIQUE user_id account_id
+  }
+
+  ORG_ROLE {
+    uuid id PK
+    uuid user_id FK
+    uuid org_id FK
+    string role          // owner admin observer
+    timestamp created_at
+    UNIQUE user_id org_id
+  }
+
+  AUDIT_LOG {
+    uuid id PK
+    uuid actor_user_id
+    string action
+    uuid org_id
+    uuid account_id
+    uuid subject_id
+    jsonb meta
+    timestamp created_at
+  }
+
+  USER ||--o{ MEMBERSHIP : holds
+  ACCOUNT ||--o{ MEMBERSHIP : includes
+  USER ||--o{ ORG_ROLE : has
+  ORG ||--o{ ACCOUNT : contains
+  ORG ||--o{ ORG_ROLE : assigns
+  USER ||--o{ AUDIT_LOG : acts
+  ORG ||--o{ AUDIT_LOG : context
+  ACCOUNT ||--o{ AUDIT_LOG : context

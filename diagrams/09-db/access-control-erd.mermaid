@@ -1,0 +1,44 @@
+erDiagram
+  USER {
+    uuid id PK
+    string email
+  }
+
+  SONG {
+    uuid id PK
+    uuid account_id FK
+    string title
+    string status       // draft active archived
+    timestamp created_at
+  }
+
+  SONG_ACL {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    string role        // editor viewer
+    jsonb caps         // fine grained capabilities
+    timestamp created_at
+    UNIQUE song_id user_id
+  }
+
+  MEMBERSHIP {
+    uuid id PK
+    uuid user_id FK
+    uuid account_id FK
+    string role        // owner manager collaborator viewer
+    timestamp created_at
+  }
+
+  ORG_ROLE {
+    uuid id PK
+    uuid user_id FK
+    uuid org_id FK
+    string role        // owner admin observer
+    timestamp created_at
+  }
+
+  USER ||--o{ SONG_ACL : can_access
+  SONG ||--o{ SONG_ACL : grants
+  USER ||--o{ MEMBERSHIP : belongs
+  USER ||--o{ ORG_ROLE : org_scope
