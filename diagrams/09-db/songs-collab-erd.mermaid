@@ -3,7 +3,8 @@ erDiagram
     uuid id PK
     uuid account_id FK
     string title
-    string status         // draft active archived
+    string status
+    %% draft active archived
     timestamp created_at
   }
 
@@ -34,8 +35,10 @@ erDiagram
     uuid user_id FK
     uuid parent_id
     string text
-    string status        // active edited deleted
-    string anchor        // line reference
+    string status
+    %% active edited deleted
+    string anchor
+    %% line reference
     timestamp created_at
     timestamp updated_at
   }
@@ -52,7 +55,8 @@ erDiagram
     uuid id PK
     uuid song_id FK
     uuid user_id FK
-    string role          // lyricist composer producer
+    string role
+    %% lyricist composer producer
     timestamp created_at
   }
 
@@ -61,7 +65,8 @@ erDiagram
     uuid song_id FK
     uuid user_id FK
     string file_url
-    string type          // audio pdf midi
+    string type
+    %% audio pdf midi
     string hash
     timestamp created_at
   }

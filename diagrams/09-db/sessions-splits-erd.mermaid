@@ -10,9 +10,9 @@ erDiagram
     uuid song_id FK
     timestamp start_at
     timestamp end_at
-    string method        // zoom meet in_person
+    string method
     string link
-    string status        // scheduled live ended archived
+    string status
     timestamp created_at
   }
 
@@ -23,7 +23,7 @@ erDiagram
     string invitee_email
     uuid invitee_user_id
     string token
-    string status        // invited accepted declined revoked
+    string status
     string ics_uid
     timestamp expires_at
     timestamp created_at
@@ -33,9 +33,8 @@ erDiagram
     uuid id PK
     uuid session_id FK
     uuid user_id FK
-    string status       // pending present late absent
+    string status
     timestamp check_in_at
-    UNIQUE session_id user_id
   }
 
   SONG_SPLIT_PROPOSAL {
@@ -43,8 +42,8 @@ erDiagram
     uuid song_id FK
     uuid session_id FK
     uuid proposer_id FK
-    string scheme       // even custom
-    jsonb breakdown     // [{user_id, pct}]
+    string scheme
+    string breakdown
     timestamp created_at
   }
 
@@ -53,7 +52,7 @@ erDiagram
     uuid song_id FK
     uuid session_id FK
     int version
-    jsonb breakdown     // final shares sum 100
+    string breakdown
     timestamp effective_at
   }
 
@@ -61,7 +60,7 @@ erDiagram
     uuid id PK
     uuid song_id FK
     int from_version
-    jsonb to_breakdown
+    string to_breakdown
     uuid actor_id FK
     string reason
     timestamp created_at
@@ -73,7 +72,7 @@ erDiagram
     int version
     uuid filed_by FK
     string reason
-    string status       // pending upheld modified rejected
+    string status
     uuid decided_by
     timestamp decided_at
     timestamp created_at

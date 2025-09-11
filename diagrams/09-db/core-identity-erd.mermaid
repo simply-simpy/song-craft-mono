@@ -1,17 +1,17 @@
 erDiagram
   USER {
     uuid id PK
-    string email UNIQUE
+    string email
     string display_name
-    jsonb last_context   // {org_id, account_id, ts}
+    string last_context
     timestamp created_at
   }
 
   ORG {
     uuid id PK
     string name
-    string type          // personal organization
-    string status        // pending_activation active suspended
+    string type
+    string status
     timestamp created_at
   }
 
@@ -19,8 +19,8 @@ erDiagram
     uuid id PK
     uuid org_id FK
     string name
-    string plan          // Free Pro
-    string status        // pending_activation active suspended
+    string plan
+    string status
     boolean is_default
     timestamp created_at
   }
@@ -29,18 +29,16 @@ erDiagram
     uuid id PK
     uuid user_id FK
     uuid account_id FK
-    string role          // owner manager collaborator viewer
+    string role
     timestamp created_at
-    UNIQUE user_id account_id
   }
 
   ORG_ROLE {
     uuid id PK
     uuid user_id FK
     uuid org_id FK
-    string role          // owner admin observer
+    string role
     timestamp created_at
-    UNIQUE user_id org_id
   }
 
   AUDIT_LOG {
@@ -50,7 +48,7 @@ erDiagram
     uuid org_id
     uuid account_id
     uuid subject_id
-    jsonb meta
+    string meta
     timestamp created_at
   }
 
