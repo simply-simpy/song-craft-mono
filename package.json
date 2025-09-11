@@ -17,6 +17,6 @@
     "mermaid": "^10.9.1"
   },
   "devDependencies": {
-    "puppeteer": "^21.11.0"
+    "@mermaid-js/mermaid-cli": "^11.9.0"
   }
 }

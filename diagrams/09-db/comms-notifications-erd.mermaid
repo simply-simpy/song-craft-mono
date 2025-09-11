@@ -2,7 +2,7 @@ erDiagram
   COMM_TEMPLATE {
     uuid id PK
     string key
-    string channel      // email in_app sms
+    string channel
     string locale
     int version
     text subject_tmpl
@@ -18,7 +18,7 @@ erDiagram
     string channel
     string template_key
     jsonb payload_json
-    string status        // pending sent failed
+    string status
     string priority
     string dedupe_key
     int attempts
@@ -32,7 +32,7 @@ erDiagram
     uuid notification_id FK
     string provider
     string message_id
-    string type          // queued sent delivered opened clicked bounced complained
+    string type
     jsonb meta_json
     timestamp ts
   }
