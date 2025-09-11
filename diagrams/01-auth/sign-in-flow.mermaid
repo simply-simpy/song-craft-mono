@@ -1,0 +1,5 @@
+flowchart TD
+  A[User enters email + password] --> B[Clerk verifies credentials]
+  B -->|Success| C[Set active context<br/>(account/org)]
+  C --> D[Open Workspace / Switcher]
+  B -->|Fail| E[Show generic error + reset option]
