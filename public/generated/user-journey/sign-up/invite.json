@@ -1,7 +1,0 @@
-{
-  "name": "invite.mermaid",
-  "path": "user-journey/sign-up/invite.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.731Z",
-  "content": "flowchart TD\n  A[Owner/Admin: Invite by email] --> B[Create invite: email + role + account_id + expires_at=90d]\n  B --> C[Send invite email with accept link]\n  C --> D{Invitee has SongScribe account?}\n  D -- No --> E[Sign up via Clerk] --> F[Accept invite]\n  D -- Yes --> F[Accept invite auth via Clerk]\n  F --> G[Join inviter's account with role]\n  G --> H[If user has multiple accounts, show account switcher]\n  H --> I[Land on Create New Song within selected account]\n"
-}

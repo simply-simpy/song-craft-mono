@@ -1,8 +1,0 @@
-flowchart TD
-  A["Session created by privileged role"] --> B["Add invitees and default even split"]
-  B --> C["Send calendar invite with split and session details"]
-  C --> D["Invitee accepts or declines"]
-  D --> E["Session starts and attendance recorded"]
-  E --> F["Build eligible writers list from attendance"]
-  F --> G["Lock split to eligible writers"]
-  G --> H["Owners and collaborators see locked split read only"]

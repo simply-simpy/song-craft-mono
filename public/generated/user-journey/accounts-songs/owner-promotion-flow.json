@@ -1,7 +1,0 @@
-{
-  "name": "owner-promotion-flow.mermaid",
-  "path": "user-journey/accounts-songs/owner-promotion-flow.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.728Z",
-  "content": "flowchart TD\n  A[Account Owner opens People] --> B[Select member Jimbo]\n  B --> C[Click Promote to Owner]\n  C --> D{Has paid Pro seat?}\n  D -- Yes --> E[Grant Owner role on this Account]\n  E --> F[Notify Jimbo; Owners: Sally, Jimbo]\n  F --> Z[Done]\n\n  D -- No --> G{Who allocates seat?}\n  G -- Org has seat pool --> H[Account Manager assigns seat from pool]\n  H --> E\n  G -- No seat available --> I[Prompt purchase or request allocation]\n  I --> J{Approved?}\n  J -- Yes --> E\n  J -- No --> K[Show: cannot promote without Pro seat]\n"
-}

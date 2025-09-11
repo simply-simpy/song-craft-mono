@@ -1,7 +1,0 @@
-{
-  "name": "login-recovery.mermaid",
-  "path": "user-journey/sign-up/login-recovery.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.731Z",
-  "content": "flowchart TD\n  A[User clicks: Can't log in?] --> B[Enter email]\n  B --> C{Email matches an account?}\n  C -- No --> D[Show generic message: If an account exists you will receive an email]\n  D --> E[End]\n\n  C -- Yes --> F[Send reset or magic link email]\n  F --> G[User opens link]\n  G --> H[Set new password or complete login]\n  H --> I[Route to Create New Song]\n"
-}

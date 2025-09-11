@@ -1,7 +1,0 @@
-{
-  "name": "org-wide-observer-views.mermaid",
-  "path": "user-journey/accounts-songs/org-wide-observer-views.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.727Z",
-  "content": "flowchart TD\n  A[Org Owner/Admin: Open Org Overview] --> B[Aggregate all Accounts' songs]\n  B --> C[Filters: genre, account, author, date, keywords]\n  C --> D[Open read-only song detail]\n  D --> E[No edit capabilities; can export/report]\n  E --> F[Can assign splits to writers]\n  F --> G[Can view splits/rights history]\n  G --> H[Can view AI job history]\n  H --> I[Can view billing history]\n"
-}

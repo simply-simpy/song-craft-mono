@@ -1,8 +1,0 @@
-flowchart TD
-  A[Signup: Email+PW or Google via Clerk] --> B{Email Verified?}
-  B -- No --> C[Clerk sends verification email]
-  C --> D[User clicks verify link]
-  D --> E[Session active]
-  B -- Yes --> E[Session active]
-  E --> F[Create New Song view]
-  F --> G[Focus cursor in first text field]

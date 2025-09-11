@@ -1,7 +1,0 @@
-{
-  "name": "accept-invite.mermaid",
-  "path": "user-journey/sign-up/accept-invite.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.730Z",
-  "content": "flowchart TD\n  A[Owner or Admin sends invite by email] --> B[Create pending invite expiring in 90 days]\n  B --> C[Send invite email with accept link]\n  C --> D[Invitee clicks accept link]\n  D --> E{Has account?}\n  E -- No --> F[Sign up via Clerk and verify email]\n  E -- Yes --> G[Authenticate via Clerk]\n  F --> H[Accept invite and join inviter account with assigned role]\n  G --> H\n  H --> I{User belongs to multiple accounts?}\n  I -- Yes --> J[Show account switcher]\n  I -- No --> K[Continue in inviter account]\n  J --> L[User selects account]\n  K --> Z[Route to Create New Song]\n \n"
-}

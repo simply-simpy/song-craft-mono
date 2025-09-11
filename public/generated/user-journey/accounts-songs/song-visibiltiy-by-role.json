@@ -1,7 +1,0 @@
-{
-  "name": "song-visibiltiy-by-role.mermaid",
-  "path": "user-journey/accounts-songs/song-visibiltiy-by-role.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.729Z",
-  "content": "flowchart TD\n  A[Load Songs View] --> B{Role & Scope}\n  B -->|Org Owner/Admin| C[Fetch ALL songs in Org]\n  B -->|Account Manager| D[Fetch songs in selected Account]\n  B -->|Account Owner| E[Fetch songs where user is author or Account Owner]\n  B -->|Collaborator| F[Fetch songs where user is an added author]\n  B -->|Viewer| G[Fetch songs shared to user read + notes]\n\n  C --> H[Sort/Filter: genre, author, title, keywords, date]\n  D --> H\n  E --> H\n  F --> H\n  G --> H\n"
-}

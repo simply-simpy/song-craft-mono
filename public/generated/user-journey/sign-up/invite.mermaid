@@ -1,9 +1,0 @@
-flowchart TD
-  A[Owner/Admin: Invite by email] --> B[Create invite: email + role + account_id + expires_at=90d]
-  B --> C[Send invite email with accept link]
-  C --> D{Invitee has SongScribe account?}
-  D -- No --> E[Sign up via Clerk] --> F[Accept invite]
-  D -- Yes --> F[Accept invite auth via Clerk]
-  F --> G[Join inviter's account with role]
-  G --> H[If user has multiple accounts, show account switcher]
-  H --> I[Land on Create New Song within selected account]

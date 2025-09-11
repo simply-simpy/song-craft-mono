@@ -1,7 +1,0 @@
-{
-  "name": "plan-chooser.mermaid",
-  "path": "user-journey/sign-up/plan-chooser.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.731Z",
-  "content": "flowchart TD\n  A[Public site: Click Get Started] --> B[Choose Plan: Free / Pro / Publisher]\n\n  B -- Free --> C[Redirect to Clerk signup email+PW or Google]\n  C --> D[After verification: Create Personal org]\n  D --> Z[Route to Create New Song]\n\n  B -- Pro --> E[Redirect to Clerk signup email+PW or Google]\n  E --> F[After verification: Checkout page]\n  F --> G{Payment successful?}\n  G -- No --> H[Show error, allow retry]\n  G -- Yes --> I[Create Personal org with Pro tier]\n  I --> J[Send receipt + welcome email]\n  J --> Z[Route to Create New Song]\n\n  B -- Publisher --> K[Redirect to Clerk signup email+PW or Google]\n  K --> L[After verification: Checkout page]\n  L\n"
-}

@@ -1,7 +1,0 @@
-{
-  "name": "contest-split-flow.mermaid",
-  "path": "sessions/splits/contest-split-flow.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.725Z",
-  "content": "flowchart TD\n  A[\"Writer files contest with reason\"] --> B[\"Notify Org Admin and record audit\"]\n  B --> C[\"Org Admin reviews context session attendance prior versions and policy\"]\n  C --> D[\"Org Admin decision uphold or modify\"]\n  D --> E[\"If modify follow change flow and notify all parties\"]\n  E --> F[\"Record final decision in audit with timestamp and actor\"]\n"
-}

@@ -1,7 +1,0 @@
-{
-  "name": "split-change.mermaid",
-  "path": "sessions/splits/split-change.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.726Z",
-  "content": "flowchart TD\n  A[\"Need to change split identified\"] --> B[\"Account Manager or above opens change form\"]\n  B --> C[\"Propose new split and reason\"]\n  C --> D[\"Save change and write audit with before and after\"]\n  D --> E[\"Send notifications to org owner org admin account manager and all writers\"]\n  E --> F[\"Change is live and visible\"]\n"
-}

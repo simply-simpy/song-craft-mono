@@ -1,7 +1,0 @@
-{
-  "name": "attendance-eligability.mermaid",
-  "path": "sessions/splits/attendance-eligability.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.724Z",
-  "content": "flowchart TD\n  A[\"Invite accepted\"] --> B[\"At session time writer checks in\"]\n  B --> C[\"Status present late or absent\"]\n  C --> D[\"Present or late counts toward split\"]\n  C --> E[\"Absent no show excluded and notified\"]\n  E --> F[\"Notify owners and manager chain with auto exclusion reason\"]\n"
-}

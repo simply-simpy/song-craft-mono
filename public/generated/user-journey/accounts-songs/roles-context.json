@@ -1,7 +1,0 @@
-{
-  "name": "roles-context.mermaid",
-  "path": "user-journey/accounts-songs/roles-context.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.728Z",
-  "content": "flowchart TD\n  A[User sitewide] --> B{Active Context}\n  B -->|Org| C[Org: Payer/Allocator/Reporting]\n  B -->|Account| D[Account: Unit of work + limits + billing item]\n\n  subgraph Org Roles\n    O1[Org Owner/Org Admin]\n    O2[Account Manager within Org]\n  end\n\n  subgraph Account Roles\n    A1[Owner can create/delete songs, invite, manage]\n    A2[Collaborator edit/record; cannot create/delete]\n    A3[Viewer read + notes]\n  end\n\n  C --> O1\n  C --> O2\n  D --> A1\n  D --> A2\n  D --> A3\n\n%%   note over C,D: Switcher appears if >1 Accounts (any Org) or >1 Orgs\n"
-}

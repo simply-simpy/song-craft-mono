@@ -1,7 +1,0 @@
-{
-  "name": "updgrade-to-published.mermaid",
-  "path": "user-journey/upgrade/updgrade-to-published.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.735Z",
-  "content": "flowchart TD\n  A[Entry: In app Upgrade to Publisher or /plans Publisher] --> B{Logged in?}\n  B -- No --> C[Clerk sign in or sign up]\n  C --> D[Return to upgrade intent]\n\n  B -- Yes --> D[Return to upgrade intent]\n\n  D --> E{User belongs to multiple accounts?}\n  E -- Yes --> F[Prompt: choose account to upgrade]\n  E -- No --> G[Use current account]\n\n  F --> H[Open checkout for selected account]\n  G --> H[Open checkout for current account]\n\n  H --> I{Already Publisher?}\n  I -- Yes --> J[Show message already on Publisher, link to billing settings]\n  I -- No --> K[Stripe checkout]\n\n  K --> L{Payment successful?}\n  L -- No --> M[Show error and allow retry]\n  L -- Yes --> N[Set plan Publisher on account]\n  N --> O[Ensure purchaser has Owner and Admin roles]\n  O --> P[Send receipt and publisher welcome email with brief instructions]\n  P --> Q[Redirect to New Song with Publisher features enabled]\n"
-}

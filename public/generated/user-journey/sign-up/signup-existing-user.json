@@ -1,7 +1,0 @@
-{
-  "name": "signup-existing-user.mermaid",
-  "path": "user-journey/sign-up/signup-existing-user.mermaid",
-  "type": "mermaid",
-  "lastBuilt": "2025-09-10T19:36:40.732Z",
-  "content": "flowchart TD\n  A[Visit /signup] --> B{Already logged in?}\n\n  B -- Yes --> C[Redirect to New Song]\n\n  B -- No --> D[Clerk signup attempt]\n  D --> E{Email already exists?}\n  E -- Yes --> F[Show: Already have an account → Log in or Reset password]\n  E -- No --> G[Create new account on Free tier]\n  G --> H[Route to New Song]\n"
-}
