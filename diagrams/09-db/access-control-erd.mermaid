@@ -8,35 +8,39 @@ erDiagram
     uuid id PK
     uuid account_id FK
     string title
-    string status       // draft active archived
+    string status
     timestamp created_at
   }
+  %% SONG.status: draft active archived
 
   SONG_ACL {
     uuid id PK
     uuid song_id FK
     uuid user_id FK
-    string role        // editor viewer
-    jsonb caps         // fine grained capabilities
+    string role
+    jsonb caps
     timestamp created_at
-    UNIQUE song_id user_id
   }
+  %% SONG_ACL.role: editor viewer
+  %% SONG_ACL.caps: fine grained capabilities
 
   MEMBERSHIP {
     uuid id PK
     uuid user_id FK
     uuid account_id FK
-    string role        // owner manager collaborator viewer
+    string role
     timestamp created_at
   }
+  %% MEMBERSHIP.role: owner manager collaborator viewer
 
   ORG_ROLE {
     uuid id PK
     uuid user_id FK
     uuid org_id FK
-    string role        // owner admin observer
+    string role
     timestamp created_at
   }
+  %% ORG_ROLE.role: owner admin observer
 
   USER ||--o{ SONG_ACL : can_access
   SONG ||--o{ SONG_ACL : grants

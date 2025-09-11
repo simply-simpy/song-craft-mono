@@ -2,7 +2,7 @@ erDiagram
   ACCOUNT {
     uuid id PK
     uuid org_id FK
-    string plan        // Free Pro
+    string plan
     string status
   }
 
@@ -14,21 +14,21 @@ erDiagram
 
   PLAN_SUBSCRIPTION {
     uuid id PK
-    string scope_type   // org account
+    string scope_type
     uuid scope_id
-    string plan         // Free Pro Org
-    string status       // active canceled cancel_at_period_end
+    string plan
+    string status
     timestamp current_period_end
     timestamp created_at
   }
 
   CHECKOUT_SESSION {
     uuid id PK
-    string scope_type    // org account
+    string scope_type
     uuid scope_id
     string plan
-    string provider_session_id UNIQUE
-    string status        // pending succeeded failed canceled
+    string provider_session_id
+    string status
     int amount
     string currency
     timestamp created_at
@@ -38,10 +38,10 @@ erDiagram
     uuid id PK
     string scope_type
     uuid scope_id
-    string provider_charge_id UNIQUE
+    string provider_charge_id
     int amount
     string currency
-    string status        // succeeded failed refunded
+    string status
     timestamp created_at
   }
 
@@ -57,10 +57,15 @@ erDiagram
     uuid id PK
     uuid org_id FK
     uuid user_id FK
-    string seat_type     // pro
-    string status        // active revoked
+    string seat_type
+    string status
     timestamp assigned_at
-    UNIQUE org_id user_id seat_type status
+  }
+
+  USER {
+    uuid id PK
+    string name
+    string email
   }
 
   ACCOUNT ||--o{ PLAN_SUBSCRIPTION : may_have

@@ -34,7 +34,7 @@ erDiagram
     uuid id PK
     uuid user_id FK
     uuid account_id FK
-    string role    // owner manager collaborator viewer
+    string role
     timestamp created_at
   }
 
@@ -42,7 +42,7 @@ erDiagram
     uuid id PK
     uuid user_id FK
     uuid org_id FK
-    string role    // owner admin observer
+    string role
     timestamp created_at
   }
 
@@ -62,7 +62,7 @@ erDiagram
     uuid id PK
     uuid account_id FK
     string title
-    string status   // draft active archived
+    string status
     timestamp created_at
   }
 
@@ -70,7 +70,7 @@ erDiagram
     uuid id PK
     uuid song_id FK
     uuid user_id FK
-    string role     // editor viewer
+    string role
     jsonb caps
     timestamp created_at
   }
@@ -143,7 +143,7 @@ erDiagram
     timestamp end_at
     string method
     string link
-    string status  // scheduled live ended archived
+    string status
     timestamp created_at
   }
 
@@ -164,7 +164,7 @@ erDiagram
     uuid id PK
     uuid session_id FK
     uuid user_id FK
-    string status  // pending present late absent
+    string status
     timestamp check_in_at
   }
 
@@ -212,7 +212,7 @@ erDiagram
   %% ---------- BILLING & SEATS ----------
   PLAN_SUBSCRIPTION {
     uuid id PK
-    string scope_type // org account
+    string scope_type
     uuid scope_id
     string plan
     string status
