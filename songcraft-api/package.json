@@ -9,8 +9,11 @@
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:dev": "./scripts/migrate-dev.sh",
+    "db:migrate:prod": "./scripts/migrate-prod.sh",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:introspect": "drizzle-kit introspect"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",

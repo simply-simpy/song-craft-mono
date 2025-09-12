@@ -1,6 +1,6 @@
 {
-  "id": "32a10455-6b90-4d71-a622-eec782a168cf",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "54f540fb-82e8-4a55-a6af-871028b5b3af",
+  "prevId": "32a10455-6b90-4d71-a622-eec782a168cf",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -553,6 +553,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
