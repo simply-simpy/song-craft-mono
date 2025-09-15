@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict cjmlVgb8LDkoBQNLTCnTwcL5oTu7Qvu1H3WFecSOyI5U8NTd1PaYaSdAH7HougK
+\restrict mv6GgXo0U1gHP0z8EkF426SB6kNRrIW8mTJZE3Juggj7QIfvV0wRHRPvGWC0fCC
 
 -- Dumped from database version 15.14
 -- Dumped by pg_dump version 15.14
@@ -74,7 +74,7 @@ COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
 --
 
 CREATE FUNCTION public.app_current_account_id() RETURNS uuid
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql STABLE
     AS $$
 DECLARE v uuid;
 BEGIN
@@ -89,6 +89,40 @@ END; $$;
 
 
 ALTER FUNCTION public.app_current_account_id() OWNER TO songcraft;
+
+--
+-- Name: lyric_versions_infer_account(); Type: FUNCTION; Schema: public; Owner: songcraft
+--
+
+CREATE FUNCTION public.lyric_versions_infer_account() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.account_id IS NULL THEN
+        SELECT s.account_id INTO NEW.account_id FROM songs s WHERE s.id = NEW.song_id;
+    END IF;
+    RETURN NEW;
+END$$;
+
+
+ALTER FUNCTION public.lyric_versions_infer_account() OWNER TO songcraft;
+
+--
+-- Name: set_tenant_by_account_name(text); Type: FUNCTION; Schema: public; Owner: songcraft
+--
+
+CREATE FUNCTION public.set_tenant_by_account_name(p_name text) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE v uuid;
+BEGIN
+    SELECT id INTO v FROM accounts WHERE name = p_name LIMIT 1;
+    IF v IS NULL THEN RAISE EXCEPTION 'Account % not found', p_name; END IF;
+    PERFORM set_config('app.account_id', v::text, false);
+END$$;
+
+
+ALTER FUNCTION public.set_tenant_by_account_name(p_name text) OWNER TO songcraft;
 
 --
 -- Name: set_updated_at(); Type: FUNCTION; Schema: public; Owner: songcraft
@@ -156,7 +190,9 @@ CREATE TABLE public.accounts (
     plan text DEFAULT 'Free'::text NOT NULL,
     status text DEFAULT 'active'::text NOT NULL,
     is_default boolean DEFAULT true NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT accounts_plan_check CHECK ((plan = ANY (ARRAY['Free'::text, 'Pro'::text, 'Team'::text, 'Enterprise'::text]))),
+    CONSTRAINT accounts_status_check CHECK ((status = ANY (ARRAY['active'::text, 'suspended'::text, 'cancelled'::text])))
 );
 
 
@@ -168,12 +204,13 @@ ALTER TABLE public.accounts OWNER TO songcraft;
 
 CREATE TABLE public.lyric_versions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    short_id character varying(50) NOT NULL,
+    short_id character varying(50) DEFAULT "left"(replace((gen_random_uuid())::text, '-'::text, ''::text), 16) NOT NULL,
     song_id uuid NOT NULL,
     version_name character varying(40) DEFAULT 'draft'::character varying NOT NULL,
     content_md text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    account_id uuid
+    account_id uuid NOT NULL,
+    CONSTRAINT lyric_versions_short_id_format_chk CHECK (((length((short_id)::text) = 16) AND ((short_id)::text ~ '^[0-9a-f]{16}$'::text)))
 );
 
 
@@ -188,7 +225,8 @@ CREATE TABLE public.memberships (
     user_id uuid NOT NULL,
     account_id uuid NOT NULL,
     role text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT memberships_role_check CHECK ((role = ANY (ARRAY['owner'::text, 'admin'::text, 'member'::text, 'viewer'::text])))
 );
 
 
@@ -245,7 +283,7 @@ ALTER TABLE public.song_authors OWNER TO songcraft;
 
 CREATE TABLE public.songs (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    short_id character varying(50) DEFAULT "left"(replace((gen_random_uuid())::text, '-'::text, ''::text), 12) NOT NULL,
+    short_id character varying(50) DEFAULT "left"(replace((gen_random_uuid())::text, '-'::text, ''::text), 16) NOT NULL,
     owner_clerk_id character varying(191) NOT NULL,
     title character varying(200) NOT NULL,
     artist character varying(200),
@@ -257,7 +295,8 @@ CREATE TABLE public.songs (
     lyrics text,
     midi_data text,
     collaborators jsonb DEFAULT '[]'::jsonb NOT NULL,
-    account_id uuid
+    account_id uuid NOT NULL,
+    CONSTRAINT songs_short_id_format_chk CHECK (((length((short_id)::text) = 16) AND ((short_id)::text ~ '^[0-9a-f]{16}$'::text)))
 );
 
 
@@ -270,7 +309,7 @@ ALTER TABLE public.songs OWNER TO songcraft;
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     clerk_id character varying(191) NOT NULL,
-    email character varying(255),
+    email character varying(255) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     last_login_at timestamp with time zone
 );
@@ -358,14 +397,6 @@ ALTER TABLE ONLY public.orgs
 
 
 --
--- Name: song_account_links song_account_links_one_current; Type: CONSTRAINT; Schema: public; Owner: songcraft
---
-
-ALTER TABLE ONLY public.song_account_links
-    ADD CONSTRAINT song_account_links_one_current UNIQUE (song_id, is_current);
-
-
---
 -- Name: song_account_links song_account_links_pkey; Type: CONSTRAINT; Schema: public; Owner: songcraft
 --
 
@@ -422,10 +453,24 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: accounts_active_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX accounts_active_idx ON public.accounts USING btree (org_id) WHERE (status = 'active'::text);
+
+
+--
 -- Name: accounts_org_idx; Type: INDEX; Schema: public; Owner: songcraft
 --
 
 CREATE INDEX accounts_org_idx ON public.accounts USING btree (org_id);
+
+
+--
+-- Name: lyric_versions_account_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX lyric_versions_account_idx ON public.lyric_versions USING btree (account_id);
 
 
 --
@@ -450,10 +495,24 @@ CREATE INDEX memberships_user_idx ON public.memberships USING btree (user_id);
 
 
 --
+-- Name: memberships_user_role_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX memberships_user_role_idx ON public.memberships USING btree (user_id, role);
+
+
+--
 -- Name: song_account_links_account_idx; Type: INDEX; Schema: public; Owner: songcraft
 --
 
 CREATE INDEX song_account_links_account_idx ON public.song_account_links USING btree (account_id);
+
+
+--
+-- Name: song_account_links_only_one_current; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE UNIQUE INDEX song_account_links_only_one_current ON public.song_account_links USING btree (song_id) WHERE (is_current = true);
 
 
 --
@@ -471,10 +530,17 @@ CREATE INDEX song_authors_song_idx ON public.song_authors USING btree (song_id);
 
 
 --
--- Name: songs_account_created_idx; Type: INDEX; Schema: public; Owner: songcraft
+-- Name: songs_account_created_desc_idx; Type: INDEX; Schema: public; Owner: songcraft
 --
 
-CREATE INDEX songs_account_created_idx ON public.songs USING btree (account_id, created_at DESC);
+CREATE INDEX songs_account_created_desc_idx ON public.songs USING btree (account_id, created_at DESC);
+
+
+--
+-- Name: songs_owner_clerk_id_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX songs_owner_clerk_id_idx ON public.songs USING btree (owner_clerk_id);
 
 
 --
@@ -482,6 +548,27 @@ CREATE INDEX songs_account_created_idx ON public.songs USING btree (account_id, 
 --
 
 CREATE INDEX songs_title_trgm_idx ON public.songs USING gin (title public.gin_trgm_ops);
+
+
+--
+-- Name: songs_updated_at_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX songs_updated_at_idx ON public.songs USING btree (updated_at DESC NULLS LAST);
+
+
+--
+-- Name: users_clerk_id_idx; Type: INDEX; Schema: public; Owner: songcraft
+--
+
+CREATE INDEX users_clerk_id_idx ON public.users USING btree (clerk_id);
+
+
+--
+-- Name: lyric_versions trg_lyric_versions_infer_account; Type: TRIGGER; Schema: public; Owner: songcraft
+--
+
+CREATE TRIGGER trg_lyric_versions_infer_account BEFORE INSERT ON public.lyric_versions FOR EACH ROW EXECUTE FUNCTION public.lyric_versions_infer_account();
 
 
 --
@@ -505,6 +592,14 @@ ALTER TABLE ONLY public.accounts
 
 ALTER TABLE ONLY public.accounts
     ADD CONSTRAINT accounts_owner_user_id_fkey FOREIGN KEY (owner_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: lyric_versions lyric_versions_account_fk; Type: FK CONSTRAINT; Schema: public; Owner: songcraft
+--
+
+ALTER TABLE ONLY public.lyric_versions
+    ADD CONSTRAINT lyric_versions_account_fk FOREIGN KEY (account_id) REFERENCES public.accounts(id) ON DELETE RESTRICT;
 
 
 --
@@ -561,6 +656,22 @@ ALTER TABLE ONLY public.song_authors
 
 ALTER TABLE ONLY public.song_authors
     ADD CONSTRAINT song_authors_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: songs songs_account_fk; Type: FK CONSTRAINT; Schema: public; Owner: songcraft
+--
+
+ALTER TABLE ONLY public.songs
+    ADD CONSTRAINT songs_account_fk FOREIGN KEY (account_id) REFERENCES public.accounts(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: songs songs_owner_clerk_fk; Type: FK CONSTRAINT; Schema: public; Owner: songcraft
+--
+
+ALTER TABLE ONLY public.songs
+    ADD CONSTRAINT songs_owner_clerk_fk FOREIGN KEY (owner_clerk_id) REFERENCES public.users(clerk_id) ON DELETE RESTRICT;
 
 
 --
@@ -641,5 +752,5 @@ CREATE POLICY songs_write ON public.songs USING ((account_id = public.app_curren
 -- PostgreSQL database dump complete
 --
 
-\unrestrict cjmlVgb8LDkoBQNLTCnTwcL5oTu7Qvu1H3WFecSOyI5U8NTd1PaYaSdAH7HougK
+\unrestrict mv6GgXo0U1gHP0z8EkF426SB6kNRrIW8mTJZE3Juggj7QIfvV0wRHRPvGWC0fCC
 
