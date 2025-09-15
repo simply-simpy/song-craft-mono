@@ -56,7 +56,7 @@ export const songs = pgTable(
       .$type<string[]>()
       .default([])
       .notNull(),
-    accountId: uuid("account_id").notNull(), // Make account_id required
+    accountId: uuid("account_id"), // Optional - handled by RLS policies
   },
   (table) => {
     return {
@@ -82,7 +82,7 @@ export const lyricVersions = pgTable(
       .default("draft")
       .notNull(),
     contentMd: text("content_md").notNull(),
-    accountId: uuid("account_id").notNull(), // Add account_id for RLS
+    accountId: uuid("account_id"), // Optional - handled by RLS policies
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

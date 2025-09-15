@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Local Mermaid diagram server for Songcraft project",
   "type": "module",
+  "workspaces": [
+    "songcraft",
+    "songcraft-api",
+    "shared"
+  ],
   "scripts": {
     "start": "npm run build && node server.js",
     "dev": "node dev.js",
