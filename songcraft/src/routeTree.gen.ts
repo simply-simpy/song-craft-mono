@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SongsNewRouteImport } from './routes/songs/new'
+import { Route as SignInSsoCallbackRouteImport } from './routes/sign-in/sso-callback'
 import { Route as SongsSongIdIndexRouteImport } from './routes/songs/$songId/index'
 import { Route as SongsSongIdRecordRouteImport } from './routes/songs/$songId/record'
 import { Route as SongsSongIdPackageRouteImport } from './routes/songs/$songId/package'
@@ -53,6 +54,11 @@ const SongsNewRoute = SongsNewRouteImport.update({
   id: '/songs/new',
   path: '/songs/new',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SignInSsoCallbackRoute = SignInSsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
+  getParentRoute: () => SignInRoute,
 } as any)
 const SongsSongIdIndexRoute = SongsSongIdIndexRouteImport.update({
   id: '/songs/$songId/',
@@ -107,7 +113,8 @@ const ApiRpcSplatServerRoute = ApiRpcSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
   '/songs': typeof SongsIndexRoute
@@ -120,7 +127,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
   '/songs': typeof SongsIndexRoute
@@ -134,7 +142,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin/': typeof AdminIndexRoute
   '/songs/': typeof SongsIndexRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sign-in'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
     | '/songs'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
     | '/songs'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/sign-in'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin/'
     | '/songs/'
@@ -189,7 +201,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SignInRoute: typeof SignInRoute
+  SignInRoute: typeof SignInRouteWithChildren
   SongsNewRoute: typeof SongsNewRoute
   AdminIndexRoute: typeof AdminIndexRoute
   SongsIndexRoute: typeof SongsIndexRoute
@@ -271,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SongsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sign-in/sso-callback': {
+      id: '/sign-in/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/sign-in/sso-callback'
+      preLoaderRoute: typeof SignInSsoCallbackRouteImport
+      parentRoute: typeof SignInRoute
+    }
     '/songs/$songId/': {
       id: '/songs/$songId/'
       path: '/songs/$songId'
@@ -348,9 +367,20 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface SignInRouteChildren {
+  SignInSsoCallbackRoute: typeof SignInSsoCallbackRoute
+}
+
+const SignInRouteChildren: SignInRouteChildren = {
+  SignInSsoCallbackRoute: SignInSsoCallbackRoute,
+}
+
+const SignInRouteWithChildren =
+  SignInRoute._addFileChildren(SignInRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SignInRoute: SignInRoute,
+  SignInRoute: SignInRouteWithChildren,
   SongsNewRoute: SongsNewRoute,
   AdminIndexRoute: AdminIndexRoute,
   SongsIndexRoute: SongsIndexRoute,

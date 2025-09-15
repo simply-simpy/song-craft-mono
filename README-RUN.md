@@ -1,16 +1,36 @@
 # Run
 
-## Start only the DB in Docker
+## Quick Start (Recommended)
+
+From the root directory `/Users/scott/Sites/songcraft-mono`:
+
+```bash
+# Start the docs
+npm run dev
+
+# Start the database
+npm run dev:db
+
+# Start the API (in a separate terminal)
+npm run dev:api
+
+# Start the frontend (in another separate terminal)
+npm run dev:frontend
+```
+
+## Alternative: Manual Commands
+
+### Start only the DB in Docker
 
 cd /Users/scott/Sites/songcraft-mono
 docker compose up -d db
 
-## Start the API locally (Fastify on 4500)
+### Start the API locally (Fastify on 4500)
 
 cd /Users/scott/Sites/songcraft-mono
 DATABASE_URL="postgresql://songcraft:songcraft_dev_password@localhost:5432/songcraft" npm run dev --workspace=songcraft-api
 
-## Start the front-end locally (Vite on 3000)
+### Start the front-end locally (Vite on 3000)
 
 cd /Users/scott/Sites/songcraft-mono
 VITE_API_URL="http://localhost:4500" npm run dev --workspace=songcraft
