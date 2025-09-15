@@ -18,6 +18,7 @@ import {
 import HeaderUser from "../integrations/clerk/header-user";
 // Import styles
 import "../styles.css";
+import Navigation from "@/components/layout/navigation/Navigation";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -128,26 +129,7 @@ function Root() {
                   <div className="grid grid-cols-[260px_1fr]   h-full">
                     {/* Left nav */}
                     <aside className="border-r border-gray-200 p-3">
-                      <nav className="grid gap-2">
-                        <Link
-                          to="/songs"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          Songs
-                        </Link>
-                        <Link
-                          to="/songs/new"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          New Song
-                        </Link>
-                        <Link
-                          to="/admin"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          Admin
-                        </Link>
-                      </nav>
+                      <Navigation />
                     </aside>
 
                     {/* Main content */}
