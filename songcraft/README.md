@@ -43,11 +43,6 @@ npm run check
 
 - Set the `VITE_CLERK_PUBLISHABLE_KEY` in your `.env.local`.
 
-## Setting up Convex
-
-- Set the `VITE_CONVEX_URL` and `CONVEX_DEPLOYMENT` environment variables in your `.env.local`. (Or run `npx convex init` to set them automatically.)
-- Run `npx convex dev` to start the Convex server.
-
 ## Setting up Neon
 
 When running the `dev` command, the `@neondatabase/vite-plugin-postgres` will identify there is not a database setup. It will then create and seed a claimable database.

@@ -11,18 +11,18 @@
     "biome",
     "start",
     "clerk",
-    "convex",
+
     "db",
     "form",
     "mcp",
     "neon",
     "netlify",
-    "oRPC",
+
     "sentry",
-    "shadcn",
+
     "store",
     "t3env",
-    "tRPC",
+
     "table",
     "tanstack-query"
   ]
