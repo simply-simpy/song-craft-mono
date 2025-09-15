@@ -9,6 +9,8 @@ import {
 } from "fastify-type-provider-zod";
 import * as dotenv from "dotenv";
 import songRoutes from "./routes/songs";
+import adminRoutes from "./routes/admin";
+import { superUserPlugin } from "./middleware/super-user";
 
 // Load environment variables
 dotenv.config();
@@ -67,8 +69,12 @@ server.register(swaggerUi, {
   routePrefix: "/documentation",
 });
 
+// Register plugins
+server.register(superUserPlugin);
+
 // Register routes
 server.register(songRoutes);
+server.register(adminRoutes);
 
 // Health check route
 server.get("/health", async () => {

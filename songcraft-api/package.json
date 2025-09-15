@@ -13,7 +13,9 @@
     "db:migrate:prod": "./scripts/migrate-prod.sh",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:introspect": "drizzle-kit introspect"
+    "db:introspect": "drizzle-kit introspect",
+    "add-global-roles": "psql $DATABASE_URL -f scripts/add-global-roles.sql",
+    "bootstrap-superuser": "ts-node scripts/bootstrap-superuser.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",

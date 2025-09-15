@@ -20,6 +20,9 @@ export const users = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     clerkId: varchar("clerk_id", { length: 191 }).notNull().unique(),
     email: varchar("email", { length: 255 }).notNull(), // Make email required
+    globalRole: varchar("global_role", { length: 50 })
+      .default("user")
+      .notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -29,6 +32,13 @@ export const users = pgTable(
   (table) => {
     return {
       clerkIdIdx: index("users_clerk_id_idx").on(table.clerkId),
+      globalRoleIdx: index("users_global_role_idx")
+        .on(table.globalRole)
+        .where(sql`global_role != 'user'`), // Only index non-default roles
+      globalRoleCheck: check(
+        "users_global_role_check",
+        sql`global_role IN ('user', 'support', 'admin', 'super_admin')`
+      ),
     };
   }
 );
