@@ -18,6 +18,11 @@ npm run dev:api
 npm run dev:frontend
 ```
 
+## Connect to DB
+
+- DB: songcraft_dev
+- DATABASE_URL="postgresql://songcraft:songcraft_dev_password@localhost:5433/songcraft_dev"
+
 ## Alternative: Manual Commands
 
 ### Start only the DB in Docker

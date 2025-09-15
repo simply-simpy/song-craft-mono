@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, createFileRoute } from "@tanstack/react-router";
-import { isValidHumanReadableId, extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
 import { API_ENDPOINTS } from "../../../lib/api";
 
@@ -20,29 +19,13 @@ export const Route = createFileRoute("/songs/$songId/lyrics")({
 function RouteComponent() {
   const { songId } = useParams({ from: "/songs/$songId/lyrics" });
 
-  // Validate the song ID format
-  if (!songId || !isValidHumanReadableId(songId)) {
+  // Basic validation - just check if songId exists
+  if (!songId) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="text-center text-red-600">
-          <h1 className="text-2xl font-bold mb-4">Invalid Song ID</h1>
-          <p>The song ID "{songId}" is not in the correct format.</p>
-          <p className="text-sm text-gray-600 mt-2">
-            Expected format: song-abc123
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const prefix = extractPrefix(songId);
-  if (prefix !== "song") {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center text-red-600">
-          <h1 className="text-2xl font-bold mb-4">Invalid Song ID</h1>
-          <p>The ID "{songId}" is not a valid song ID.</p>
-          <p className="text-sm text-gray-600 mt-2">Expected prefix: song-</p>
+          <h1 className="text-2xl font-bold mb-4">Missing Song ID</h1>
+          <p>No song ID provided in the URL.</p>
         </div>
       </div>
     );

@@ -15,7 +15,7 @@
     "build-puppeteer": "node build-diagrams.js",
     "watch": "node watch-diagrams.js",
     "server": "node server.js",
-    "dev:api": "DATABASE_URL=\"postgresql://songcraft:songcraft_dev_password@localhost:5432/songcraft\" npm run dev --workspace=songcraft-api",
+    "dev:api": "DATABASE_URL=\"postgresql://songcraft:songcraft_dev_password@localhost:5433/songcraft_dev\" npm run dev --workspace=songcraft-api",
     "dev:frontend": "VITE_API_URL=\"http://localhost:4500\" npm run dev --workspace=songcraft",
     "dev:db": "docker compose up -d db"
   },

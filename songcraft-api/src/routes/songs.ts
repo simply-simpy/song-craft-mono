@@ -3,26 +3,18 @@ import { z } from "zod";
 import { db } from "../db";
 import { songs, lyricVersions } from "../schema";
 import { eq } from "drizzle-orm";
-import { generateSongId } from "@songcraft/shared";
+// Note: Using custom hex ID generation instead of generateSongId from shared
+// because database constraint expects 16-char lowercase hex format
 
 export default async function songRoutes(fastify: FastifyInstance) {
-  // Delete song by short ID
-  fastify.delete("/songs/:shortId", async (request) => {
-    const { shortId } = request.params as { shortId: string };
+  // Delete song by ID
+  fastify.delete("/songs/:id", async (request) => {
+    const { id } = request.params as { id: string };
     try {
-      const song = await db
-        .select({ id: songs.id })
-        .from(songs)
-        .where(eq(songs.shortId, shortId))
-        .limit(1);
-      if (song.length === 0) {
-        return { success: false, error: "Song not found" };
-      }
-      const songId = song[0].id;
       // Delete lyric versions first (FK)
-      await db.delete(lyricVersions).where(eq(lyricVersions.songId, songId));
+      await db.delete(lyricVersions).where(eq(lyricVersions.songId, id));
       // Delete the song
-      await db.delete(songs).where(eq(songs.id, songId));
+      const result = await db.delete(songs).where(eq(songs.id, id));
       return { success: true };
     } catch (error) {
       console.error("Error deleting song:", error);
@@ -40,15 +32,15 @@ export default async function songRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // Get song by short ID
-  fastify.get("/songs/:shortId", async (request) => {
-    const { shortId } = request.params as { shortId: string };
+  // Get song by ID
+  fastify.get("/songs/:id", async (request) => {
+    const { id } = request.params as { id: string };
 
     try {
       const song = await db
         .select()
         .from(songs)
-        .where(eq(songs.shortId, shortId))
+        .where(eq(songs.id, id))
         .limit(1);
 
       if (song.length === 0) {
@@ -62,29 +54,27 @@ export default async function songRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // Get lyrics for a song by short ID
-  fastify.get("/songs/:shortId/versions", async (request) => {
-    const { shortId } = request.params as { shortId: string };
+  // Get lyrics for a song by ID
+  fastify.get("/songs/:id/versions", async (request) => {
+    const { id } = request.params as { id: string };
 
     try {
-      // First get the song to get its UUID
+      // Verify song exists
       const song = await db
         .select()
         .from(songs)
-        .where(eq(songs.shortId, shortId))
+        .where(eq(songs.id, id))
         .limit(1);
 
       if (song.length === 0) {
         return { success: false, error: "Song not found" };
       }
 
-      const songId = song[0].id;
-
-      // Then get lyric versions using the UUID
+      // Get lyric versions using the UUID
       const versions = await db
         .select()
         .from(lyricVersions)
-        .where(eq(lyricVersions.songId, songId));
+        .where(eq(lyricVersions.songId, id));
 
       return { success: true, data: versions };
     } catch (error) {
@@ -129,7 +119,10 @@ export default async function songRoutes(fastify: FastifyInstance) {
       const maxAttempts = 10;
 
       do {
-        shortId = generateSongId();
+        // Generate 16-character lowercase hexadecimal ID to match database constraint
+        shortId = Array.from({ length: 16 }, () =>
+          Math.floor(Math.random() * 16).toString(16)
+        ).join("");
         attempts++;
 
         // Check if this short ID already exists
@@ -162,6 +155,8 @@ export default async function songRoutes(fastify: FastifyInstance) {
         lyrics: result.data.lyrics,
         midiData: result.data.midiData,
         collaborators: result.data.collaborators,
+        // For now, use a default account ID - in production this should be determined by user context
+        accountId: "681e169e-5051-4f94-adfe-58685016de96", // Default account
       };
 
       console.log("📝 Prepared song data:", JSON.stringify(songData, null, 2));
