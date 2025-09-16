@@ -16,9 +16,33 @@ function Navigation() {
         <SignInButton />
       </SignedOut>
       <nav className="grid gap-2">
-        <NavItem to="/songs">Songs</NavItem>
-        <NavItem to="/songs/new">New Song</NavItem>
-        <NavItem to="/admin">Admin</NavItem>
+        <ul className="menu bg-base-200 rounded-box w-56">
+          <li>
+            <NavItem to="/songs">Songs</NavItem>
+          </li>
+          <li>
+            <NavItem to="/songs/new">New Song</NavItem>
+          </li>
+          <li>
+            <details open>
+              <summary>Admin</summary>
+              <ul>
+                <li>
+                  <NavItem to="/admin/orgs">Organizations</NavItem>
+                </li>
+                <li>
+                  <NavItem to="/admin/users">Users</NavItem>
+                </li>
+                <li>
+                  <NavItem to="/admin/stats">Stats</NavItem>
+                </li>
+                <li>
+                  <NavItem to="/admin/audit-logs">Audit Logs</NavItem>
+                </li>
+              </ul>
+            </details>
+          </li>
+        </ul>
       </nav>
     </>
   );
