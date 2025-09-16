@@ -21,6 +21,11 @@ export const API_ENDPOINTS = {
   song: (id: string) => buildApiUrl(`/songs/${id}`),
   songVersions: (id: string) => buildApiUrl(`/songs/${id}/versions`),
   health: () => buildApiUrl("/health"),
+  admin: {
+    orgs: () => buildApiUrl("/admin/orgs"),
+    users: () => buildApiUrl("/admin/users"),
+    stats: () => buildApiUrl("/admin/stats"),
+  },
 } as const;
 
 // Helper function for API requests

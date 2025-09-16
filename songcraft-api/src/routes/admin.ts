@@ -12,7 +12,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/users",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const querySchema = z.object({
@@ -82,7 +82,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/users/:userId",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const { userId } = request.params as { userId: string };
@@ -142,7 +142,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/admin/users/:userId/role",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.ADMIN),
+      preHandler: await fastify.requireSuperUser(GlobalRole.ADMIN),
     },
     async (request) => {
       const { userId } = request.params as { userId: string };
@@ -194,7 +194,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/orgs",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const querySchema = z.object({
@@ -246,7 +246,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/orgs/:orgId",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const { orgId } = request.params as { orgId: string };
@@ -305,7 +305,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/stats",
     {
-      preHandler: fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
+      preHandler: await fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
     },
     async () => {
       try {

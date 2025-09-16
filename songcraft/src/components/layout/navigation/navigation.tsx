@@ -31,6 +31,9 @@ function Navigation() {
                   <NavItem to="/admin/orgs">Organizations</NavItem>
                 </li>
                 <li>
+                  <NavItem to="/admin/accounts">Accounts</NavItem>
+                </li>
+                <li>
                   <NavItem to="/admin/users">Users</NavItem>
                 </li>
                 <li>
