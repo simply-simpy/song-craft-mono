@@ -51,7 +51,8 @@ export interface SuperUserAuditEvent {
 
 export class EnvironmentAwareSuperUserManager {
   private environment = Environment.getDatabaseType();
-  private config = EnvironmentConfig[this.environment];
+  private config =
+    EnvironmentConfig[this.environment as keyof typeof EnvironmentConfig];
 
   constructor() {
     console.log(`🔧 SuperUser Manager initialized for: ${this.environment}`);
@@ -117,7 +118,7 @@ export class EnvironmentAwareSuperUserManager {
    */
   async hasPermission(clerkId: string, permission: string): Promise<boolean> {
     const role = await this.getUserRole(clerkId);
-    const permissions = GLOBAL_PERMISSIONS[role];
+    const permissions = GLOBAL_PERMISSIONS[role] as readonly string[];
 
     return permissions.includes("*") || permissions.includes(permission);
   }
@@ -183,7 +184,8 @@ export class EnvironmentAwareSuperUserManager {
   private async getRoleFromClerk(clerkId: string): Promise<GlobalRole> {
     try {
       // Dynamic import for Clerk (only available in remote environments)
-      const { clerkClient } = await import("@clerk/backend");
+      const { createClerkClient } = await import("@clerk/backend");
+      const clerkClient = createClerkClient({});
       const clerkUser = await clerkClient.users.getUser(clerkId);
       return (
         (clerkUser.privateMetadata?.globalRole as GlobalRole) || GlobalRole.USER
@@ -225,7 +227,8 @@ export class EnvironmentAwareSuperUserManager {
     // Optionally sync to Clerk if available
     if (Environment.isClerkEnabled()) {
       try {
-        const { clerkClient } = await import("@clerk/backend");
+        const { createClerkClient } = await import("@clerk/backend");
+        const clerkClient = createClerkClient({});
         await clerkClient.users.updateUserMetadata(clerkId, {
           privateMetadata: { globalRole: newRole },
         });
@@ -253,7 +256,8 @@ export class EnvironmentAwareSuperUserManager {
     reason: string
   ): Promise<void> {
     // Update Clerk first (primary source of truth)
-    const { clerkClient } = await import("@clerk/backend");
+    const { createClerkClient } = await import("@clerk/backend");
+    const clerkClient = createClerkClient({});
     await clerkClient.users.updateUserMetadata(clerkId, {
       privateMetadata: {
         globalRole: newRole,

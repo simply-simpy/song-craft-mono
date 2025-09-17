@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { db } from "../db";
 import { users, orgs, accounts, memberships } from "../schema";
-import { eq, like, desc, count } from "drizzle-orm";
+import { eq, like, desc, count, sql } from "drizzle-orm";
 import { superUserManager, GlobalRole } from "../lib/super-user";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
@@ -12,7 +12,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/users",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const querySchema = z.object({
@@ -82,7 +82,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/users/:userId",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const { userId } = request.params as { userId: string };
@@ -142,7 +142,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/admin/users/:userId/role",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.ADMIN),
+      preHandler: fastify.requireSuperUser(GlobalRole.ADMIN),
     },
     async (request) => {
       const { userId } = request.params as { userId: string };
@@ -194,7 +194,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/orgs",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const querySchema = z.object({
@@ -210,13 +210,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           .select({
             id: orgs.id,
             name: orgs.name,
-            status: orgs.status,
             createdAt: orgs.createdAt,
             accountCount: count(accounts.id),
           })
           .from(orgs)
           .leftJoin(accounts, eq(orgs.id, accounts.orgId))
-          .groupBy(orgs.id, orgs.name, orgs.status, orgs.createdAt)
+          .groupBy(orgs.id, orgs.name, orgs.createdAt)
           .orderBy(desc(orgs.createdAt))
           .limit(query.limit)
           .offset(offset);
@@ -246,7 +245,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/orgs/:orgId",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.SUPPORT),
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
     },
     async (request) => {
       const { orgId } = request.params as { orgId: string };
@@ -305,23 +304,18 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/stats",
     {
-      preHandler: await fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
     },
     async () => {
       try {
         // Get system-wide statistics
         const [userStats] = await db
+          // TODO: Is using sql<number> safe?
           .select({
             totalUsers: count(),
-            superAdmins: count(users.globalRole).where(
-              eq(users.globalRole, "super_admin")
-            ),
-            admins: count(users.globalRole).where(
-              eq(users.globalRole, "admin")
-            ),
-            support: count(users.globalRole).where(
-              eq(users.globalRole, "support")
-            ),
+            superAdmins: sql<number>`count(case when ${users.globalRole} = 'super_admin' then 1 end)`,
+            admins: sql<number>`count(case when ${users.globalRole} = 'admin' then 1 end)`,
+            support: sql<number>`count(case when ${users.globalRole} = 'support' then 1 end)`,
           })
           .from(users);
 

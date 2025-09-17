@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { superUserManager, GlobalRole } from "../lib/super-user";
+import fp from "fastify-plugin";
 
 // Extend FastifyRequest to include user info
 declare module "fastify" {
@@ -14,7 +15,7 @@ declare module "fastify" {
 /**
  * Middleware to require super user authentication
  */
-export async function requireSuperUser(minRole: GlobalRole = GlobalRole.ADMIN) {
+export function requireSuperUser(minRole: GlobalRole = GlobalRole.ADMIN) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       // For now, we'll use a simple approach since Clerk auth is disabled in development
@@ -49,7 +50,7 @@ export async function requireSuperUser(minRole: GlobalRole = GlobalRole.ADMIN) {
 /**
  * Middleware to require specific permission
  */
-export async function requirePermission(permission: string) {
+export function requirePermission(permission: string) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const clerkId = extractClerkIdFromRequest(request);
@@ -90,12 +91,14 @@ export async function requirePermission(permission: string) {
 /**
  * Extract Clerk ID from request
  * This is a simplified version - in production you'd validate the JWT
+ * TODO: Add production validation and validation of the JWT
  */
 function extractClerkIdFromRequest(request: FastifyRequest): string | null {
   // For local development, we can use a header or query param
   const clerkId =
     (request.headers["x-clerk-user-id"] as string) ||
-    (request.query?.clerk_id as string);
+    // TODO: is using Record<string, unknown> safe?
+    ((request.query as Record<string, unknown>)?.clerk_id as string);
 
   if (clerkId) {
     return clerkId;
@@ -113,16 +116,19 @@ function extractClerkIdFromRequest(request: FastifyRequest): string | null {
 /**
  * Plugin to register super user middleware
  */
-export async function superUserPlugin(fastify: FastifyInstance) {
-  // Register middleware helpers
-  fastify.decorate("requireSuperUser", requireSuperUser);
-  fastify.decorate("requirePermission", requirePermission);
+export const superUserPlugin = fp(
+  async function superUserPlugin(fastify: FastifyInstance) {
+    // Register middleware helpers
+    fastify.decorate("requireSuperUser", requireSuperUser);
+    fastify.decorate("requirePermission", requirePermission);
 
-  // Bootstrap local super users on startup
-  await superUserManager.bootstrapLocalSuperUsers();
+    // Bootstrap local super users on startup
+    await superUserManager.bootstrapLocalSuperUsers();
 
-  console.log("🔐 Super user plugin registered");
-}
+    console.log("🔐 Super user plugin registered");
+  },
+  { name: "super-user-plugin" }
+);
 
 // Type augmentation for Fastify decorators
 declare module "fastify" {

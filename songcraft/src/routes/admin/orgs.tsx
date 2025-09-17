@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuth } from "../../lib/requireAuth.server";
 import { API_ENDPOINTS } from "../../lib/api";
+import ErrorComponent from "../../components/layout/page/error";
+import { PendingComponent } from "../../components/ui/pending-component";
 
 // Types for organization data
 interface Organization {
@@ -43,31 +45,8 @@ export const Route = createFileRoute("/admin/orgs")({
     }
   },
   component: RouteComponent,
-  errorComponent: ({ error }) => (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="text-center text-red-600">
-        <h2 className="text-xl font-semibold mb-2">
-          Error Loading Organizations
-        </h2>
-        <p>{error.message}</p>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Retry
-        </button>
-      </div>
-    </div>
-  ),
-  pendingComponent: () => (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p>Loading organizations...</p>
-      </div>
-    </div>
-  ),
+  errorComponent: ErrorComponent,
+  pendingComponent: PendingComponent,
 });
 
 function RouteComponent() {
