@@ -2,11 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { API_ENDPOINTS } from "../../lib/api";
 import { requireAuth } from "../../lib/requireAuth.server";
 import { useAuth } from "../../lib/auth";
-import {
-  createColumnHelper,
-  ColumnDef,
-  PaginationState,
-} from "@tanstack/react-table";
+import { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { DataTable } from "../../components/admin/DataTable";
 
@@ -22,61 +18,73 @@ interface User {
   lastLoginAt?: string;
 }
 
-// Column helper for type safety
-const columnHelper = createColumnHelper<User>();
-
 function UsersPage() {
   const { getAuthHeaders, isLoaded } = useAuth();
 
   // Define columns with useMemo for performance
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
-      columnHelper.accessor("email", {
+      {
+        accessorKey: "email",
         header: "Email",
         cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("globalRole", {
+      },
+      {
+        accessorKey: "globalRole",
         header: "Role",
-        cell: (info) => (
-          <span
-            className={`badge badge-${
-              info.getValue() === "super_admin"
-                ? "error"
-                : info.getValue() === "admin"
-                ? "warning"
-                : "info"
-            }`}
-          >
-            {info.getValue()}
-          </span>
-        ),
-      }),
-      columnHelper.display({
+        cell: (info) => {
+          // TDODO: is this safe?
+          const role = info.getValue() as string;
+          return (
+            <span
+              className={`badge badge-${
+                role === "super_admin"
+                  ? "error"
+                  : role === "admin"
+                  ? "warning"
+                  : "info"
+              }`}
+            >
+              {role}
+            </span>
+          );
+        },
+      },
+      {
         id: "status",
         header: "Status",
         cell: () => <span className="badge badge-success">Active</span>,
-      }),
-      columnHelper.accessor("createdAt", {
+      },
+      {
+        accessorKey: "createdAt",
         header: "Created",
-        cell: (info) => new Date(info.getValue()).toLocaleDateString(),
-      }),
-      columnHelper.accessor("lastLoginAt", {
-        header: "Last Login",
         cell: (info) =>
-          info.getValue()
-            ? new Date(info.getValue()!).toLocaleDateString()
-            : "Never",
-      }),
-      columnHelper.display({
+          // TODO: is this safe?
+          new Date(info.getValue() as string).toLocaleDateString(),
+      },
+      {
+        accessorKey: "lastLoginAt",
+        header: "Last Login",
+        cell: (info) => {
+          // TODO: is this safe?
+          const lastLogin = info.getValue() as string | undefined;
+          return lastLogin ? new Date(lastLogin).toLocaleDateString() : "Never";
+        },
+      },
+      {
         id: "actions",
         header: "Actions",
         cell: (info) => (
           <div className="flex gap-2">
-            <button className="btn btn-sm btn-outline">Edit Role</button>
-            <button className="btn btn-sm btn-outline">View Details</button>
+            <button type="button" className="btn btn-sm btn-outline">
+              Edit Role
+            </button>
+            <button type="button" className="btn btn-sm btn-outline">
+              View Details
+            </button>
           </div>
         ),
-      }),
+      },
     ],
     []
   );
