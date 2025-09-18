@@ -15,9 +15,11 @@
     "db:studio": "drizzle-kit studio",
     "db:introspect": "drizzle-kit introspect",
     "add-global-roles": "psql $DATABASE_URL -f scripts/add-global-roles.sql",
-    "bootstrap-superuser": "ts-node scripts/bootstrap-superuser.ts"
+    "bootstrap-superuser": "ts-node scripts/bootstrap-superuser.ts",
+    "seed:users": "ts-node src/scripts/seedUsers.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.5.1",
     "@fastify/swagger-ui": "^5.2.3",
