@@ -40,7 +40,7 @@ const corsMethods = rawMethods
 server.register(cors, {
   origin: corsOrigin,
   methods: corsMethods,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-clerk-user-id"],
   credentials: true,
 });
 
