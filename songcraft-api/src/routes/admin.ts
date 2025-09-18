@@ -37,6 +37,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           whereConditions.push(eq(users.globalRole, query.role));
         }
 
+        // Build where clause for both queries
+        const whereClause =
+          whereConditions.length > 0 ? whereConditions[0] : undefined;
+
         // Get users with pagination
         const userList = await db
           .select({
@@ -48,7 +52,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
             lastLoginAt: users.lastLoginAt,
           })
           .from(users)
-          .where(whereConditions.length > 0 ? whereConditions[0] : undefined)
+          .where(whereClause)
           .orderBy(desc(users.createdAt))
           .limit(query.limit)
           .offset(offset);
@@ -57,7 +61,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         const [totalResult] = await db
           .select({ count: count() })
           .from(users)
-          .where(whereConditions.length > 0 ? whereConditions[0] : undefined);
+          .where(whereClause);
+
+        const totalCount = totalResult.count;
+        const pageCount = Math.ceil(totalCount / query.limit);
 
         return {
           success: true,
@@ -66,9 +73,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
             pagination: {
               page: query.page,
               limit: query.limit,
-              total: totalResult.count,
-              pages: Math.ceil(totalResult.count / query.limit),
+              total: totalCount,
+              pages: pageCount,
             },
+            // Add TanStack Table specific fields
+            rowCount: totalCount,
+            pageCount: pageCount,
           },
         };
       } catch (error) {
