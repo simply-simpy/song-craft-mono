@@ -26,6 +26,10 @@ export const API_ENDPOINTS = {
     users: () => buildApiUrl("/admin/users"),
     accounts: () => buildApiUrl("/admin/accounts"),
     stats: () => buildApiUrl("/admin/stats"),
+    userContext: (userId: string) =>
+      buildApiUrl(`/admin/users/${userId}/context`),
+    switchUserContext: (userId: string) =>
+      buildApiUrl(`/admin/users/${userId}/context/switch`),
   },
 } as const;
 

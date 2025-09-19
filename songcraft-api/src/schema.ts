@@ -24,7 +24,8 @@ export const users = pgTable(
       .default("user")
       .notNull(),
     accountIds: uuid("account_ids").array().default([]).notNull(), // Array of account IDs for fast access
-    primaryAccountId: uuid("primary_account_id"), // Primary account for default context - will add FK constraint later
+    primaryAccountId: uuid("primary_account_id"), // Primary account for default context
+    currentAccountId: uuid("current_account_id"), // Currently active account context - will add FK constraint later
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -200,6 +201,39 @@ export const memberships = pgTable(
       roleCheck: check(
         "memberships_role_check",
         sql`role IN ('owner', 'admin', 'member', 'viewer')`
+      ),
+    };
+  }
+);
+
+// User Context - tracks current account context and preferences
+export const userContext = pgTable(
+  "user_context",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    currentAccountId: uuid("current_account_id")
+      .notNull()
+      .references(() => accounts.id),
+    lastSwitchedAt: timestamp("last_switched_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    contextData: jsonb("context_data").default({}).notNull(), // Store additional context preferences
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index("user_context_user_id_idx").on(table.userId),
+      currentAccountIdx: index("user_context_current_account_idx").on(
+        table.currentAccountId
+      ),
+      userAccountIdx: index("user_context_user_account_idx").on(
+        table.userId,
+        table.currentAccountId
       ),
     };
   }

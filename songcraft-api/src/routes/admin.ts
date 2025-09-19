@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { db } from "../db";
-import { users, orgs, accounts, memberships } from "../schema";
+import { users, orgs, accounts, memberships, userContext } from "../schema";
 import { eq, like, desc, count, sql } from "drizzle-orm";
 import { superUserManager, GlobalRole } from "../lib/super-user";
 
@@ -481,6 +481,141 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       } catch (error) {
         console.error("Error fetching organization:", error);
         return { success: false, error: "Failed to fetch organization" };
+      }
+    }
+  );
+
+  // Account Context Management APIs
+
+  // Get user's current account context
+  fastify.get(
+    "/admin/users/:userId/context",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+    },
+    async (request) => {
+      const { userId } = request.params as { userId: string };
+
+      try {
+        // Get user's current context
+        const context = await db
+          .select({
+            id: userContext.id,
+            currentAccountId: userContext.currentAccountId,
+            lastSwitchedAt: userContext.lastSwitchedAt,
+            contextData: userContext.contextData,
+            accountName: accounts.name,
+            accountPlan: accounts.plan,
+            accountStatus: accounts.status,
+          })
+          .from(userContext)
+          .innerJoin(accounts, eq(userContext.currentAccountId, accounts.id))
+          .where(eq(userContext.userId, userId))
+          .limit(1);
+
+        if (context.length === 0) {
+          return { success: false, error: "User context not found" };
+        }
+
+        // Get user's available accounts
+        const availableAccounts = await db
+          .select({
+            id: accounts.id,
+            name: accounts.name,
+            plan: accounts.plan,
+            status: accounts.status,
+            role: memberships.role,
+          })
+          .from(memberships)
+          .innerJoin(accounts, eq(memberships.accountId, accounts.id))
+          .where(eq(memberships.userId, userId))
+          .orderBy(desc(memberships.createdAt));
+
+        return {
+          success: true,
+          data: {
+            currentContext: context[0],
+            availableAccounts,
+          },
+        };
+      } catch (error) {
+        console.error("Error fetching user context:", error);
+        return { success: false, error: "Failed to fetch user context" };
+      }
+    }
+  );
+
+  // Switch user's account context
+  fastify.post(
+    "/admin/users/:userId/context/switch",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+    },
+    async (request) => {
+      const { userId } = request.params as { userId: string };
+      const bodySchema = z.object({
+        accountId: z.string().uuid("Invalid account ID"),
+        reason: z.string().optional(),
+      });
+
+      const body = bodySchema.parse(request.body);
+
+      try {
+        // Verify user has access to the account
+        const membership = await db
+          .select()
+          .from(memberships)
+          .where(
+            eq(memberships.userId, userId) &&
+              eq(memberships.accountId, body.accountId)
+          )
+          .limit(1);
+
+        if (membership.length === 0) {
+          return {
+            success: false,
+            error: "User does not have access to this account",
+          };
+        }
+
+        // Update or create user context
+        const existingContext = await db
+          .select()
+          .from(userContext)
+          .where(eq(userContext.userId, userId))
+          .limit(1);
+
+        if (existingContext.length > 0) {
+          // Update existing context
+          await db
+            .update(userContext)
+            .set({
+              currentAccountId: body.accountId,
+              lastSwitchedAt: new Date(),
+              contextData: {
+                ...(existingContext[0].contextData as Record<string, unknown>),
+                lastSwitchReason: body.reason,
+              },
+            })
+            .where(eq(userContext.userId, userId));
+        } else {
+          // Create new context
+          await db.insert(userContext).values({
+            userId,
+            currentAccountId: body.accountId,
+            contextData: {
+              lastSwitchReason: body.reason,
+            },
+          });
+        }
+
+        return {
+          success: true,
+          message: "Account context switched successfully",
+        };
+      } catch (error) {
+        console.error("Error switching account context:", error);
+        return { success: false, error: "Failed to switch account context" };
       }
     }
   );
