@@ -12,8 +12,9 @@ import ClerkProvider from "../integrations/clerk/provider";
 // Import styles
 import "../styles.css";
 import Navigation from "@/components/layout/navigation/navigation";
-import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay";
-
+import AccountContextDisplay from "@/components/layout/navigation/AccountContextDisplay.tsx";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { Navigate } from "@tanstack/react-router";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -81,99 +82,99 @@ function Root() {
           ) : (
             <>
               {/* Temporarily disable auth redirect for development */}
-              {/* <SignedOut>
+              <SignedOut>
                 <Navigate
                   to="/sign-in"
                   search={{
                     returnTo: `${location.pathname}${location.search ?? ""}`,
                   }}
                 />
-              </SignedOut> */}
-              {/* <SignedIn> */}
-              <div className="h-screen grid grid-rows-[48px_1fr]">
-                {/* Top bar with search */}
-                <div className="flex items-center gap-3 px-3 border-b border-gray-200">
-                  <Link to="/" className="font-bold">
-                    SongScribe
-                  </Link>
-                  <input
-                    placeholder="Search (⌘K)"
-                    onFocus={() => setCmdOpen(true)}
-                    className="flex-1 h-8 border border-gray-300 rounded-md px-2"
-                  />
-                  {/* <SignedIn> */}
-                  <AccountContextDisplay />
-                  <button
-                    type="button"
-                    className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Sign out
-                  </button>
-                  {/* </SignedIn> */}
-                  <button
-                    type="button"
-                    onClick={() => setRightOpen((v) => !v)}
-                    className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    {rightOpen ? "Hide" : "Show"} Panel
-                  </button>
-                </div>
+              </SignedOut>{" "}
+              <SignedIn>
+                <div className="h-screen grid grid-rows-[48px_1fr]">
+                  {/* Top bar with search */}
+                  <div className="flex items-center gap-3 px-3 border-b border-gray-200">
+                    <Link to="/" className="font-bold">
+                      SongScribe
+                    </Link>
+                    <input
+                      placeholder="Search (⌘K)"
+                      onFocus={() => setCmdOpen(true)}
+                      className="flex-1 h-8 border border-gray-300 rounded-md px-2"
+                    />
+                    <SignedIn>
+                      <AccountContextDisplay />
+                      <button
+                        type="button"
+                        className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                      >
+                        Sign out
+                      </button>
+                    </SignedIn>
+                    <button
+                      type="button"
+                      onClick={() => setRightOpen((v) => !v)}
+                      className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      {rightOpen ? "Hide" : "Show"} Panel
+                    </button>
+                  </div>
 
-                {/* 3-column layout */}
-                <div className="grid grid-cols-[260px_1fr]   h-full">
-                  {/* Left nav */}
-                  <aside className="border-r border-gray-200 p-3">
-                    <Navigation />
-                  </aside>
+                  {/* 3-column layout */}
+                  <div className="grid grid-cols-[260px_1fr]   h-full">
+                    {/* Left nav */}
+                    <aside className="border-r border-gray-200 p-3">
+                      <Navigation />
+                    </aside>
 
-                  {/* Main content */}
-                  <main className="p-3 overflow-auto">
-                    <Outlet />
-                  </main>
-                </div>
+                    {/* Main content */}
+                    <main className="p-3 overflow-auto">
+                      <Outlet />
+                    </main>
+                  </div>
 
-                {/* Command palette modal */}
-                {cmdOpen && (
-                  <div
-                    onClick={() => setCmdOpen(false)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        setCmdOpen(false);
-                      }
-                    }}
-                    // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
-                    role="button"
-                    tabIndex={0}
-                    className="fixed inset-0 bg-black/20 grid place-items-start-center pt-[10vh]"
-                  >
+                  {/* Command palette modal */}
+                  {cmdOpen && (
                     <div
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={() => setCmdOpen(false)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
-                          e.stopPropagation();
+                          setCmdOpen(false);
                         }
                       }}
                       // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
                       role="button"
                       tabIndex={0}
-                      className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
+                      className="fixed inset-0 bg-black/20 grid place-items-start-center pt-[10vh]"
                     >
-                      <div className="p-3 border-b border-gray-200">
-                        <input
-                          placeholder="Search songs, commands…"
-                          className="w-full h-9 border border-gray-300 rounded-md px-2"
-                        />
-                      </div>
-                      <div className="p-3">
-                        <p className="text-gray-600">
-                          Recent: last opened songs…
-                        </p>
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                          }
+                        }}
+                        // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
+                        role="button"
+                        tabIndex={0}
+                        className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
+                      >
+                        <div className="p-3 border-b border-gray-200">
+                          <input
+                            placeholder="Search songs, commands…"
+                            className="w-full h-9 border border-gray-300 rounded-md px-2"
+                          />
+                        </div>
+                        <div className="p-3">
+                          <p className="text-gray-600">
+                            Recent: last opened songs…
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              {/* </SignedIn> */}
+                  )}
+                </div>
+              </SignedIn>
             </>
           )}
           <Scripts />
