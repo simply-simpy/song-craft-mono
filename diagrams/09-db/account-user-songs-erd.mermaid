@@ -3,26 +3,33 @@ erDiagram
     uuid id
     text email
     text display_name
+    text global_role
     datetime created_at
-    datetime updated_at
+    datetime last_login_at
   }
 
   ORG {
     uuid id
     text name
-    text domain_policy
+    text billing_email
+    text billing_address
+    text billing_phone
     datetime created_at
-    datetime updated_at
   }
 
   ACCOUNT {
     uuid id
-    uuid org_id
+    uuid org_id "legacy"
+    uuid parent_org_id "primary"
+    uuid owner_user_id
     text name
+    text description
     text plan
+    text status
+    text billing_email
+    jsonb settings
     boolean is_default
     datetime created_at
-    datetime updated_at
   }
 
   MEMBERSHIP {
@@ -129,7 +136,8 @@ erDiagram
   }
 
   %% Relationships
-  ORG ||--o{ ACCOUNT : contains
+  ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
+  ORG ||--o{ ACCOUNT : "org_id (legacy)"
   ACCOUNT ||--o{ MEMBERSHIP : has_members
   USER ||--o{ MEMBERSHIP : joins
   ACCOUNT ||--o{ SONG : owns

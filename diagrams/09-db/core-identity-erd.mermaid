@@ -4,23 +4,31 @@ erDiagram
     string email
     string display_name
     string last_context
+    string global_role
     timestamp created_at
+    timestamp last_login_at
   }
 
   ORG {
     uuid id PK
     string name
-    string type
-    string status
+    string billing_email
+    text billing_address
+    string billing_phone
     timestamp created_at
   }
 
   ACCOUNT {
     uuid id PK
-    uuid org_id FK
+    uuid org_id FK "legacy"
+    uuid parent_org_id FK "primary"
+    uuid owner_user_id FK
     string name
+    text description
     string plan
     string status
+    string billing_email
+    jsonb settings
     boolean is_default
     timestamp created_at
   }
@@ -55,7 +63,8 @@ erDiagram
   USER ||--o{ MEMBERSHIP : holds
   ACCOUNT ||--o{ MEMBERSHIP : includes
   USER ||--o{ ORG_ROLE : has
-  ORG ||--o{ ACCOUNT : contains
+  ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
+  ORG ||--o{ ACCOUNT : "org_id (legacy)"
   ORG ||--o{ ORG_ROLE : assigns
   USER ||--o{ AUDIT_LOG : acts
   ORG ||--o{ AUDIT_LOG : context

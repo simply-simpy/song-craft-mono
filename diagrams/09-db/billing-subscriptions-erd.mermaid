@@ -1,15 +1,26 @@
 erDiagram
   ACCOUNT {
     uuid id PK
-    uuid org_id FK
+    uuid org_id FK "legacy"
+    uuid parent_org_id FK "primary"
+    uuid owner_user_id FK
+    string name
+    text description
     string plan
     string status
+    string billing_email
+    jsonb settings
+    boolean is_default
+    timestamp created_at
   }
 
   ORG {
     uuid id PK
     string name
-    string status
+    string billing_email
+    text billing_address
+    string billing_phone
+    timestamp created_at
   }
 
   PLAN_SUBSCRIPTION {
@@ -66,6 +77,9 @@ erDiagram
     uuid id PK
     string name
     string email
+    string global_role
+    timestamp created_at
+    timestamp last_login_at
   }
 
   ACCOUNT ||--o{ PLAN_SUBSCRIPTION : may_have
@@ -77,3 +91,5 @@ erDiagram
   ORG ||--o{ SEAT_ALLOCATION : manages
   ORG ||--o{ SEAT_ASSIGNMENT : assigns
   USER ||--o{ SEAT_ASSIGNMENT : receives
+  ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
+  ORG ||--o{ ACCOUNT : "org_id (legacy)"

@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1757639516538,
-      "tag": "0000_nervous_payback",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1757639543047,
-      "tag": "0001_closed_silver_sable",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1757719470759,
-      "tag": "0002_friendly_captain_cross",
+      "when": 1758305065750,
+      "tag": "0000_cheerful_warbird",
       "breakpoints": true
     }
   ]

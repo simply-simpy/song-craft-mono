@@ -108,26 +108,34 @@ export const lyricVersions = pgTable(
   }
 );
 
-// Add missing tables that exist in your database
+// Organizations - now primarily for billing and management
 export const orgs = pgTable("orgs", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
+  billingEmail: varchar("billing_email", { length: 255 }),
+  billingAddress: text("billing_address"),
+  billingPhone: varchar("billing_phone", { length: 50 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
 
+// Accounts - now the top-level entity for collaboration
 export const accounts = pgTable(
   "accounts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    orgId: uuid("org_id")
-      .notNull()
-      .references(() => orgs.id),
+    // Legacy field - kept for backward compatibility, will be deprecated
+    orgId: uuid("org_id").references(() => orgs.id),
+    // New primary relationship - accounts can exist without an org
+    parentOrgId: uuid("parent_org_id").references(() => orgs.id),
     ownerUserId: uuid("owner_user_id").references(() => users.id),
     name: text("name").notNull(),
+    description: text("description"),
     plan: text("plan").notNull().default("Free"),
     status: text("status").notNull().default("active"),
+    billingEmail: varchar("billing_email", { length: 255 }),
+    settings: jsonb("settings").default({}).notNull(),
     isDefault: boolean("is_default").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -135,9 +143,15 @@ export const accounts = pgTable(
   },
   (table) => {
     return {
+      // Legacy index - kept for backward compatibility
       orgIdx: index("accounts_org_idx").on(table.orgId),
+      // New primary indexes for account-centric structure
+      parentOrgIdx: index("accounts_parent_org_idx").on(table.parentOrgId),
+      billingEmailIdx: index("accounts_billing_email_idx").on(
+        table.billingEmail
+      ),
       activeIdx: index("accounts_active_idx")
-        .on(table.orgId)
+        .on(table.parentOrgId)
         .where(sql`status = 'active'`),
       planCheck: check(
         "accounts_plan_check",
