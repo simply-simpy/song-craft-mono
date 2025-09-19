@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
   admin: {
     orgs: () => buildApiUrl("/admin/orgs"),
     users: () => buildApiUrl("/admin/users"),
+    accounts: () => buildApiUrl("/admin/accounts"),
     stats: () => buildApiUrl("/admin/stats"),
   },
 } as const;

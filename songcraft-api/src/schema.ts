@@ -24,7 +24,7 @@ export const users = pgTable(
       .default("user")
       .notNull(),
     accountIds: uuid("account_ids").array().default([]).notNull(), // Array of account IDs for fast access
-    primaryAccountId: uuid("primary_account_id").references(() => accounts.id), // Primary account for default context
+    primaryAccountId: uuid("primary_account_id"), // Primary account for default context - will add FK constraint later
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -138,7 +138,7 @@ export const accounts = pgTable(
     orgId: uuid("org_id").references(() => orgs.id),
     // New primary relationship - accounts can exist without an org
     parentOrgId: uuid("parent_org_id").references(() => orgs.id),
-    ownerUserId: uuid("owner_user_id").references(() => users.id),
+    ownerUserId: uuid("owner_user_id"), // Will add FK constraint later
     name: text("name").notNull(),
     description: text("description"),
     plan: text("plan").notNull().default("Free"),

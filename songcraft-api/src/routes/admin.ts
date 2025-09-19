@@ -198,6 +198,181 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   );
 
+  // Account Management APIs
+
+  // Get all accounts with pagination and filtering
+  fastify.get(
+    "/admin/accounts",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+    },
+    async (request) => {
+      const querySchema = z.object({
+        page: z.coerce.number().min(1).default(1),
+        limit: z.coerce.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        plan: z.enum(["Free", "Pro", "Team", "Enterprise"]).optional(),
+        status: z.enum(["active", "suspended", "cancelled"]).optional(),
+        orgId: z.string().optional(),
+      });
+
+      const query = querySchema.parse(request.query);
+      const offset = (query.page - 1) * query.limit;
+
+      try {
+        // Build where conditions
+        const whereConditions = [];
+
+        if (query.search) {
+          whereConditions.push(like(accounts.name, `%${query.search}%`));
+        }
+
+        if (query.plan) {
+          whereConditions.push(eq(accounts.plan, query.plan));
+        }
+
+        if (query.status) {
+          whereConditions.push(eq(accounts.status, query.status));
+        }
+
+        if (query.orgId) {
+          whereConditions.push(eq(accounts.parentOrgId, query.orgId));
+        }
+
+        // Build where clause for both queries
+        const whereClause =
+          whereConditions.length > 0 ? whereConditions[0] : undefined;
+
+        // Get accounts with pagination
+        const accountList = await db
+          .select({
+            id: accounts.id,
+            name: accounts.name,
+            description: accounts.description,
+            plan: accounts.plan,
+            status: accounts.status,
+            billingEmail: accounts.billingEmail,
+            isDefault: accounts.isDefault,
+            createdAt: accounts.createdAt,
+            orgId: orgs.id,
+            orgName: orgs.name,
+            memberCount: count(memberships.id),
+          })
+          .from(accounts)
+          .leftJoin(orgs, eq(accounts.parentOrgId, orgs.id))
+          .leftJoin(memberships, eq(accounts.id, memberships.accountId))
+          .where(whereClause)
+          .groupBy(
+            accounts.id,
+            accounts.name,
+            accounts.description,
+            accounts.plan,
+            accounts.status,
+            accounts.billingEmail,
+            accounts.isDefault,
+            accounts.createdAt,
+            orgs.id,
+            orgs.name
+          )
+          .orderBy(desc(accounts.createdAt))
+          .limit(query.limit)
+          .offset(offset);
+
+        // Get total count
+        const [totalResult] = await db
+          .select({ count: count() })
+          .from(accounts)
+          .where(whereClause);
+
+        const totalCount = totalResult.count;
+        const pageCount = Math.ceil(totalCount / query.limit);
+
+        return {
+          success: true,
+          data: {
+            accounts: accountList,
+            pagination: {
+              page: query.page,
+              limit: query.limit,
+              total: totalCount,
+              pages: pageCount,
+            },
+            // Add TanStack Table specific fields
+            rowCount: totalCount,
+            pageCount: pageCount,
+          },
+        };
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+        return { success: false, error: "Failed to fetch accounts" };
+      }
+    }
+  );
+
+  // Get specific account details
+  fastify.get(
+    "/admin/accounts/:accountId",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+    },
+    async (request) => {
+      const { accountId } = request.params as { accountId: string };
+
+      try {
+        // Get account with org info
+        const account = await db
+          .select({
+            id: accounts.id,
+            name: accounts.name,
+            description: accounts.description,
+            plan: accounts.plan,
+            status: accounts.status,
+            billingEmail: accounts.billingEmail,
+            settings: accounts.settings,
+            isDefault: accounts.isDefault,
+            createdAt: accounts.createdAt,
+            orgId: orgs.id,
+            orgName: orgs.name,
+            orgBillingEmail: orgs.billingEmail,
+          })
+          .from(accounts)
+          .leftJoin(orgs, eq(accounts.parentOrgId, orgs.id))
+          .where(eq(accounts.id, accountId))
+          .limit(1);
+
+        if (account.length === 0) {
+          return { success: false, error: "Account not found" };
+        }
+
+        // Get account members
+        const accountMembers = await db
+          .select({
+            membershipId: memberships.id,
+            role: memberships.role,
+            userId: users.id,
+            userEmail: users.email,
+            userGlobalRole: users.globalRole,
+            joinedAt: memberships.createdAt,
+          })
+          .from(memberships)
+          .innerJoin(users, eq(memberships.userId, users.id))
+          .where(eq(memberships.accountId, accountId))
+          .orderBy(desc(memberships.createdAt));
+
+        return {
+          success: true,
+          data: {
+            account: account[0],
+            members: accountMembers,
+          },
+        };
+      } catch (error) {
+        console.error("Error fetching account:", error);
+        return { success: false, error: "Failed to fetch account" };
+      }
+    }
+  );
+
   // Organization Management APIs
 
   // Get all organizations
