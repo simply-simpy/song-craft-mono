@@ -33,9 +33,46 @@ interface SwitchContextRequest {
   reason?: string;
 }
 
-export const useAccountContext = (userId: string) => {
+export const useAccountContext = (clerkId: string) => {
   const { getAuthHeaders, isLoaded } = useAuth();
   const queryClient = useQueryClient();
+
+  // First, get the user's database ID from their Clerk ID
+  const {
+    data: userData,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useQuery({
+    queryKey: ["userByClerkId", clerkId],
+    queryFn: async () => {
+      const authHeaders = getAuthHeaders();
+      const response = await fetch(
+        `${API_ENDPOINTS.admin.users()}?search=${clerkId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(authHeaders["x-clerk-user-id"] && {
+              "x-clerk-user-id": authHeaders["x-clerk-user-id"],
+            }),
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const user = result.data.users.find(
+        (u: { clerkId: string }) => u.clerkId === clerkId
+      );
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return user;
+    },
+    enabled: isLoaded && !!clerkId,
+  });
 
   // Get user's current account context
   const {
@@ -43,17 +80,23 @@ export const useAccountContext = (userId: string) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["userContext", userId],
+    queryKey: ["userContext", userData?.id],
     queryFn: async (): Promise<UserContextResponse> => {
       const authHeaders = getAuthHeaders();
-      const response = await fetch(API_ENDPOINTS.admin.userContext(userId), {
-        headers: {
-          "Content-Type": "application/json",
-          ...(authHeaders["x-clerk-user-id"] && {
-            "x-clerk-user-id": authHeaders["x-clerk-user-id"],
-          }),
-        },
-      });
+      if (!userData?.id) {
+        throw new Error("User ID not available");
+      }
+      const response = await fetch(
+        API_ENDPOINTS.admin.userContext(userData.id),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(authHeaders["x-clerk-user-id"] && {
+              "x-clerk-user-id": authHeaders["x-clerk-user-id"],
+            }),
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch user context: ${response.status}`);
@@ -61,15 +104,18 @@ export const useAccountContext = (userId: string) => {
 
       return response.json();
     },
-    enabled: isLoaded && !!userId,
+    enabled: isLoaded && !!userData?.id,
   });
 
   // Switch account context
   const switchContextMutation = useMutation({
     mutationFn: async (request: SwitchContextRequest) => {
+      if (!userData?.id) {
+        throw new Error("User ID not available");
+      }
       const authHeaders = getAuthHeaders();
       const response = await fetch(
-        API_ENDPOINTS.admin.switchUserContext(userId),
+        API_ENDPOINTS.admin.switchUserContext(userData.id),
         {
           method: "POST",
           headers: {
@@ -90,15 +136,17 @@ export const useAccountContext = (userId: string) => {
     },
     onSuccess: () => {
       // Invalidate and refetch context data
-      queryClient.invalidateQueries({ queryKey: ["userContext", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["userContext", userData?.id],
+      });
     },
   });
 
   return {
     currentContext: contextData?.data?.currentContext,
     availableAccounts: contextData?.data?.availableAccounts || [],
-    isLoading,
-    error,
+    isLoading: isLoading || isLoadingUser,
+    error: error || userError,
     switchContext: switchContextMutation.mutate,
     isSwitching: switchContextMutation.isPending,
     switchError: switchContextMutation.error,
