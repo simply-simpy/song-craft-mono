@@ -19,7 +19,8 @@
     "seed:users": "ts-node src/scripts/seedUsers.ts",
     "generate-dbml": "tsx scripts/generate-dbml.ts",
     "generate-erd": "tsx scripts/generate-erd.ts",
-    "compare-schemas": "tsx scripts/compare-schemas.ts"
+    "compare-schemas": "tsx scripts/compare-schemas.ts",
+    "generate-dbml-relations": "tsx scripts/generate-dbml-with-relations.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",

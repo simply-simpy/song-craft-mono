@@ -23,7 +23,8 @@
     "db:migrate": "npm run db:migrate --workspace=songcraft-api",
     "generate-dbml": "npm run generate-dbml --workspace=songcraft-api",
     "generate-erd": "npm run generate-erd --workspace=songcraft-api",
-    "compare-schemas": "npm run compare-schemas --workspace=songcraft-api"
+    "compare-schemas": "npm run compare-schemas --workspace=songcraft-api",
+    "generate-dbml-relations": "npm run generate-dbml-relations --workspace=songcraft-api"
   },
   "dependencies": {
     "chokidar": "^3.6.0",
