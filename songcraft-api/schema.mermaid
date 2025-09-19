@@ -1,0 +1,90 @@
+erDiagram
+  accounts {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    uuid org_id
+    uuid parent_org_id
+    uuid owner_user_id
+    text name "not null"
+    text description
+    text plan "not null"
+    text status "not null"
+    varchar(255) billing_email
+    jsonb settings "not null" "default: {}"
+    boolean is_default "not null"
+    "timestamp created_at "not null" "default: now()"
+  }
+  lyric_versions {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    varchar(50) short_id "not null" "unique"
+    uuid song_id "not null"
+    varchar(40) version_name "not null"
+    text content_md "not null"
+    uuid account_id
+    "timestamp created_at "not null" "default: now()"
+  }
+  memberships {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    uuid account_id "not null"
+    uuid user_id "not null"
+    varchar(50) role "not null"
+    "timestamp created_at "not null" "default: now()"
+  }
+  orgs {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    varchar(255) name "not null"
+    varchar(255) billing_email
+    text billing_address
+    varchar(50) billing_phone
+    "timestamp created_at "not null" "default: now()"
+  }
+  song_account_links {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    uuid song_id "not null"
+    uuid account_id "not null"
+    "timestamp created_at "not null" "default: now()"
+  }
+  song_authors {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    uuid song_id "not null"
+    uuid user_id "not null"
+    varchar(50) role "not null"
+    "timestamp created_at "not null" "default: now()"
+  }
+  songs {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    varchar(50) short_id "not null" "unique"
+    varchar(191) owner_clerk_id "not null"
+    varchar(200) title "not null"
+    varchar(200) artist
+    integer bpm
+    varchar(12) key
+    jsonb tags "not null" "default: []"
+    "timestamp created_at "not null" "default: now()"
+    "timestamp updated_at "not null" "default: now()"
+    text lyrics
+    text midi_data
+    jsonb collaborators "not null" "default: []"
+    uuid account_id
+  }
+  user_context {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    uuid user_id "not null"
+    uuid current_account_id "not null"
+    "timestamp last_switched_at "not null" "default: now()"
+    jsonb context_data "not null" "default: {}"
+    "timestamp created_at "not null" "default: now()"
+  }
+  users {
+    uuid id PK "not null" "default: gen_random_uuid()"
+    varchar(191) clerk_id "not null" "unique"
+    varchar(255) email "not null"
+    varchar(50) global_role "not null"
+    uuid[] account_ids "not null" "default: []"
+    uuid primary_account_id
+    uuid current_account_id
+    "timestamp created_at "not null" "default: now()"
+    "timestamp last_login_at
+  }
+
+  %% Relationships would be added here
+  %% For now, use the DBML file for full relationship details

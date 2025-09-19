@@ -17,7 +17,13 @@
     "server": "node server.js",
     "dev:api": "DATABASE_URL=\"postgresql://songcraft:songcraft_dev_password@localhost:5433/songcraft_dev\" npm run dev --workspace=songcraft-api",
     "dev:frontend": "VITE_API_URL=\"http://localhost:4500\" npm run dev --workspace=songcraft",
-    "dev:db": "docker compose up -d db"
+    "dev:db": "docker compose up -d db",
+    "db:studio": "npm run db:studio --workspace=songcraft-api",
+    "db:push": "npm run db:push --workspace=songcraft-api",
+    "db:migrate": "npm run db:migrate --workspace=songcraft-api",
+    "generate-dbml": "npm run generate-dbml --workspace=songcraft-api",
+    "generate-erd": "npm run generate-erd --workspace=songcraft-api",
+    "compare-schemas": "npm run compare-schemas --workspace=songcraft-api"
   },
   "dependencies": {
     "chokidar": "^3.6.0",

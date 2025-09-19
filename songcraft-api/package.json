@@ -16,7 +16,10 @@
     "db:introspect": "drizzle-kit introspect",
     "add-global-roles": "psql $DATABASE_URL -f scripts/add-global-roles.sql",
     "bootstrap-superuser": "ts-node scripts/bootstrap-superuser.ts",
-    "seed:users": "ts-node src/scripts/seedUsers.ts"
+    "seed:users": "ts-node src/scripts/seedUsers.ts",
+    "generate-dbml": "tsx scripts/generate-dbml.ts",
+    "generate-erd": "tsx scripts/generate-erd.ts",
+    "compare-schemas": "tsx scripts/compare-schemas.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
@@ -35,8 +38,10 @@
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@types/pg": "^8.11.2",
+    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }
 }
