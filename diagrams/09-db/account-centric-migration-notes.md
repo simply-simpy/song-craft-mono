@@ -12,6 +12,8 @@ Updated all ERD diagrams to reflect the new account-centric database structure w
 
 - Added `global_role` field for system-wide permissions
 - Added `last_login_at` timestamp
+- Added `account_ids` array for fast access to user's accounts
+- Added `primary_account_id` for default account context
 - Removed `updated_at` (not implemented in actual schema)
 
 **ORG Table Updates:**
@@ -70,6 +72,9 @@ The following files were not updated as they focus on specific domains that don'
 3. **Flexible Billing**: Account-level and org-level billing options
 4. **Better Collaboration**: Users work in accounts, not orgs
 5. **Clearer Permissions**: Account-level roles are more intuitive
+6. **Fast Account Access**: `user.accountIds` array provides instant access to all user accounts
+7. **Primary Account Context**: `user.primaryAccountId` for default account selection
+8. **Efficient Queries**: No JOINs needed for basic account listing
 
 ## Migration Notes
 

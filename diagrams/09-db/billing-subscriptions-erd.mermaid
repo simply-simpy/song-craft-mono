@@ -78,6 +78,8 @@ erDiagram
     string name
     string email
     string global_role
+    uuid[] account_ids "array of account IDs"
+    uuid primary_account_id FK "primary account"
     timestamp created_at
     timestamp last_login_at
   }

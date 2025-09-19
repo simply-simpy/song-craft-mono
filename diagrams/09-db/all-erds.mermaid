@@ -5,6 +5,8 @@ erDiagram
     string email
     string display_name
     string global_role
+    uuid[] account_ids "array of account IDs"
+    uuid primary_account_id FK "primary account"
     jsonb last_context
     timestamp created_at
     timestamp last_login_at

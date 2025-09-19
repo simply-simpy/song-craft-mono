@@ -23,6 +23,8 @@ export const users = pgTable(
     globalRole: varchar("global_role", { length: 50 })
       .default("user")
       .notNull(),
+    accountIds: uuid("account_ids").array().default([]).notNull(), // Array of account IDs for fast access
+    primaryAccountId: uuid("primary_account_id").references(() => accounts.id), // Primary account for default context
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -35,6 +37,13 @@ export const users = pgTable(
       globalRoleIdx: index("users_global_role_idx")
         .on(table.globalRole)
         .where(sql`global_role != 'user'`), // Only index non-default roles
+      accountIdsIdx: index("users_account_ids_idx").using(
+        "gin",
+        table.accountIds
+      ), // GIN index for array operations
+      primaryAccountIdIdx: index("users_primary_account_id_idx").on(
+        table.primaryAccountId
+      ),
       globalRoleCheck: check(
         "users_global_role_check",
         sql`global_role IN ('user', 'support', 'admin', 'super_admin')`

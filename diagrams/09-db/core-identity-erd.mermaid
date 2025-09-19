@@ -5,6 +5,8 @@ erDiagram
     string display_name
     string last_context
     string global_role
+    uuid[] account_ids "array of account IDs"
+    uuid primary_account_id FK "primary account"
     timestamp created_at
     timestamp last_login_at
   }
