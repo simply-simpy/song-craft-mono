@@ -80,6 +80,7 @@ erDiagram
     string global_role
     uuid[] account_ids "array of account IDs"
     uuid primary_account_id FK "primary account"
+    uuid current_account_id FK "currently active account"
     timestamp created_at
     timestamp last_login_at
   }
@@ -95,3 +96,5 @@ erDiagram
   USER ||--o{ SEAT_ASSIGNMENT : receives
   ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
   ORG ||--o{ ACCOUNT : "org_id (legacy)"
+  USER ||--o{ ACCOUNT : "primary_account_id"
+  USER ||--o{ ACCOUNT : "current_account_id"

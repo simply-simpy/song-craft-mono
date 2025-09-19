@@ -7,6 +7,7 @@ erDiagram
     string global_role
     uuid[] account_ids "array of account IDs"
     uuid primary_account_id FK "primary account"
+    uuid current_account_id FK "currently active account"
     timestamp created_at
     timestamp last_login_at
   }
@@ -51,6 +52,15 @@ erDiagram
     timestamp created_at
   }
 
+  USER_CONTEXT {
+    uuid id PK
+    uuid user_id FK
+    uuid current_account_id FK
+    timestamp last_switched_at
+    jsonb context_data
+    timestamp created_at
+  }
+
   AUDIT_LOG {
     uuid id PK
     uuid actor_user_id
@@ -68,6 +78,10 @@ erDiagram
   ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
   ORG ||--o{ ACCOUNT : "org_id (legacy)"
   ORG ||--o{ ORG_ROLE : assigns
+  USER ||--o{ USER_CONTEXT : "has context"
+  ACCOUNT ||--o{ USER_CONTEXT : "current context"
   USER ||--o{ AUDIT_LOG : acts
   ORG ||--o{ AUDIT_LOG : context
   ACCOUNT ||--o{ AUDIT_LOG : context
+  USER ||--o{ ACCOUNT : "primary_account_id"
+  USER ||--o{ ACCOUNT : "current_account_id"

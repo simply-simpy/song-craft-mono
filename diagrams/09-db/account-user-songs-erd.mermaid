@@ -6,6 +6,7 @@ erDiagram
     text global_role
     uuid[] account_ids "array of account IDs"
     uuid primary_account_id "primary account"
+    uuid current_account_id "currently active account"
     datetime created_at
     datetime last_login_at
   }
@@ -39,6 +40,15 @@ erDiagram
     uuid user_id
     uuid account_id
     text role
+    datetime created_at
+  }
+
+  USER_CONTEXT {
+    uuid id
+    uuid user_id
+    uuid current_account_id
+    datetime last_switched_at
+    jsonb context_data
     datetime created_at
   }
 
@@ -142,6 +152,8 @@ erDiagram
   ORG ||--o{ ACCOUNT : "org_id (legacy)"
   ACCOUNT ||--o{ MEMBERSHIP : has_members
   USER ||--o{ MEMBERSHIP : joins
+  USER ||--o{ USER_CONTEXT : "has context"
+  ACCOUNT ||--o{ USER_CONTEXT : "current context"
   ACCOUNT ||--o{ SONG : owns
   SONG ||--o{ SONG_VERSION : versions
   SONG ||--o{ SONG_AUTHOR : has_authors
@@ -162,3 +174,5 @@ erDiagram
   TAG ||--o{ SONG_TAG : tag_map
   SONG ||--o{ SONG_GENRE : genre_map
   GENRE ||--o{ SONG_GENRE : genre_map
+  USER ||--o{ ACCOUNT : "primary_account_id"
+  USER ||--o{ ACCOUNT : "current_account_id"
