@@ -6,33 +6,10 @@ export function AccountContextDisplay() {
   const { user, isLoaded } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
-  const {
-    currentContext,
-    availableAccounts,
-    switchContext,
-    isSwitching,
-    isLoading,
-    error,
-  } = useAccountContext(user?.id || "");
-
-  const handleSwitch = (accountId: string) => {
-    switchContext(
-      { accountId, reason: "User switched context via navigation" },
-      {
-        onSuccess: () => {
-          setIsOpen(false);
-        },
-      }
-    );
-  };
-
   // Debug logging
   console.log("AccountContextDisplay render:", {
     isLoaded,
     user: user?.id,
-    currentContext,
-    isLoading,
-    error,
   });
 
   if (!isLoaded) {
@@ -42,6 +19,47 @@ export function AccountContextDisplay() {
   if (!user) {
     return <div className="text-xs text-gray-500">No user</div>;
   }
+
+  // Try to get account context, but handle errors gracefully
+  let accountContextData;
+  try {
+    console.log("Calling useAccountContext with user.id:", user.id);
+    accountContextData = useAccountContext(user.id);
+    console.log("useAccountContext result:", accountContextData);
+  } catch (error) {
+    console.error("Error in useAccountContext:", error);
+    return <div className="text-xs text-red-500">Error loading context</div>;
+  }
+
+  const {
+    currentContext,
+    availableAccounts,
+    switchContext,
+    isSwitching,
+    isLoading,
+    error,
+  } = accountContextData;
+
+  const handleSwitch = (accountId: string) => {
+    try {
+      switchContext(
+        { accountId, reason: "User switched context via navigation" },
+        {
+          onSuccess: () => {
+            setIsOpen(false);
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error switching context:", error);
+    }
+  };
+
+  console.log("AccountContextDisplay state:", {
+    currentContext,
+    isLoading,
+    error,
+  });
 
   if (isLoading) {
     return <div className="text-xs text-gray-500">Loading context...</div>;
@@ -98,7 +116,7 @@ export function AccountContextDisplay() {
               Switch Account Context
             </div>
             <div className="space-y-1 max-h-48 overflow-y-auto">
-              {availableAccounts.map((account) => (
+              {availableAccounts?.map((account) => (
                 <button
                   key={account.id}
                   type="button"

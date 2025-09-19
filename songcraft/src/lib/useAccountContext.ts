@@ -37,6 +37,12 @@ export const useAccountContext = (clerkId: string) => {
   const { getAuthHeaders, isLoaded } = useAuth();
   const queryClient = useQueryClient();
 
+  console.log("useAccountContext called with:", {
+    clerkId,
+    isLoaded,
+    enabled: isLoaded && !!clerkId,
+  });
+
   // First, get the user's database ID from their Clerk ID
   const {
     data: userData,
@@ -45,18 +51,20 @@ export const useAccountContext = (clerkId: string) => {
   } = useQuery({
     queryKey: ["userByClerkId", clerkId],
     queryFn: async () => {
+      console.log("useAccountContext: Fetching user with clerkId:", clerkId);
       const authHeaders = getAuthHeaders();
-      const response = await fetch(
-        `${API_ENDPOINTS.admin.users()}?search=${clerkId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...(authHeaders["x-clerk-user-id"] && {
-              "x-clerk-user-id": authHeaders["x-clerk-user-id"],
-            }),
-          },
-        }
-      );
+      console.log("useAccountContext: Auth headers:", authHeaders);
+      const url = `${API_ENDPOINTS.admin.users()}?search=${clerkId}`;
+      console.log("useAccountContext: Fetching URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(authHeaders["x-clerk-user-id"] && {
+            "x-clerk-user-id": authHeaders["x-clerk-user-id"],
+          }),
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch user: ${response.status}`);
@@ -71,6 +79,13 @@ export const useAccountContext = (clerkId: string) => {
       }
       return user;
     },
+    enabled: isLoaded && !!clerkId,
+  });
+
+  console.log("User query state:", {
+    userData,
+    isLoadingUser,
+    userError,
     enabled: isLoaded && !!clerkId,
   });
 

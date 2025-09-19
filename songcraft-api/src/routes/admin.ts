@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { db } from "../db";
 import { users, orgs, accounts, memberships, userContext } from "../schema";
-import { eq, like, desc, count, sql } from "drizzle-orm";
+import { eq, like, desc, count, sql, or, and } from "drizzle-orm";
 import { superUserManager, GlobalRole } from "../lib/super-user";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
@@ -30,7 +30,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         const whereConditions = [];
 
         if (query.search) {
-          whereConditions.push(like(users.email, `%${query.search}%`));
+          whereConditions.push(
+            or(
+              like(users.email, `%${query.search}%`),
+              like(users.clerkId, `%${query.search}%`)
+            )
+          );
         }
 
         if (query.role) {
@@ -39,7 +44,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
         // Build where clause for both queries
         const whereClause =
-          whereConditions.length > 0 ? whereConditions[0] : undefined;
+          whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
         // Get users with pagination
         const userList = await db
