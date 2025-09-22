@@ -77,6 +77,7 @@ export const songs = pgTable(
       .default([])
       .notNull(),
     accountId: uuid("account_id"), // Optional - handled by RLS policies
+    projectId: uuid("project_id").references(() => projects.id),
   },
   (table) => {
     return {
@@ -86,6 +87,7 @@ export const songs = pgTable(
         table.createdAt.desc()
       ),
       updatedAtIdx: index("songs_updated_at_idx").on(table.updatedAt.desc()),
+      projectIdIdx: index("songs_project_id_idx").on(table.projectId),
     };
   }
 );
@@ -265,3 +267,155 @@ export const songAuthors = pgTable("song_authors", {
     .defaultNow()
     .notNull(),
 });
+
+// Project-level permission system tables
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    status: varchar("status", { length: 50 }).default("active").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+  },
+  (table) => {
+    return {
+      accountIdIdx: index("projects_account_id_idx").on(table.accountId),
+      statusIdx: index("projects_status_idx").on(table.status),
+      statusCheck: check(
+        "projects_status_check",
+        sql`status IN ('active', 'archived', 'deleted')`
+      ),
+    };
+  }
+);
+
+export const projectPermissions = pgTable(
+  "project_permissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    permissionLevel: varchar("permission_level", { length: 50 }).notNull(),
+    grantedBy: uuid("granted_by")
+      .notNull()
+      .references(() => users.id),
+    grantedAt: timestamp("granted_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+  },
+  (table) => {
+    return {
+      projectIdIdx: index("project_permissions_project_id_idx").on(
+        table.projectId
+      ),
+      userIdIdx: index("project_permissions_user_id_idx").on(table.userId),
+      levelIdx: index("project_permissions_level_idx").on(
+        table.permissionLevel
+      ),
+      projectUserUnique: unique("project_permissions_project_user_unique").on(
+        table.projectId,
+        table.userId
+      ),
+      permissionLevelCheck: check(
+        "project_permissions_level_check",
+        sql`permission_level IN ('read', 'read_notes', 'read_write', 'full_access')`
+      ),
+    };
+  }
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    sessionType: varchar("session_type", { length: 50 }).notNull(),
+    status: varchar("status", { length: 50 }).default("scheduled").notNull(),
+    scheduledStart: timestamp("scheduled_start", { withTimezone: true }),
+    scheduledEnd: timestamp("scheduled_end", { withTimezone: true }),
+    actualStart: timestamp("actual_start", { withTimezone: true }),
+    actualEnd: timestamp("actual_end", { withTimezone: true }),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      projectIdIdx: index("sessions_project_id_idx").on(table.projectId),
+      statusIdx: index("sessions_status_idx").on(table.status),
+      scheduledStartIdx: index("sessions_scheduled_start_idx").on(
+        table.scheduledStart
+      ),
+      sessionTypeCheck: check(
+        "sessions_session_type_check",
+        sql`session_type IN ('writing', 'recording', 'feedback', 'review')`
+      ),
+      statusCheck: check(
+        "sessions_status_check",
+        sql`status IN ('scheduled', 'active', 'completed', 'cancelled')`
+      ),
+    };
+  }
+);
+
+export const sessionParticipants = pgTable(
+  "session_participants",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => sessions.id),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    status: varchar("status", { length: 50 }).default("invited").notNull(),
+    invitedAt: timestamp("invited_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    respondedAt: timestamp("responded_at", { withTimezone: true }),
+  },
+  (table) => {
+    return {
+      sessionIdIdx: index("session_participants_session_id_idx").on(
+        table.sessionId
+      ),
+      userIdIdx: index("session_participants_user_id_idx").on(table.userId),
+      statusIdx: index("session_participants_status_idx").on(table.status),
+      sessionUserUnique: unique("session_participants_session_user_unique").on(
+        table.sessionId,
+        table.userId
+      ),
+      statusCheck: check(
+        "session_participants_status_check",
+        sql`status IN ('invited', 'accepted', 'declined', 'no_show')`
+      ),
+    };
+  }
+);
