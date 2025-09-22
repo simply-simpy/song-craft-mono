@@ -3,6 +3,7 @@ import { requireAuth } from "../../lib/requireAuth.server";
 import { API_ENDPOINTS } from "../../lib/api";
 import ErrorComponent from "../../components/layout/page/error";
 import { PendingComponent } from "../../components/ui/pending-component";
+import { useAuth } from "../../lib/auth";
 
 // Types for organization data
 interface Organization {
@@ -30,7 +31,15 @@ export const Route = createFileRoute("/admin/orgs")({
   beforeLoad: () => requireAuth(),
   loader: async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.admin.orgs());
+      // For development, use the mock user ID
+      const mockUserId = "user_31nfGdXgrOOiHNVWtJjf20VpuYm";
+
+      const response = await fetch(API_ENDPOINTS.admin.orgs(), {
+        headers: {
+          "x-clerk-user-id": mockUserId,
+        },
+      });
+
       if (!response.ok) {
         throw new Error(`Failed to fetch organizations: ${response.status}`);
       }
