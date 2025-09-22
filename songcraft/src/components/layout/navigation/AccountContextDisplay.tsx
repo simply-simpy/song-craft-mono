@@ -21,7 +21,7 @@ export function AccountContextDisplay() {
   }
 
   // Try to get account context, but handle errors gracefully
-  let accountContextData;
+  let accountContextData: ReturnType<typeof useAccountContext>;
   try {
     console.log("Calling useAccountContext with user.id:", user.id);
     accountContextData = useAccountContext(user.id);
