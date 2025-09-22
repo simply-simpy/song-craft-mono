@@ -105,7 +105,7 @@
         vertical-align: middle;
         position: absolute;
         top: calc(50% - 8px);
-        left: 8px;
+        left: 24px;
       }
       .file-mermaid::before {
         content: "";
@@ -120,7 +120,7 @@
         vertical-align: middle;
         position: absolute;
         top: calc(50% - 8px);
-        left: 8px;
+        left: 24px;
       }
       .file-default::before {
         content: "";
@@ -135,7 +135,7 @@
         vertical-align: middle;
         position: absolute;
         top: calc(50% - 8px);
-        left: 8px;
+        left: 24px;
       }
       .file-item .file-name {
         font-weight: 500;
@@ -177,10 +177,12 @@
       }
       .folder-children {
         display: none;
-        /* padding-left: 20px; */
       }
       .folder-children.expanded {
         display: block;
+      }
+      .folder-children.expanded li {
+        padding-left: 60px;
       }
       .controls {
         position: absolute;
