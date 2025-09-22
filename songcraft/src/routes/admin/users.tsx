@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { API_ENDPOINTS } from "../../lib/api";
 import { requireAuth } from "../../lib/requireAuth.server";
 import { useAuth } from "../../lib/auth";
-import { ColumnDef, PaginationState } from "@tanstack/react-table";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { DataTable } from "../../components/admin/DataTable";
 
@@ -74,7 +74,7 @@ function UsersPage() {
       {
         id: "actions",
         header: "Actions",
-        cell: (info) => (
+        cell: (_info) => (
           <div className="flex gap-2">
             <button type="button" className="btn btn-sm btn-outline">
               Edit Role

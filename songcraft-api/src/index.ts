@@ -2,10 +2,10 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   serializerCompiler,
   validatorCompiler,
-  ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import * as dotenv from "dotenv";
 import songRoutes from "./routes/songs";
@@ -35,7 +35,7 @@ const rawMethods =
 const corsMethods = rawMethods
   .split(",")
   .map((m) => m.trim())
-  .filter(Boolean) as any;
+  .filter(Boolean) as string[];
 
 server.register(cors, {
   origin: corsOrigin,
@@ -84,7 +84,7 @@ server.get("/health", async () => {
 // Start server
 const start = async () => {
   try {
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 4500; // Updated default
+    const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 4500; // Updated default
     await server.listen({ port, host: "0.0.0.0" });
     console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(

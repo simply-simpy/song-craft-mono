@@ -3,9 +3,7 @@ import { requireAuth } from "../../lib/requireAuth.server";
 import { API_ENDPOINTS } from "../../lib/api";
 import ErrorComponent from "../../components/layout/page/error";
 import { PendingComponent } from "../../components/ui/pending-component";
-import { useAuth } from "../../lib/auth";
 
-// Types for organization data
 interface Organization {
   id: string;
   name: string;
