@@ -1,0 +1,97 @@
+flowchart TD
+    Start([Migration Start])
+    
+    %% Pre-Migration
+    Backup[Backup Database]
+    Test[Test on Staging]
+    Notify[Notify Users]
+    
+    %% Phase 1: New Tables
+    Phase1[Phase 1: Create New Tables]
+    ProjectTable[Create PROJECT table]
+    PermissionTable[Create PROJECT_PERMISSION table]
+    SessionTable[Create SESSION table]
+    ParticipantTable[Create SESSION_PARTICIPANT table]
+    
+    %% Phase 2: Update Existing
+    Phase2[Phase 2: Update Existing Tables]
+    AddProjectRef[Add project_id to SONG]
+    UpdateMembership[Update MEMBERSHIP table]
+    
+    %% Phase 3: Data Migration
+    Phase3[Phase 3: Data Migration]
+    CreateDefaultProjects[Create Default Projects]
+    MigrateSongs[Assign Songs to Projects]
+    MigratePermissions[Convert SONG_ACL to PROJECT_PERMISSION]
+    
+    %% Phase 4: Application Updates
+    Phase4[Phase 4: Deploy Application]
+    UpdateLogic[Update Permission Logic]
+    DeployCode[Deploy New Code]
+    
+    %% Phase 5: Cleanup
+    Phase5[Phase 5: Cleanup]
+    AddConstraints[Add Constraints & Triggers]
+    Optimize[Optimize Performance]
+    
+    %% Validation
+    Validate[Validate Migration]
+    TestPermissions[Test Permission Functions]
+    TestSessions[Test Session Creation]
+    Monitor[Monitor Performance]
+    
+    %% Success/Error
+    Success[✅ Migration Complete]
+    Rollback[🔄 Rollback if Issues]
+    
+    %% Flow
+    Start --> Backup
+    Backup --> Test
+    Test --> Notify
+    Notify --> Phase1
+    
+    Phase1 --> ProjectTable
+    ProjectTable --> PermissionTable
+    PermissionTable --> SessionTable
+    SessionTable --> ParticipantTable
+    ParticipantTable --> Phase2
+    
+    Phase2 --> AddProjectRef
+    AddProjectRef --> UpdateMembership
+    UpdateMembership --> Phase3
+    
+    Phase3 --> CreateDefaultProjects
+    CreateDefaultProjects --> MigrateSongs
+    MigrateSongs --> MigratePermissions
+    MigratePermissions --> Phase4
+    
+    Phase4 --> UpdateLogic
+    UpdateLogic --> DeployCode
+    DeployCode --> Phase5
+    
+    Phase5 --> AddConstraints
+    AddConstraints --> Optimize
+    Optimize --> Validate
+    
+    Validate --> TestPermissions
+    TestPermissions --> TestSessions
+    TestSessions --> Monitor
+    Monitor --> Success
+    
+    %% Error handling
+    Test -->|Issues Found| Rollback
+    Validate -->|Issues Found| Rollback
+    Monitor -->|Issues Found| Rollback
+    
+    %% Styling
+    classDef startEnd fill:#ffebee,stroke:#c62828,stroke-width:3px
+    classDef phase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef action fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef validation fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef error fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    
+    class Start,Success startEnd
+    class Phase1,Phase2,Phase3,Phase4,Phase5 phase
+    class Backup,Test,Notify,ProjectTable,PermissionTable,SessionTable,ParticipantTable,AddProjectRef,UpdateMembership,CreateDefaultProjects,MigrateSongs,MigratePermissions,UpdateLogic,DeployCode,AddConstraints,Optimize action
+    class Validate,TestPermissions,TestSessions,Monitor validation
+    class Rollback error
