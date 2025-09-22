@@ -48,6 +48,57 @@
         overflow-y: auto;
         opacity: 0.8;
       }
+
+      .search-container {
+        position: relative;
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        background: white;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 8px 35px 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .search-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      .clear-search-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 3px;
+        transition: color 0.2s, background-color 0.2s;
+        display: none;
+      }
+
+      .clear-search-btn:hover {
+        color: #dc3545;
+        background-color: #f8f9fa;
+      }
+
+      .clear-search-btn.visible {
+        display: block;
+      }
+
+      .clear-search-btn svg {
+        width: 16px;
+        height: 16px;
+      }
       .main {
         flex: 1;
         padding: 20px;
@@ -581,6 +632,25 @@
       </div>
       <div class="content">
         <div class="sidebar">
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search diagrams..."
+              class="search-input"
+            />
+            <button
+              id="clearSearchBtn"
+              class="clear-search-btn"
+              title="Clear search"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                />
+              </svg>
+            </button>
+          </div>
           <ul class="file-list" id="fileList">
             <li class="loading">Loading files...</li>
           </ul>
@@ -680,6 +750,8 @@
       let zoomLevel = 1;
       let folderStructure = {};
       let isLoading = false;
+      let searchTerm = "";
+      let filteredDiagrams = [];
 
       // Initialize Mermaid
       mermaid.initialize({
@@ -705,6 +777,7 @@
         try {
           const response = await fetch("/api/diagrams");
           diagrams = await response.json();
+          filteredDiagrams = diagrams;
           buildFolderStructure();
           renderFileList();
           setupControls();
@@ -747,12 +820,42 @@
         const fileList = document.getElementById("fileList");
         fileList.innerHTML = "";
 
-        if (Object.keys(folderStructure).length === 0) {
-          fileList.innerHTML = '<li class="loading">No diagrams found</li>';
-          return;
-        }
+        if (searchTerm) {
+          // Show filtered results as a flat list
+          if (filteredDiagrams.length === 0) {
+            fileList.innerHTML =
+              '<li class="loading">No diagrams match your search</li>';
+            return;
+          }
 
-        renderFolder(folderStructure, fileList, "");
+          filteredDiagrams.forEach((diagram, index) => {
+            const fileLi = document.createElement("li");
+            fileLi.className = "file-item";
+            fileLi.innerHTML = `
+              <div class="file-name">${diagram.name}</div>
+              <div class="file-path">${diagram.path}</div>
+            `;
+
+            // Add icon class based on file type
+            if (diagram.type === "markdown") {
+              fileLi.classList.add("file-markdown");
+            } else if (diagram.type === "mermaid") {
+              fileLi.classList.add("file-mermaid");
+            } else {
+              fileLi.classList.add("file-default");
+            }
+
+            fileLi.addEventListener("click", () => loadDiagram(diagram, index));
+            fileList.appendChild(fileLi);
+          });
+        } else {
+          // Show normal folder structure
+          if (Object.keys(folderStructure).length === 0) {
+            fileList.innerHTML = '<li class="loading">No diagrams found</li>';
+            return;
+          }
+          renderFolder(folderStructure, fileList, "");
+        }
       }
 
       // Render folder recursively
@@ -899,6 +1002,55 @@
 
         // Fullscreen modal controls
         setupFullscreenControls();
+
+        // Search functionality
+        setupSearch();
+      }
+
+      function setupSearch() {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        searchInput.addEventListener("input", handleSearch);
+        clearBtn.addEventListener("click", clearSearch);
+      }
+
+      function handleSearch(e) {
+        searchTerm = e.target.value.toLowerCase().trim();
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        if (searchTerm) {
+          clearBtn.classList.add("visible");
+          filterDiagrams();
+        } else {
+          clearBtn.classList.remove("visible");
+          clearSearch();
+        }
+      }
+
+      function filterDiagrams() {
+        if (!searchTerm) {
+          filteredDiagrams = diagrams;
+        } else {
+          filteredDiagrams = diagrams.filter(
+            (diagram) =>
+              diagram.name.toLowerCase().includes(searchTerm) ||
+              diagram.path.toLowerCase().includes(searchTerm) ||
+              (diagram.type && diagram.type.toLowerCase().includes(searchTerm))
+          );
+        }
+        renderFileList();
+      }
+
+      function clearSearch() {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        searchInput.value = "";
+        searchTerm = "";
+        clearBtn.classList.remove("visible");
+        filteredDiagrams = diagrams;
+        renderFileList();
       }
 
       // Fullscreen functionality
