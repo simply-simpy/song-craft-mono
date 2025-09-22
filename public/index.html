@@ -239,6 +239,7 @@
         border-radius: 4px;
         padding: 20px;
         margin-bottom: 20px;
+        position: relative;
       }
       .diagram-title {
         font-size: 18px;
@@ -264,6 +265,157 @@
         content: "Loading diagram...";
         color: #6c757d;
         font-style: italic;
+      }
+
+      /* Expand button for Mermaid diagrams */
+      .expand-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+        z-index: 10;
+      }
+
+      .expand-btn:hover {
+        background: #0056b3;
+      }
+
+      .expand-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Fullscreen modal */
+      .fullscreen-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        z-index: 1000;
+        display: none;
+        flex-direction: column;
+      }
+
+      .fullscreen-modal.active {
+        display: flex;
+      }
+
+      .fullscreen-header {
+        background: #333;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #555;
+      }
+
+      .fullscreen-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .fullscreen-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .control-btn {
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+      }
+
+      .control-btn:hover {
+        background: #666;
+      }
+
+      .control-btn.active {
+        background: #007bff;
+      }
+
+      .control-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .zoom-display {
+        color: #ccc;
+        font-size: 14px;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      .close-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+      }
+
+      .close-btn:hover {
+        background: #c82333;
+      }
+
+      .fullscreen-content {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        background: #f8f9fa;
+      }
+
+      .fullscreen-diagram {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+        cursor: grab;
+      }
+
+      .fullscreen-diagram.grabbing {
+        cursor: grabbing;
+      }
+
+      .fullscreen-diagram svg {
+        max-width: none;
+        height: auto;
+        transform-origin: top left;
+        transition: transform 0.1s ease-out;
       }
       .loading {
         text-align: center;
@@ -442,6 +594,79 @@
             </div>
           </div>
           <div class="loading">Select a file to view</div>
+        </div>
+
+        <!-- Fullscreen Modal -->
+        <div class="fullscreen-modal" id="fullscreenModal">
+          <div class="fullscreen-header">
+            <h2 class="fullscreen-title" id="fullscreenTitle">Diagram</h2>
+            <div class="fullscreen-controls">
+              <div class="control-group">
+                <button
+                  class="control-btn"
+                  id="grabBtn"
+                  title="Grab/Pan (Spacebar)"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z"
+                    />
+                  </svg>
+                  Grab
+                </button>
+                <button class="control-btn" id="zoomInFullBtn" title="Zoom In">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M15.5,14H20.5L19.5,15H15.5V14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,7H13V9H15V11H13V13H11V11H9V9H11V7Z"
+                    />
+                  </svg>
+                  +
+                </button>
+                <span class="zoom-display" id="fullscreenZoomLevel">100%</span>
+                <button
+                  class="control-btn"
+                  id="zoomOutFullBtn"
+                  title="Zoom Out"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M15.5,14H20.5L19.5,15H15.5V14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M9,9V11H15V9H9Z"
+                    />
+                  </svg>
+                  -
+                </button>
+                <button
+                  class="control-btn"
+                  id="resetZoomFullBtn"
+                  title="Reset Zoom"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"
+                    />
+                  </svg>
+                  Reset
+                </button>
+              </div>
+              <button
+                class="close-btn"
+                id="closeFullscreenBtn"
+                title="Close (Esc)"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                  />
+                </svg>
+                Close
+              </button>
+            </div>
+          </div>
+          <div class="fullscreen-content">
+            <div class="fullscreen-diagram" id="fullscreenDiagram">
+              <!-- Diagram content will be inserted here -->
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -669,6 +894,198 @@
         document
           .getElementById("resetZoomBtn")
           .addEventListener("click", resetZoom);
+
+        // Fullscreen modal controls
+        setupFullscreenControls();
+      }
+
+      // Fullscreen functionality
+      let fullscreenZoom = 1;
+      let fullscreenPanX = 0;
+      let fullscreenPanY = 0;
+      let isGrabbing = false;
+      let isSpacePressed = false;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+
+      function setupFullscreenControls() {
+        const modal = document.getElementById("fullscreenModal");
+        const closeBtn = document.getElementById("closeFullscreenBtn");
+        const grabBtn = document.getElementById("grabBtn");
+        const zoomInBtn = document.getElementById("zoomInFullBtn");
+        const zoomOutBtn = document.getElementById("zoomOutFullBtn");
+        const resetBtn = document.getElementById("resetZoomFullBtn");
+        const diagram = document.getElementById("fullscreenDiagram");
+
+        // Close modal
+        closeBtn.addEventListener("click", closeFullscreen);
+
+        // Grab/pan controls
+        grabBtn.addEventListener("click", toggleGrabMode);
+
+        // Zoom controls
+        zoomInBtn.addEventListener("click", () => adjustFullscreenZoom(0.1));
+        zoomOutBtn.addEventListener("click", () => adjustFullscreenZoom(-0.1));
+        resetBtn.addEventListener("click", resetFullscreenZoom);
+
+        // Mouse events for panning
+        diagram.addEventListener("mousedown", startPan);
+        diagram.addEventListener("mousemove", pan);
+        diagram.addEventListener("mouseup", endPan);
+        diagram.addEventListener("mouseleave", endPan);
+
+        // Wheel zoom
+        diagram.addEventListener("wheel", handleWheelZoom, { passive: false });
+
+        // Keyboard events
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keyup", handleKeyUp);
+
+        // Prevent context menu on diagram
+        diagram.addEventListener("contextmenu", (e) => e.preventDefault());
+      }
+
+      function openFullscreen(diagram, content, contentType) {
+        const modal = document.getElementById("fullscreenModal");
+        const title = document.getElementById("fullscreenTitle");
+        const diagramContainer = document.getElementById("fullscreenDiagram");
+
+        title.textContent = diagram.name;
+
+        // Reset zoom and pan
+        fullscreenZoom = 1;
+        fullscreenPanX = 0;
+        fullscreenPanY = 0;
+        isGrabbing = false;
+
+        // Copy the diagram content
+        const originalDiagram = document.querySelector(".mermaid svg");
+        if (originalDiagram) {
+          diagramContainer.innerHTML = "";
+          const clonedSvg = originalDiagram.cloneNode(true);
+          diagramContainer.appendChild(clonedSvg);
+        } else {
+          diagramContainer.innerHTML = content;
+        }
+
+        // Show modal
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        // Update display
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function closeFullscreen() {
+        const modal = document.getElementById("fullscreenModal");
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+        isGrabbing = false;
+        isSpacePressed = false;
+        updateGrabButton();
+      }
+
+      function toggleGrabMode() {
+        isGrabbing = !isGrabbing;
+        updateGrabButton();
+      }
+
+      function updateGrabButton() {
+        const grabBtn = document.getElementById("grabBtn");
+        const diagram = document.getElementById("fullscreenDiagram");
+
+        if (isGrabbing || isSpacePressed) {
+          grabBtn.classList.add("active");
+          diagram.classList.add("grabbing");
+        } else {
+          grabBtn.classList.remove("active");
+          diagram.classList.remove("grabbing");
+        }
+      }
+
+      function startPan(e) {
+        if (isGrabbing || isSpacePressed) {
+          e.preventDefault();
+          isGrabbing = true;
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+          updateGrabButton();
+        }
+      }
+
+      function pan(e) {
+        if (isGrabbing) {
+          e.preventDefault();
+          const deltaX = e.clientX - lastMouseX;
+          const deltaY = e.clientY - lastMouseY;
+
+          fullscreenPanX += deltaX;
+          fullscreenPanY += deltaY;
+
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+
+          updateFullscreenTransform();
+        }
+      }
+
+      function endPan(e) {
+        if (isGrabbing) {
+          isGrabbing = false;
+          updateGrabButton();
+        }
+      }
+
+      function handleWheelZoom(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        adjustFullscreenZoom(delta);
+      }
+
+      function adjustFullscreenZoom(delta) {
+        fullscreenZoom = Math.max(0.1, Math.min(5, fullscreenZoom + delta));
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function resetFullscreenZoom() {
+        fullscreenZoom = 1;
+        fullscreenPanX = 0;
+        fullscreenPanY = 0;
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function updateFullscreenDisplay() {
+        const zoomDisplay = document.getElementById("fullscreenZoomLevel");
+        zoomDisplay.textContent = Math.round(fullscreenZoom * 100) + "%";
+      }
+
+      function updateFullscreenTransform() {
+        const diagram = document.getElementById("fullscreenDiagram");
+        const svg = diagram.querySelector("svg");
+        if (svg) {
+          svg.style.transform = `scale(${fullscreenZoom}) translate(${fullscreenPanX}px, ${fullscreenPanY}px)`;
+        }
+      }
+
+      function handleKeyDown(e) {
+        if (e.code === "Space" && !isSpacePressed) {
+          e.preventDefault();
+          isSpacePressed = true;
+          updateGrabButton();
+        } else if (e.code === "Escape") {
+          closeFullscreen();
+        }
+      }
+
+      function handleKeyUp(e) {
+        if (e.code === "Space") {
+          isSpacePressed = false;
+          isGrabbing = false;
+          updateGrabButton();
+        }
       }
 
       // Toggle full width mode
@@ -723,11 +1140,25 @@
           title.className = "diagram-title";
           title.textContent = diagram.name;
 
+          // Add expand button for Mermaid diagrams
+          const expandBtn = document.createElement("button");
+          expandBtn.className = "expand-btn";
+          expandBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7,14H5V10H7M17,14H19V10H17M5,6H7V2H5M17,6H19V2H17M5,18H7V22H5M17,18H19V22H17M9,4H15V6H9M9,18H15V20H9M4,8H6V16H4M18,8H20V16H18M8,9H16V15H8V9Z" />
+            </svg>
+            Expand
+          `;
+          expandBtn.addEventListener("click", () =>
+            openFullscreen(diagram, content, contentType)
+          );
+
           const diagramDiv = document.createElement("div");
           diagramDiv.className = "mermaid";
           diagramDiv.id = `diagram-${Date.now()}`;
 
           container.appendChild(title);
+          container.appendChild(expandBtn);
           container.appendChild(diagramDiv);
           mainContent.appendChild(container);
 
