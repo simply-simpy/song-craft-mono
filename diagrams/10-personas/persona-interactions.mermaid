@@ -1,0 +1,65 @@
+graph LR
+    %% Personas
+    Garth["👨‍🎤<br/>Garth<br/>Account Owner"]
+    Sarah["👩‍💼<br/>Sarah<br/>Org Admin"]
+    Marcus["👨‍🎵<br/>Marcus<br/>Collaborator"]
+    Elena["👩‍🎨<br/>Elena<br/>Feedback Provider"]
+    Alex["👨‍🎤<br/>Alex<br/>New User"]
+
+    %% Interaction types
+    subgraph "Invitation Flows"
+        Invite1[Invites to Account]
+        Invite2[Invites to Project]
+        Invite3[Invites to Session]
+    end
+
+    subgraph "Collaboration Types"
+        Collab1[Direct Collaboration]
+        Collab2[Project Management]
+        Collab3[Feedback & Review]
+        Collab4[Mentoring & Learning]
+    end
+
+    subgraph "Permission Levels"
+        Perm1[Full Access]
+        Perm2[Project Access]
+        Perm3[Session Access]
+        Perm4[Read-Only Access]
+    end
+
+    %% Garth's interactions
+    Garth -->|Invites| Marcus
+    Garth -->|Invites| Elena
+    Garth -->|Invites| Alex
+    Garth -->|Manages| Sarah
+
+    %% Sarah's interactions
+    Sarah -->|Oversees| Garth
+    Sarah -->|Manages| Marcus
+    Sarah -->|Manages| Elena
+    Sarah -->|Onboards| Alex
+
+    %% Marcus's interactions
+    Marcus -->|Collaborates with| Garth
+    Marcus -->|Reports to| Sarah
+    Marcus -->|Mentors| Alex
+
+    %% Elena's interactions
+    Elena -->|Provides feedback to| Garth
+    Elena -->|Reports to| Sarah
+    Elena -->|Reviews work by| Marcus
+
+    %% Alex's interactions
+    Alex -->|Learns from| Garth
+    Alex -->|Learns from| Marcus
+    Alex -->|Gets feedback from| Elena
+    Alex -->|Reports to| Sarah
+
+    %% Styling
+    classDef persona fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    classDef interaction fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef permission fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+
+    class Garth,Sarah,Marcus,Elena,Alex persona
+    class Invite1,Invite2,Invite3,Collab1,Collab2,Collab3,Collab4 interaction
+    class Perm1,Perm2,Perm3,Perm4 permission

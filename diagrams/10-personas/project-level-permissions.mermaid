@@ -1,0 +1,70 @@
+graph TD
+    %% User Types
+    Owner["👨‍🎤 Account Owner<br/>(Garth)"]
+    Collaborator["👨‍🎵 Project Collaborator<br/>(Marcus)"]
+    Reviewer["👩‍🎨 Project Reviewer<br/>(Elena)"]
+    Observer["👁️ Project Observer<br/>(Alex)"]
+
+    %% Account Level
+    Account["📁 Garth's Account<br/>(Personal Workspace)"]
+    
+    %% Project Level with Permissions
+    Project1["🎵 Summer 2024 Album<br/>Project Access"]
+    Project2["🎵 Solo Work<br/>Project Access"]
+    Project3["🎵 Collaboration Project<br/>Project Access"]
+
+    %% Permission Levels
+    subgraph "Project Permission Levels"
+        Read["👁️ Read<br/>• View songs<br/>• Download exports<br/>• View project info"]
+        ReadNotes["📝 Read + Notes<br/>• All Read permissions<br/>• Add comments/notes<br/>• View session history"]
+        ReadWrite["✏️ Read + Write<br/>• All Read + Notes<br/>• Edit songs<br/>• Record takes<br/>• Create versions"]
+        FullAccess["🔧 Full Access<br/>• All Read + Write<br/>• Create sessions<br/>• Accept session invites<br/>• Manage project settings"]
+    end
+
+    %% Session Level
+    Session1["📝 Writing Session<br/>(Idea Generation)"]
+    Session2["📝 Feedback Session<br/>(Elena's Review)"]
+    Session3["📝 Recording Session<br/>(Track 1)"]
+
+    %% Relationships
+    Owner --> Account
+    Account --> Project1
+    Account --> Project2
+    Account --> Project3
+
+    %% Project Access
+    Owner -.->|Full Access| Project1
+    Owner -.->|Full Access| Project2
+    Owner -.->|Full Access| Project3
+
+    Collaborator -.->|Read + Write| Project1
+    Collaborator -.->|Read + Notes| Project2
+
+    Reviewer -.->|Read + Notes| Project1
+    Reviewer -.->|Read| Project3
+
+    Observer -.->|Read| Project1
+
+    %% Session Access (requires project access)
+    Project1 --> Session1
+    Project1 --> Session2
+    Project1 --> Session3
+
+    %% Session Participation
+    Collaborator -.->|Can Accept| Session1
+    Collaborator -.->|Can Accept| Session3
+    Reviewer -.->|Can Accept| Session2
+    Observer -.->|Cannot Accept| Session1
+
+    %% Styling
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef account fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef project fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef session fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef permission fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class Owner,Collaborator,Reviewer,Observer user
+    class Account account
+    class Project1,Project2,Project3 project
+    class Session1,Session2,Session3 session
+    class Read,ReadNotes,ReadWrite,FullAccess permission
