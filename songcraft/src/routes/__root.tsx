@@ -12,7 +12,7 @@ import ClerkProvider from "../integrations/clerk/provider";
 // Import styles
 import "../styles.css";
 import Navigation from "@/components/layout/navigation/navigation";
-import AccountContextDisplay from "@/components/layout/navigation/AccountContextDisplay.tsx";
+import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
 export const Route = createRootRoute({
@@ -103,13 +103,13 @@ function Root() {
                       className="flex-1 h-8 border border-gray-300 rounded-md px-2"
                     />
                     <SignedIn>
-                      <AccountContextDisplay />
                       <button
                         type="button"
                         className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
                       >
                         Sign out
                       </button>
+                      <AccountContextDisplay />
                     </SignedIn>
                     <button
                       type="button"
