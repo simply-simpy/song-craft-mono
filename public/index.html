@@ -20,6 +20,9 @@
         padding: 20px;
         background-color: #f5f5f5;
       }
+      ul {
+        padding-left: 0;
+      }
       .container {
         /* max-width: 1200px; */
         margin: 0 auto;
@@ -65,10 +68,12 @@
         margin: 0;
       }
       .file-item {
-        padding: 12px 20px;
+        padding: 12px 20px 12px 8px;
         border-bottom: 1px solid #dee2e6;
         cursor: pointer;
         transition: background-color 0.2s;
+        list-style-position: inside;
+        list-style-type: none;
       }
       .file-item:hover {
         background-color: #e9ecef;
@@ -77,13 +82,37 @@
         background-color: #007bff;
         color: white;
       }
+      .file-content {
+        display: flex;
+        align-items: center;
+        padding-left: 8px;
+      }
+      .file-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .file-markdown {
+        list-style-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDIwOCAxMjgiPjxyZWN0IHdpZHRoPSIxOTgiIGhlaWdodD0iMTE4IiB4PSI1IiB5PSI1IiByeT0iMTAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxMCIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCA5OFYzMGgyMGwyMCAyNSAyMC0yNWgyMHY2OEg5MFY1OUw3MCA4NCA1MCA1OXYzOXptMTI1IDBsLTMwLTMzaDIwVjMwaDIwdjM1aDIweiIvPjwvc3ZnPg==");
+      }
+      .file-mermaid {
+        list-style-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCA0OTEgNDkxIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnNlcmlmPSJodHRwOi8vc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+PHBhdGggZD0iTTQ5MC4xNiw4NC42MUM0OTAuMTYsMzcuOTEyIDQ1Mi4yNDgsMCA0MDUuNTUsMEw4NC42MSwwQzM3LjkxMiwwIDAsMzcuOTEyIDAsODQuNjFMMCw0MDUuNTVDMCw0NTIuMjQ4IDM3LjkxMiw0OTAuMTYgODQuNjEsNDkwLjE2TDQwNS41NSw0OTAuMTZDNDUyLjI0OCw0OTAuMTYgNDkwLjE2LDQ1Mi4yNDggNDkwLjE2LDQwNS41NUw0OTAuMTYsODQuNjFaIiBzdHlsZT0iZmlsbDpyZ2IoMjU1LDU0LDExMik7Ii8+PHBhdGggZD0iTTQwNy40OCwxMTEuMThDMzM1LjU4NywxMDguMTAzIDI2OS41NzMsMTUyLjMzOCAyNDUuMDgsMjIwQzIyMC41ODcsMTUyLjMzOCAxNTQuNTczLDEwOC4xMDMgODIuNjgsMTExLjE4QzgwLjI4NSwxNjguMjI5IDEwNy41NzcsMjIyLjYzMiAxNTQuNzQsMjU0LjgyQzE3OC45MDgsMjcxLjQxOSAxOTMuMzUsMjk4Ljk1MSAxOTMuMjcsMzI4LjI3TDE5My4yNywzNzkuMTNMOTYuOSwzNzkuMTNMOTYuOSwzMjguMjdDOTYuODE2LDI5OC45NTMgMTExLjI1NSwyNzEuNDIgMTM1LjQyLDI1NC44MkMxODIuNTk2LDIyMi42NDQgMjA5Ljg5MiwxNjguMjMzIDIwNy40OCwxMTEuMThaIiBzdHlsZT0iZmlsbDp3aGl0ZTtmaWxsLXJ1bGU6bm9uemVybzsiLz48L3N2Zz4=");
+      }
+      .file-default {
+        list-style-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI4IiB5PSIxMiIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KQPC90ZXh0Pjwvc3ZnPg==");
+      }
       .file-item .file-name {
         font-weight: 500;
         margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .file-item .file-path {
         font-size: 12px;
         color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .file-item.active .file-path {
         color: #e9ecef;
@@ -111,7 +140,7 @@
       }
       .folder-children {
         display: none;
-        padding-left: 20px;
+        /* padding-left: 20px; */
       }
       .folder-children.expanded {
         display: block;
@@ -497,9 +526,23 @@
             // It's a file
             const fileLi = document.createElement("li");
             fileLi.className = "file-item";
+
+            // Add icon class based on file type
+            if (item.type === "markdown") {
+              fileLi.classList.add("file-markdown");
+            } else if (item.type === "mermaid") {
+              fileLi.classList.add("file-mermaid");
+            } else {
+              fileLi.classList.add("file-default");
+            }
+
             fileLi.innerHTML = `
-               <div class="file-name">${item.name}</div>
-               <div class="file-path">${item.path}</div>
+               <div class="file-content">
+                 <div class="file-info">
+                   <div class="file-name">${item.name}</div>
+                   <div class="file-path">${item.path}</div>
+                 </div>
+               </div>
              `;
             fileLi.addEventListener("click", () =>
               loadDiagram(item, diagrams.indexOf(item))
