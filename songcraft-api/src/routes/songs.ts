@@ -105,10 +105,11 @@ export default async function songRoutes(fastify: FastifyInstance) {
         const offset = (page - 1) * limit;
 
         // Build base query
-        let baseQuery = db.select().from(songs);
+        let baseQuery = db.select().from(songs).$dynamic();
         let countQuery = db
           .select({ count: sql<number>`count(*)` })
-          .from(songs);
+          .from(songs)
+          .$dynamic();
 
         // Apply filters
         const conditions = [];
@@ -118,8 +119,8 @@ export default async function songRoutes(fastify: FastifyInstance) {
         if (conditions.length > 0) {
           const whereClause =
             conditions.length === 1 ? conditions[0] : and(...conditions);
-          baseQuery = baseQuery.where(whereClause) as any;
-          countQuery = countQuery.where(whereClause) as any;
+          baseQuery = baseQuery.where(whereClause);
+          countQuery = countQuery.where(whereClause);
         }
 
         // Get total count
@@ -143,10 +144,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
           },
         });
       } catch (error) {
-        fastify.log.error("Error fetching songs:", error);
+        fastify.log.error({ error }, "Error fetching songs");
         return reply.code(500).send({
           error: "Failed to fetch songs",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -181,10 +181,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ song: song[0] });
       } catch (error) {
-        fastify.log.error("Error fetching song:", error);
+        fastify.log.error({ error }, "Error fetching song");
         return reply.code(500).send({
           error: "Failed to fetch song",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -219,10 +218,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ song: song[0] });
       } catch (error) {
-        fastify.log.error("Error fetching song by shortId:", error);
+        fastify.log.error({ error }, "Error fetching song by shortId");
         return reply.code(500).send({
           error: "Failed to fetch song",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -269,10 +267,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ versions });
       } catch (error) {
-        fastify.log.error("Error fetching lyric versions:", error);
+        fastify.log.error({ error }, "Error fetching lyric versions");
         return reply.code(500).send({
           error: "Failed to fetch lyric versions",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -326,17 +323,19 @@ export default async function songRoutes(fastify: FastifyInstance) {
         // For now, we'll require it to be passed or use a default
         const accountId = request.headers["x-account-id"] as string;
 
+        const body = songSchema.parse(request.body);
+
         const songData = {
           shortId,
           ownerClerkId: clerkId,
-          title: (request.body as any).title,
-          artist: (request.body as any).artist,
-          bpm: (request.body as any).bpm,
-          key: (request.body as any).key,
-          tags: (request.body as any).tags,
-          lyrics: (request.body as any).lyrics,
-          midiData: (request.body as any).midiData,
-          collaborators: (request.body as any).collaborators,
+          title: body.title,
+          artist: body.artist,
+          bpm: body.bpm,
+          key: body.key,
+          tags: body.tags,
+          lyrics: body.lyrics,
+          midiData: body.midiData,
+          collaborators: body.collaborators,
           accountId: accountId || null, // Remove hard-coded value
         };
 
@@ -344,7 +343,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(201).send({ song: newSong[0] });
       } catch (error) {
-        fastify.log.error("Error creating song:", error);
+        fastify.log.error({ error }, "Error creating song");
         if (error instanceof z.ZodError) {
           return reply.code(400).send({
             error: "Invalid song data",
@@ -353,7 +352,6 @@ export default async function songRoutes(fastify: FastifyInstance) {
         }
         return reply.code(500).send({
           error: "Failed to create song",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -399,10 +397,12 @@ export default async function songRoutes(fastify: FastifyInstance) {
           return reply.code(403).send({ error: "Insufficient permissions" });
         }
 
+        const body = songSchema.partial().parse(request.body);
+
         const updatedSong = await db
           .update(songs)
           .set({
-            ...(request.body as any),
+            ...body,
             updatedAt: new Date(),
           })
           .where(eq(songs.id, id))
@@ -410,7 +410,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ song: updatedSong[0] });
       } catch (error) {
-        fastify.log.error("Error updating song:", error);
+        fastify.log.error({ error }, "Error updating song");
         if (error instanceof z.ZodError) {
           return reply.code(400).send({
             error: "Invalid song data",
@@ -419,7 +419,6 @@ export default async function songRoutes(fastify: FastifyInstance) {
         }
         return reply.code(500).send({
           error: "Failed to update song",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
@@ -445,7 +444,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
       const clerkId = request.headers["x-clerk-user-id"] as string;
 
       if (!clerkId) {
-        return reply.code(400).send({ error: "Authentication required" });
+        return reply.code(401).send({ error: "Authentication required" });
       }
 
       try {
@@ -474,10 +473,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
         return reply.code(204).send();
       } catch (error) {
-        fastify.log.error("Error deleting song:", error);
+        fastify.log.error({ error }, "Error deleting song");
         return reply.code(500).send({
           error: "Failed to delete song",
-          details: process.env.NODE_ENV === "development" ? error : undefined,
         });
       }
     }
