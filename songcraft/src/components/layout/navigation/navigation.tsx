@@ -24,6 +24,12 @@ function Navigation() {
             <NavItem to="/songs/new">New Song</NavItem>
           </li>
           <li>
+            <NavItem to="/projects">Projects</NavItem>
+          </li>
+          <li>
+            <NavItem to="/sessions/">Sessions</NavItem>
+          </li>
+          <li>
             <details open>
               <summary>Admin</summary>
               <ul>

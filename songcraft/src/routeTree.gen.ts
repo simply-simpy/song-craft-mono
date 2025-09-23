@@ -14,6 +14,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
+import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SongsNewRouteImport } from './routes/songs/new'
 import { Route as SignInSsoCallbackRouteImport } from './routes/sign-in/sso-callback'
@@ -44,6 +46,16 @@ const IndexRoute = IndexRouteImport.update({
 const SongsIndexRoute = SongsIndexRouteImport.update({
   id: '/songs/',
   path: '/songs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionsIndexRoute = SessionsIndexRouteImport.update({
+  id: '/sessions/',
+  path: '/sessions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -126,6 +138,8 @@ export interface FileRoutesByFullPath {
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -143,6 +157,8 @@ export interface FileRoutesByTo {
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -161,6 +177,8 @@ export interface FileRoutesById {
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin/': typeof AdminIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/sessions/': typeof SessionsIndexRoute
   '/songs/': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -180,6 +198,8 @@ export interface FileRouteTypes {
     | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
+    | '/projects'
+    | '/sessions'
     | '/songs'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -197,6 +217,8 @@ export interface FileRouteTypes {
     | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
+    | '/projects'
+    | '/sessions'
     | '/songs'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -214,6 +236,8 @@ export interface FileRouteTypes {
     | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin/'
+    | '/projects/'
+    | '/sessions/'
     | '/songs/'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -231,6 +255,8 @@ export interface RootRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   SongsNewRoute: typeof SongsNewRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
+  SessionsIndexRoute: typeof SessionsIndexRoute
   SongsIndexRoute: typeof SongsIndexRoute
   SongsSongIdCollabRoute: typeof SongsSongIdCollabRoute
   SongsSongIdLyricsRoute: typeof SongsSongIdLyricsRoute
@@ -286,6 +312,20 @@ declare module '@tanstack/react-router' {
       path: '/songs'
       fullPath: '/songs'
       preLoaderRoute: typeof SongsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sessions/': {
+      id: '/sessions/'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof SessionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -412,6 +452,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   SongsNewRoute: SongsNewRoute,
   AdminIndexRoute: AdminIndexRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
+  SessionsIndexRoute: SessionsIndexRoute,
   SongsIndexRoute: SongsIndexRoute,
   SongsSongIdCollabRoute: SongsSongIdCollabRoute,
   SongsSongIdLyricsRoute: SongsSongIdLyricsRoute,
