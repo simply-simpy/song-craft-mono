@@ -6,6 +6,89 @@ import { eq, like, desc, count, sql, or, and } from "drizzle-orm";
 import { superUserManager, GlobalRole } from "../lib/super-user";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
+  // General User APIs
+
+  // Get current user's complete context
+  fastify.get(
+    "/me",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.USER), // Any authenticated user
+    },
+    async (request) => {
+      try {
+        const clerkId = request.user?.clerkId;
+        if (!clerkId) {
+          return { success: false, error: "User not authenticated" };
+        }
+
+        // Get user details
+        const user = await db
+          .select({
+            id: users.id,
+            clerkId: users.clerkId,
+            email: users.email,
+            globalRole: users.globalRole,
+            createdAt: users.createdAt,
+            lastLoginAt: users.lastLoginAt,
+          })
+          .from(users)
+          .where(eq(users.clerkId, clerkId))
+          .limit(1);
+
+        if (user.length === 0) {
+          return { success: false, error: "User not found" };
+        }
+
+        // Get user's current context
+        const context = await db
+          .select({
+            currentAccountId: userContext.currentAccountId,
+            lastSwitchedAt: userContext.lastSwitchedAt,
+            accountName: accounts.name,
+            accountPlan: accounts.plan,
+            accountStatus: accounts.status,
+            orgId: orgs.id,
+            orgName: orgs.name,
+          })
+          .from(userContext)
+          .innerJoin(accounts, eq(userContext.currentAccountId, accounts.id))
+          .innerJoin(orgs, eq(accounts.orgId, orgs.id))
+          .where(eq(userContext.userId, user[0].id))
+          .limit(1);
+
+        // Get user's available accounts
+        const availableAccounts = await db
+          .select({
+            id: accounts.id,
+            name: accounts.name,
+            plan: accounts.plan,
+            status: accounts.status,
+            role: memberships.role,
+          })
+          .from(memberships)
+          .innerJoin(accounts, eq(memberships.accountId, accounts.id))
+          .where(eq(memberships.userId, user[0].id))
+          .orderBy(desc(memberships.createdAt));
+
+        // Get user permissions based on global role
+        const permissions = getUserPermissions(user[0].globalRole);
+
+        return {
+          success: true,
+          data: {
+            user: user[0],
+            currentContext: context[0] || null,
+            availableAccounts,
+            permissions,
+          },
+        };
+      } catch (error) {
+        console.error("Error fetching user context:", error);
+        return { success: false, error: "Failed to fetch user context" };
+      }
+    }
+  );
+
   // User Management APIs
 
   // Get all users with pagination and filtering
@@ -664,4 +747,51 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       }
     }
   );
+}
+
+// Helper function to get user permissions based on global role
+function getUserPermissions(globalRole: string): string[] {
+  const permissions: string[] = [];
+
+  // Base permissions for all users
+  permissions.push("user:profile:read");
+  permissions.push("user:profile:update");
+
+  // Role-based permissions
+  switch (globalRole) {
+    case "super_admin":
+      permissions.push(
+        "admin:users:read",
+        "admin:users:write",
+        "admin:accounts:read",
+        "admin:accounts:write",
+        "admin:orgs:read",
+        "admin:orgs:write",
+        "admin:stats:read",
+        "admin:system:manage"
+      );
+      break;
+    case "admin":
+      permissions.push(
+        "admin:users:read",
+        "admin:users:write",
+        "admin:accounts:read",
+        "admin:accounts:write",
+        "admin:orgs:read",
+        "admin:orgs:write"
+      );
+      break;
+    case "support":
+      permissions.push(
+        "admin:users:read",
+        "admin:accounts:read",
+        "admin:orgs:read"
+      );
+      break;
+    default:
+      // Only base permissions
+      break;
+  }
+
+  return permissions;
 }

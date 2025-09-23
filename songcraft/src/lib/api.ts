@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
   song: (id: string) => buildApiUrl(`/songs/${id}`),
   songVersions: (id: string) => buildApiUrl(`/songs/${id}/versions`),
   health: () => buildApiUrl("/health"),
+  me: () => buildApiUrl("/me"),
   admin: {
     orgs: () => buildApiUrl("/admin/orgs"),
     users: () => buildApiUrl("/admin/users"),

@@ -15,6 +15,7 @@ import Navigation from "@/components/layout/navigation/navigation";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
+import CurrentUser from "@/components/admin/currentUser";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -125,6 +126,7 @@ function Root() {
                     {/* Left nav */}
                     <aside className="border-r border-gray-200 p-3">
                       <Navigation />
+                      <CurrentUser />
                     </aside>
 
                     {/* Main content */}
