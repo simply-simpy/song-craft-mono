@@ -10,6 +10,7 @@ import {
 import * as dotenv from "dotenv";
 import songRoutes from "./routes/songs";
 import adminRoutes from "./routes/admin";
+import projectRoutes from "./routes/projects";
 import { superUserPlugin } from "./middleware/super-user";
 
 // Load environment variables
@@ -75,6 +76,7 @@ server.register(superUserPlugin);
 // Register routes
 server.register(songRoutes);
 server.register(adminRoutes);
+server.register(projectRoutes);
 
 // Health check route
 server.get("/health", async () => {
