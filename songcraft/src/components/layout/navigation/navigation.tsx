@@ -28,7 +28,7 @@ function Navigation() {
             <NavItem to="/projects">Projects</NavItem>
           </li>
           <li>
-            <NavItem to="/sessions/">Sessions</NavItem>
+            <NavItem to="/sessions">Sessions</NavItem>
           </li>
           <li>
             <details open>
