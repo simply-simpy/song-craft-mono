@@ -1,17 +1,17 @@
 import { Link } from "@tanstack/react-router";
 
-interface Song {
+interface SongCardSong {
   id: string;
   shortId: string;
   title: string;
-  artist?: string;
-  bpm?: number;
-  key?: string;
+  artist?: string | null;
+  bpm?: number | null;
+  key?: string | null;
   createdAt?: string;
 }
 
 interface SongCardProps {
-  song: Song;
+  song: SongCardSong;
   onDelete: (id: string) => void;
 }
 
