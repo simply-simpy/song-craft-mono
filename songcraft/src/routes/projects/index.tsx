@@ -28,7 +28,7 @@ interface Project {
     expiresAt: string | null;
     userEmail: string | null;
   }>;
-  sessionsCount: number;
+  sessionsCount: string | number;
 }
 
 function ProjectsPage() {
@@ -75,7 +75,10 @@ function ProjectsPage() {
       {
         accessorKey: "sessionsCount",
         header: "Sessions",
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          const count = info.getValue() as string | number;
+          return typeof count === "string" ? Number.parseInt(count) : count;
+        },
       },
       {
         accessorKey: "createdAt",
@@ -127,9 +130,9 @@ function ProjectsPage() {
     console.log("Projects API response:", result);
 
     return {
-      data: result.data || [],
-      rowCount: result.data?.length || 0,
-      pageCount: 1, // Since the API doesn't return pagination info
+      data: result.projects || [],
+      rowCount: result.pagination?.total || 0,
+      pageCount: result.pagination?.pages || 1,
     };
   };
 

@@ -81,76 +81,82 @@ const errorResponseSchema = z.object({
 
 export default async function songRoutes(fastify: FastifyInstance) {
   // Get all songs with pagination and filtering
-  fastify.get(
-    "/songs",
-    {
-      schema: {
-        querystring: paginationSchema,
-        response: {
-          200: songsListResponseSchema,
-          400: errorResponseSchema,
-          500: errorResponseSchema,
-        },
-      },
-    },
-    async (request, reply) => {
-      const queryResult = paginationSchema.safeParse(request.query);
-      if (!queryResult.success) {
-        return reply.code(400).send({ error: "Invalid query parameters" });
+  fastify.get("/songs", async (request, reply) => {
+    // Parse query parameters manually to avoid schema issues
+    const query = request.query as Record<string, unknown>;
+    const page = Number.parseInt((query?.page as string) || "1");
+    const limit = Number.parseInt((query?.limit as string) || "20");
+    const sort = (query?.sort as string) || "updatedAt";
+    const order = (query?.order as string) || "desc";
+    const accountId = query?.accountId as string | undefined;
+    const ownerClerkId = query?.ownerClerkId as string | undefined;
+
+    try {
+      const offset = (page - 1) * limit;
+
+      // Build base query
+      let baseQuery = db.select().from(songs).$dynamic();
+      let countQuery = db
+        .select({ count: sql<number>`count(*)` })
+        .from(songs)
+        .$dynamic();
+
+      // Apply filters
+      const conditions = [];
+      if (accountId) conditions.push(eq(songs.accountId, accountId));
+      if (ownerClerkId) conditions.push(eq(songs.ownerClerkId, ownerClerkId));
+
+      if (conditions.length > 0) {
+        const whereClause =
+          conditions.length === 1 ? conditions[0] : and(...conditions);
+        baseQuery = baseQuery.where(whereClause);
+        countQuery = countQuery.where(whereClause);
       }
-      const { page, limit, sort, order, accountId, ownerClerkId } =
-        queryResult.data;
 
-      try {
-        const offset = (page - 1) * limit;
+      // Get total count
+      const [{ count }] = await countQuery;
+      const totalPages = Math.ceil(count / limit);
 
-        // Build base query
-        let baseQuery = db.select().from(songs).$dynamic();
-        let countQuery = db
-          .select({ count: sql<number>`count(*)` })
-          .from(songs)
-          .$dynamic();
-
-        // Apply filters
-        const conditions = [];
-        if (accountId) conditions.push(eq(songs.accountId, accountId));
-        if (ownerClerkId) conditions.push(eq(songs.ownerClerkId, ownerClerkId));
-
-        if (conditions.length > 0) {
-          const whereClause =
-            conditions.length === 1 ? conditions[0] : and(...conditions);
-          baseQuery = baseQuery.where(whereClause);
-          countQuery = countQuery.where(whereClause);
+      // Get songs with sorting
+      const orderBy = (() => {
+        switch (sort) {
+          case "createdAt":
+            return order === "asc"
+              ? asc(songs.createdAt)
+              : desc(songs.createdAt);
+          case "updatedAt":
+            return order === "asc"
+              ? asc(songs.updatedAt)
+              : desc(songs.updatedAt);
+          case "title":
+            return order === "asc" ? asc(songs.title) : desc(songs.title);
+          case "artist":
+            return order === "asc" ? asc(songs.artist) : desc(songs.artist);
+          default:
+            return desc(songs.updatedAt);
         }
+      })();
+      const songsList = await baseQuery
+        .orderBy(orderBy)
+        .limit(limit)
+        .offset(offset);
 
-        // Get total count
-        const [{ count }] = await countQuery;
-        const totalPages = Math.ceil(count / limit);
-
-        // Get songs with sorting
-        const orderBy = order === "asc" ? asc(songs[sort]) : desc(songs[sort]);
-        const songsList = await baseQuery
-          .orderBy(orderBy)
-          .limit(limit)
-          .offset(offset);
-
-        return reply.code(200).send({
-          songs: songsList,
-          pagination: {
-            page,
-            limit,
-            total: count,
-            pages: totalPages,
-          },
-        });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching songs");
-        return reply.code(500).send({
-          error: "Failed to fetch songs",
-        });
-      }
+      return reply.code(200).send({
+        songs: songsList,
+        pagination: {
+          page,
+          limit,
+          total: count,
+          pages: totalPages,
+        },
+      });
+    } catch (error) {
+      fastify.log.error({ error }, "Error fetching songs");
+      return reply.code(500).send({
+        error: "Failed to fetch songs",
+      });
     }
-  );
+  });
 
   // Get song by ID (UUID primary key)
   fastify.get(

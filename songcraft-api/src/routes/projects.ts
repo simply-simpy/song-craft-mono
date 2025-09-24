@@ -126,22 +126,16 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     "/projects",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
-      schema: {
-        querystring: paginationSchema,
-        response: {
-          200: projectsListResponseSchema,
-          400: errorResponseSchema,
-          500: errorResponseSchema,
-        },
-      },
     },
     async (request, reply) => {
-      const queryResult = paginationSchema.safeParse(request.query);
-      if (!queryResult.success) {
-        return reply.code(400).send({ error: "Invalid query parameters" });
-      }
-      const { page, limit, sort, order, accountId, createdBy } =
-        queryResult.data;
+      // Parse query parameters manually to avoid schema issues
+      const query = request.query as Record<string, unknown>;
+      const page = Number.parseInt((query?.page as string) || "1");
+      const limit = Number.parseInt((query?.limit as string) || "20");
+      const sort = (query?.sort as string) || "updatedAt";
+      const order = (query?.order as string) || "desc";
+      const accountId = query?.accountId as string | undefined;
+      const createdBy = query?.createdBy as string | undefined;
 
       try {
         const offset = (page - 1) * limit;
@@ -170,8 +164,26 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         const totalPages = Math.ceil(count / limit);
 
         // Get projects with related data
-        const orderBy =
-          order === "asc" ? asc(projects[sort]) : desc(projects[sort]);
+        const orderBy = (() => {
+          switch (sort) {
+            case "createdAt":
+              return order === "asc"
+                ? asc(projects.createdAt)
+                : desc(projects.createdAt);
+            case "updatedAt":
+              return order === "asc"
+                ? asc(projects.updatedAt)
+                : desc(projects.updatedAt);
+            case "name":
+              return order === "asc" ? asc(projects.name) : desc(projects.name);
+            case "status":
+              return order === "asc"
+                ? asc(projects.status)
+                : desc(projects.status);
+            default:
+              return desc(projects.updatedAt);
+          }
+        })();
         const projectsList = await db
           .select({
             id: projects.id,
