@@ -5,6 +5,7 @@ import {
   UserButton,
   SignInButton,
 } from "@clerk/clerk-react";
+import { SiSuperuser } from "react-icons/si";
 
 function Navigation() {
   return (
@@ -34,7 +35,9 @@ function Navigation() {
               <summary>Admin</summary>
               <ul>
                 <li>
-                  <NavItem to="/admin/orgs">Organizations</NavItem>
+                  <NavItem to="/admin/orgs">
+                    <SiSuperuser /> Organizations
+                  </NavItem>
                 </li>
                 <li>
                   <NavItem to="/admin/accounts">Accounts</NavItem>
