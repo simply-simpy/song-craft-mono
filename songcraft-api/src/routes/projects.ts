@@ -61,6 +61,25 @@ const paginationSchema = z.object({
   createdBy: uuidSchema.optional(),
 });
 
+const sessionsPaginationSchema = z.object({
+  page: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .refine((n) => n > 0)
+    .default(1),
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .refine((n) => n > 0 && n <= 100)
+    .default(20),
+  sort: z
+    .enum(["createdAt", "updatedAt", "name", "status", "scheduledStart"])
+    .default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
 // Response schemas
 const projectResponseSchema = z.object({
   id: uuidSchema,
@@ -721,6 +740,87 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       return { success: false, error: "Failed to remove project permission" };
     }
   });
+
+  // Get all sessions across all projects
+  fastify.get(
+    "/sessions",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+    },
+    async (request, reply) => {
+      // Parse query parameters manually to avoid schema issues
+      const query = request.query as Record<string, unknown>;
+      const page = Number.parseInt((query?.page as string) || "1");
+      const limit = Number.parseInt((query?.limit as string) || "20");
+      const sort = (query?.sort as string) || "createdAt";
+      const order = (query?.order as string) || "desc";
+
+      try {
+        const offset = (page - 1) * limit;
+
+        // Get sessions with related data
+        const orderBy = (() => {
+          switch (sort) {
+            case "createdAt":
+              return order === "asc"
+                ? asc(sessions.createdAt)
+                : desc(sessions.createdAt);
+            case "updatedAt":
+              return order === "asc"
+                ? asc(sessions.updatedAt)
+                : desc(sessions.updatedAt);
+            case "name":
+              return order === "asc" ? asc(sessions.name) : desc(sessions.name);
+            case "status":
+              return order === "asc"
+                ? asc(sessions.status)
+                : desc(sessions.status);
+            case "scheduledStart":
+              return order === "asc"
+                ? asc(sessions.scheduledStart)
+                : desc(sessions.scheduledStart);
+            default:
+              return desc(sessions.createdAt);
+          }
+        })();
+        const sessionsList = await db
+          .select({
+            id: sessions.id,
+            projectId: sessions.projectId,
+            name: sessions.name,
+            description: sessions.description,
+            sessionType: sessions.sessionType,
+            status: sessions.status,
+            scheduledStart: sessions.scheduledStart,
+            scheduledEnd: sessions.scheduledEnd,
+            actualStart: sessions.actualStart,
+            actualEnd: sessions.actualEnd,
+            createdAt: sessions.createdAt,
+            createdBy: sessions.createdBy,
+            creatorName: users.email,
+            projectName: projects.name,
+            accountName: accounts.name,
+          })
+          .from(sessions)
+          .leftJoin(users, eq(sessions.createdBy, users.id))
+          .leftJoin(projects, eq(sessions.projectId, projects.id))
+          .leftJoin(accounts, eq(projects.accountId, accounts.id))
+          .orderBy(orderBy)
+          .limit(limit)
+          .offset(offset);
+
+        return reply.code(200).send({
+          success: true,
+          data: sessionsList,
+        });
+      } catch (error) {
+        fastify.log.error({ error }, "Error fetching sessions");
+        return reply.code(500).send({
+          error: "Failed to fetch sessions",
+        });
+      }
+    }
+  );
 
   // Get project sessions
   fastify.get("/projects/:id/sessions", async (request) => {

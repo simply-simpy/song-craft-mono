@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
   },
   projects: () => buildApiUrl("/projects"),
   project: (id: string) => buildApiUrl(`/projects/${id}`),
+  sessions: () => buildApiUrl("/sessions"),
   projectSessions: (id: string) => buildApiUrl(`/projects/${id}/sessions`),
 } as const;
 

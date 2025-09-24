@@ -10,66 +10,78 @@ export const Route = createFileRoute("/sessions/")({
   beforeLoad: () => requireAuth(),
   component: SessionsPage,
 });
-interface User {
+interface Session {
   id: string;
-  email: string;
-  globalRole: string;
+  accountId: string;
+  name: string;
+  description: string | null;
+  status: string;
   createdAt: string;
-  lastLoginAt?: string;
+  updatedAt: string;
+  createdBy: string;
+  creatorName: string | null;
+  accountName: string | null;
+  permissions: Array<{
+    userId: string;
+    permissionLevel: string;
+    grantedAt: string;
+    expiresAt: string | null;
+    userEmail: string | null;
+  }>;
+  sessionsCount: number;
 }
 
 function SessionsPage() {
   const { getAuthHeaders, isLoaded } = useAuth();
 
   // Define columns with useMemo for performance
-  const columns = useMemo<ColumnDef<User>[]>(
+  const columns = useMemo<ColumnDef<Session>[]>(
     () => [
       {
-        accessorKey: "email",
-        header: "Email",
+        accessorKey: "name",
+        header: "Project Name",
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: "globalRole",
-        header: "Role",
+        accessorKey: "accountName",
+        header: "Account",
+        cell: (info) => info.getValue() || "N/A",
+      },
+      {
+        accessorKey: "creatorName",
+        header: "Created By",
+        cell: (info) => info.getValue() || "Unknown",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
         cell: (info) => {
-          // TDODO: is this safe?
-          const role = info.getValue() as string;
+          const status = info.getValue() as string;
           return (
             <span
               className={`badge badge-${
-                role === "super_admin"
-                  ? "error"
-                  : role === "admin"
+                status === "active"
+                  ? "success"
+                  : status === "archived"
                   ? "warning"
-                  : "info"
+                  : "error"
               }`}
             >
-              {role}
+              {status}
             </span>
           );
         },
       },
       {
-        id: "status",
-        header: "Status",
-        cell: () => <span className="badge badge-success">Active</span>,
+        accessorKey: "sessionsCount",
+        header: "Sessions",
+        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "createdAt",
         header: "Created",
         cell: (info) =>
-          // TODO: is this safe?
           new Date(info.getValue() as string).toLocaleDateString(),
-      },
-      {
-        accessorKey: "lastLoginAt",
-        header: "Last Login",
-        cell: (info) => {
-          // TODO: is this safe?
-          const lastLogin = info.getValue() as string | undefined;
-          return lastLogin ? new Date(lastLogin).toLocaleDateString() : "Never";
-        },
       },
       {
         id: "actions",
@@ -77,7 +89,7 @@ function SessionsPage() {
         cell: (_info) => (
           <div className="flex gap-2">
             <button type="button" className="btn btn-sm btn-outline">
-              Edit Role
+              Edit
             </button>
             <button type="button" className="btn btn-sm btn-outline">
               View Details
@@ -89,14 +101,14 @@ function SessionsPage() {
     []
   );
 
-  // Query function for fetching users with pagination
+  // Query function for fetching projects with pagination
   const queryFn = async (pagination: PaginationState) => {
     const authHeaders = getAuthHeaders();
     const page = pagination.pageIndex + 1; // Convert 0-based to 1-based
     const limit = pagination.pageSize;
 
     const response = await fetch(
-      `${API_ENDPOINTS.admin.users()}?page=${page}&limit=${limit}`,
+      `${API_ENDPOINTS.sessions()}?page=${page}&limit=${limit}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -108,15 +120,16 @@ function SessionsPage() {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch users: ${response.status}`);
+      throw new Error(`Failed to fetch sessions: ${response.status}`);
     }
 
     const result = await response.json();
+    console.log("Projects API response:", result);
 
     return {
-      data: result.data.users,
-      rowCount: result.data.rowCount,
-      pageCount: result.data.pageCount,
+      data: result.data || [],
+      rowCount: result.data?.length || 0,
+      pageCount: 1, // Since the API doesn't return pagination info
     };
   };
 
