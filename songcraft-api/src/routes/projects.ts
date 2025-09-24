@@ -23,8 +23,8 @@ import {
   buildPaginationMeta,
   createPaginationSchema,
   getOffset,
-  orderDirectionSchema,
 } from "./_utils/pagination";
+import type { orderDirectionSchema } from "./_utils/pagination";
 import { withErrorHandling } from "./_utils/route-helpers";
 
 const uuidSchema = z.string().uuid();
@@ -356,14 +356,20 @@ const fetchProject = async (id: string) => {
 };
 
 const getProjectPermissions = async (projectId: string) =>
-  (await db
-    .select(projectPermissionsSelection)
-    .from(projectPermissions)
-    .leftJoin(users, eq(projectPermissions.userId, users.id))
-    .where(eq(projectPermissions.projectId, projectId)))
-    .map((permission) => serializeProjectPermission(permission as ProjectPermissionRow));
+  (
+    await db
+      .select(projectPermissionsSelection)
+      .from(projectPermissions)
+      .leftJoin(users, eq(projectPermissions.userId, users.id))
+      .where(eq(projectPermissions.projectId, projectId))
+  ).map((permission) =>
+    serializeProjectPermission(permission as ProjectPermissionRow)
+  );
 
-const getProjectPermissionForUser = async (projectId: string, userId: string) => {
+const getProjectPermissionForUser = async (
+  projectId: string,
+  userId: string
+) => {
   const [permission] = await db
     .select(projectPermissionsSelection)
     .from(projectPermissions)
@@ -443,7 +449,10 @@ const requireProjectPermission = async (
     )
     .limit(1);
 
-  if (!permission || !allowedLevels.includes(permission.level as PermissionLevel)) {
+  if (
+    !permission ||
+    !allowedLevels.includes(permission.level as PermissionLevel)
+  ) {
     throw new ForbiddenError();
   }
 };
@@ -477,7 +486,12 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const offset = getOffset({ page, limit });
       const orderBy = buildProjectOrderBy(sort, order);
       const total = await countProjects(conditions);
-      const projectRows = await fetchProjects(conditions, orderBy, limit, offset);
+      const projectRows = await fetchProjects(
+        conditions,
+        orderBy,
+        limit,
+        offset
+      );
 
       const projectsWithDetails = await Promise.all(
         projectRows.map(async (project) => ({
@@ -786,7 +800,9 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         .offset(offset);
 
       return reply.status(200).send({
-        data: sessionsList.map((session) => serializeSession(session as SessionRow)),
+        data: sessionsList.map((session) =>
+          serializeSession(session as SessionRow)
+        ),
         pagination: buildPaginationMeta({ page, limit, total }),
       });
     })
@@ -823,7 +839,9 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         .orderBy(desc(sessions.scheduledStart));
 
       return reply.status(200).send({
-        data: projectSessions.map((session) => serializeSession(session as SessionRow)),
+        data: projectSessions.map((session) =>
+          serializeSession(session as SessionRow)
+        ),
       });
     })
   );
