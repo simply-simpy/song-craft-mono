@@ -1,18 +1,32 @@
 import type { FastifyInstance } from "fastify";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { z } from "zod";
+
 import { db } from "../db";
 import {
-  projects,
+  accounts,
   projectPermissions,
+  projects,
   sessions,
   users,
-  accounts,
 } from "../schema";
-import { eq, and, desc, asc, sql, count } from "drizzle-orm";
-import crypto from "node:crypto";
+import {
+  AppError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../lib/errors";
 import { GlobalRole } from "../lib/super-user";
+import { requireClerkUser } from "./_utils/auth";
+import {
+  buildPaginationMeta,
+  createPaginationSchema,
+  getOffset,
+  orderDirectionSchema,
+} from "./_utils/pagination";
+import { withErrorHandling } from "./_utils/route-helpers";
 
-// Input validation schemas
 const uuidSchema = z.string().uuid();
 const permissionLevelSchema = z.enum([
   "read",
@@ -20,6 +34,11 @@ const permissionLevelSchema = z.enum([
   "read_write",
   "full_access",
 ]);
+
+type PermissionLevel = z.infer<typeof permissionLevelSchema>;
+
+const writablePermissions: PermissionLevel[] = ["read_write", "full_access"];
+const fullAccessOnly: PermissionLevel[] = ["full_access"];
 
 const createProjectSchema = z.object({
   accountId: uuidSchema,
@@ -40,47 +59,90 @@ const addPermissionSchema = z.object({
   expiresAt: z.string().datetime().optional(),
 });
 
-const paginationSchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0)
-    .default(1),
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0 && n <= 100)
-    .default(20),
-  sort: z
-    .enum(["createdAt", "updatedAt", "name", "status"])
-    .default("updatedAt"),
-  order: z.enum(["asc", "desc"]).default("desc"),
+const projectPaginationSchema = createPaginationSchema({
+  sortOptions: ["createdAt", "updatedAt", "name", "status"] as const,
+  defaultSort: "updatedAt",
+}).extend({
   accountId: uuidSchema.optional(),
   createdBy: uuidSchema.optional(),
 });
 
-const sessionsPaginationSchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0)
-    .default(1),
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0 && n <= 100)
-    .default(20),
-  sort: z
-    .enum(["createdAt", "updatedAt", "name", "status", "scheduledStart"])
-    .default("createdAt"),
-  order: z.enum(["asc", "desc"]).default("desc"),
+type ProjectPaginationQuery = z.infer<typeof projectPaginationSchema>;
+
+const sessionsPaginationSchema = createPaginationSchema({
+  sortOptions: [
+    "createdAt",
+    "updatedAt",
+    "name",
+    "status",
+    "scheduledStart",
+  ] as const,
+  defaultSort: "createdAt",
 });
 
-// Response schemas
+type SessionsPaginationQuery = z.infer<typeof sessionsPaginationSchema>;
+
+const projectSelection = {
+  id: projects.id,
+  accountId: projects.accountId,
+  name: projects.name,
+  description: projects.description,
+  status: projects.status,
+  createdAt: projects.createdAt,
+  updatedAt: projects.updatedAt,
+  createdBy: projects.createdBy,
+  creatorName: users.email,
+  accountName: accounts.name,
+} as const;
+
+const projectOrderColumns = {
+  createdAt: projects.createdAt,
+  updatedAt: projects.updatedAt,
+  name: projects.name,
+  status: projects.status,
+} as const;
+
+type ProjectOrderKey = keyof typeof projectOrderColumns;
+
+type OrderDirection = z.infer<typeof orderDirectionSchema>;
+
+const sessionSelection = {
+  id: sessions.id,
+  projectId: sessions.projectId,
+  name: sessions.name,
+  description: sessions.description,
+  sessionType: sessions.sessionType,
+  status: sessions.status,
+  scheduledStart: sessions.scheduledStart,
+  scheduledEnd: sessions.scheduledEnd,
+  actualStart: sessions.actualStart,
+  actualEnd: sessions.actualEnd,
+  createdAt: sessions.createdAt,
+  updatedAt: sessions.updatedAt,
+  createdBy: sessions.createdBy,
+  creatorName: users.email,
+  projectName: projects.name,
+  accountName: accounts.name,
+} as const;
+
+const sessionOrderColumns = {
+  createdAt: sessions.createdAt,
+  updatedAt: sessions.updatedAt,
+  name: sessions.name,
+  status: sessions.status,
+  scheduledStart: sessions.scheduledStart,
+} as const;
+
+type SessionOrderKey = keyof typeof sessionOrderColumns;
+
+const projectPermissionsSelection = {
+  userId: projectPermissions.userId,
+  permissionLevel: projectPermissions.permissionLevel,
+  grantedAt: projectPermissions.grantedAt,
+  expiresAt: projectPermissions.expiresAt,
+  userEmail: users.email,
+} as const;
+
 const projectResponseSchema = z.object({
   id: uuidSchema,
   accountId: uuidSchema,
@@ -114,152 +176,247 @@ const projectsListResponseSchema = z.object({
   }),
 });
 
+const projectPermissionResponseSchema = z.object({
+  userId: uuidSchema,
+  permissionLevel: permissionLevelSchema,
+  grantedAt: z.string(),
+  expiresAt: z.string().nullable(),
+});
+
+const sessionResponseSchema = z.object({
+  id: uuidSchema,
+  projectId: uuidSchema,
+  name: z.string(),
+  description: z.string().nullable(),
+  sessionType: z.string(),
+  status: z.string(),
+  scheduledStart: z.string().nullable(),
+  scheduledEnd: z.string().nullable(),
+  actualStart: z.string().nullable(),
+  actualEnd: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: uuidSchema,
+  creatorName: z.string().nullable(),
+  projectName: z.string().nullable(),
+  accountName: z.string().nullable(),
+});
+
+const sessionsListResponseSchema = z.object({
+  data: z.array(sessionResponseSchema),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    pages: z.number(),
+  }),
+});
+
+const projectSessionsResponseSchema = z.object({
+  data: z.array(sessionResponseSchema),
+});
+
 const errorResponseSchema = z.object({
   error: z.string(),
   code: z.string().optional(),
   details: z.any().optional(),
 });
 
+const buildProjectOrderBy = (sort: ProjectOrderKey, order: OrderDirection) => {
+  const column = projectOrderColumns[sort];
+  return order === "asc" ? asc(column) : desc(column);
+};
+
+const buildSessionOrderBy = (sort: SessionOrderKey, order: OrderDirection) => {
+  const column = sessionOrderColumns[sort];
+  return order === "asc" ? asc(column) : desc(column);
+};
+
+const mergeConditions = (conditions: SQL[]) =>
+  conditions.length === 1 ? conditions[0] : and(...conditions);
+
+const countProjects = async (conditions: SQL[]) => {
+  let query = db
+    .select({ count: sql<number>`count(*)` })
+    .from(projects)
+    .$dynamic();
+
+  if (conditions.length > 0) {
+    query = query.where(mergeConditions(conditions));
+  }
+
+  const [result] = await query;
+  return Number(result?.count ?? 0);
+};
+
+const fetchProjects = async (
+  conditions: SQL[],
+  orderBy: ReturnType<typeof buildProjectOrderBy>,
+  limit: number,
+  offset: number
+) => {
+  let query = db
+    .select(projectSelection)
+    .from(projects)
+    .leftJoin(users, eq(projects.createdBy, users.id))
+    .leftJoin(accounts, eq(projects.accountId, accounts.id))
+    .$dynamic();
+
+  if (conditions.length > 0) {
+    query = query.where(mergeConditions(conditions));
+  }
+
+  return query.orderBy(orderBy).limit(limit).offset(offset);
+};
+
+const fetchProject = async (id: string) => {
+  const [project] = await db
+    .select(projectSelection)
+    .from(projects)
+    .leftJoin(users, eq(projects.createdBy, users.id))
+    .leftJoin(accounts, eq(projects.accountId, accounts.id))
+    .where(eq(projects.id, id))
+    .limit(1);
+
+  return project ?? null;
+};
+
+const getProjectPermissions = async (projectId: string) =>
+  db
+    .select(projectPermissionsSelection)
+    .from(projectPermissions)
+    .leftJoin(users, eq(projectPermissions.userId, users.id))
+    .where(eq(projectPermissions.projectId, projectId));
+
+const getProjectPermissionForUser = async (projectId: string, userId: string) => {
+  const [permission] = await db
+    .select(projectPermissionsSelection)
+    .from(projectPermissions)
+    .leftJoin(users, eq(projectPermissions.userId, users.id))
+    .where(
+      and(
+        eq(projectPermissions.projectId, projectId),
+        eq(projectPermissions.userId, userId)
+      )
+    )
+    .limit(1);
+
+  return permission ?? null;
+};
+
+const getSessionsCount = async (projectId: string) => {
+  const [result] = await db
+    .select({ sessionsCount: sql<number>`count(*)` })
+    .from(sessions)
+    .where(eq(sessions.projectId, projectId));
+
+  return Number(result?.sessionsCount ?? 0);
+};
+
+const buildProjectDetails = async (projectId: string) => {
+  const project = await fetchProject(projectId);
+
+  if (!project) {
+    return null;
+  }
+
+  const [permissions, sessionsCount] = await Promise.all([
+    getProjectPermissions(projectId),
+    getSessionsCount(projectId),
+  ]);
+
+  return {
+    ...project,
+    permissions,
+    sessionsCount,
+  };
+};
+
+const findUserIdByClerkId = async (clerkId: string) => {
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.clerkId, clerkId))
+    .limit(1);
+
+  return user?.id ?? null;
+};
+
+const requireUserIdByClerkId = async (clerkId: string) => {
+  const userId = await findUserIdByClerkId(clerkId);
+  if (!userId) {
+    throw new UnauthorizedError("User not found");
+  }
+  return userId;
+};
+
+const requireProjectPermission = async (
+  projectId: string,
+  userId: string,
+  allowedLevels: PermissionLevel[]
+) => {
+  const [permission] = await db
+    .select({ level: projectPermissions.permissionLevel })
+    .from(projectPermissions)
+    .where(
+      and(
+        eq(projectPermissions.projectId, projectId),
+        eq(projectPermissions.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (!permission || !allowedLevels.includes(permission.level as PermissionLevel)) {
+    throw new ForbiddenError();
+  }
+};
+
 export default async function projectRoutes(fastify: FastifyInstance) {
-  // Get all projects with pagination and filtering
   fastify.get(
     "/projects",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      schema: {
+        querystring: projectPaginationSchema,
+        response: {
+          200: projectsListResponseSchema,
+          400: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
     },
-    async (request, reply) => {
-      // Parse query parameters manually to avoid schema issues
-      const query = request.query as Record<string, unknown>;
-      const page = Number.parseInt((query?.page as string) || "1");
-      const limit = Number.parseInt((query?.limit as string) || "20");
-      const sort = (query?.sort as string) || "updatedAt";
-      const order = (query?.order as string) || "desc";
-      const accountId = query?.accountId as string | undefined;
-      const createdBy = query?.createdBy as string | undefined;
+    withErrorHandling(async (request, reply) => {
+      const { page, limit, sort, order, accountId, createdBy } =
+        request.query as ProjectPaginationQuery;
 
-      try {
-        const offset = (page - 1) * limit;
-
-        // Build base query
-        let baseQuery = db.select().from(projects).$dynamic();
-        let countQuery = db
-          .select({ count: sql<number>`count(*)` })
-          .from(projects)
-          .$dynamic();
-
-        // Apply filters
-        const conditions = [];
-        if (accountId) conditions.push(eq(projects.accountId, accountId));
-        if (createdBy) conditions.push(eq(projects.createdBy, createdBy));
-
-        if (conditions.length > 0) {
-          const whereClause =
-            conditions.length === 1 ? conditions[0] : and(...conditions);
-          baseQuery = baseQuery.where(whereClause);
-          countQuery = countQuery.where(whereClause);
-        }
-
-        // Get total count
-        const [{ count }] = await countQuery;
-        const totalPages = Math.ceil(count / limit);
-
-        // Get projects with related data
-        const orderBy = (() => {
-          switch (sort) {
-            case "createdAt":
-              return order === "asc"
-                ? asc(projects.createdAt)
-                : desc(projects.createdAt);
-            case "updatedAt":
-              return order === "asc"
-                ? asc(projects.updatedAt)
-                : desc(projects.updatedAt);
-            case "name":
-              return order === "asc" ? asc(projects.name) : desc(projects.name);
-            case "status":
-              return order === "asc"
-                ? asc(projects.status)
-                : desc(projects.status);
-            default:
-              return desc(projects.updatedAt);
-          }
-        })();
-        const projectsList = await db
-          .select({
-            id: projects.id,
-            accountId: projects.accountId,
-            name: projects.name,
-            description: projects.description,
-            status: projects.status,
-            createdAt: projects.createdAt,
-            updatedAt: projects.updatedAt,
-            createdBy: projects.createdBy,
-            creatorName: users.email,
-            accountName: accounts.name,
-          })
-          .from(projects)
-          .leftJoin(users, eq(projects.createdBy, users.id))
-          .leftJoin(accounts, eq(projects.accountId, accounts.id))
-          .where(
-            conditions.length > 0
-              ? conditions.length === 1
-                ? conditions[0]
-                : and(...conditions)
-              : undefined
-          )
-          .orderBy(orderBy)
-          .limit(limit)
-          .offset(offset);
-
-        // Get permissions and sessions count for each project
-        const projectsWithDetails = await Promise.all(
-          projectsList.map(async (project) => {
-            // Get project permissions
-            const permissions = await db
-              .select({
-                userId: projectPermissions.userId,
-                permissionLevel: projectPermissions.permissionLevel,
-                grantedAt: projectPermissions.grantedAt,
-                expiresAt: projectPermissions.expiresAt,
-                userEmail: users.email,
-              })
-              .from(projectPermissions)
-              .leftJoin(users, eq(projectPermissions.userId, users.id))
-              .where(eq(projectPermissions.projectId, project.id));
-
-            // Get sessions count
-            const [{ sessionsCount }] = await db
-              .select({ sessionsCount: sql<number>`count(*)` })
-              .from(sessions)
-              .where(eq(sessions.projectId, project.id));
-
-            return {
-              ...project,
-              permissions,
-              sessionsCount: sessionsCount || 0,
-            };
-          })
-        );
-
-        return reply.code(200).send({
-          projects: projectsWithDetails,
-          pagination: {
-            page,
-            limit,
-            total: count,
-            pages: totalPages,
-          },
-        });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching projects");
-        return reply.code(500).send({
-          error: "Failed to fetch projects",
-        });
+      const conditions: SQL[] = [];
+      if (accountId) {
+        conditions.push(eq(projects.accountId, accountId));
       }
-    }
+      if (createdBy) {
+        conditions.push(eq(projects.createdBy, createdBy));
+      }
+
+      const offset = getOffset({ page, limit });
+      const orderBy = buildProjectOrderBy(sort, order);
+      const total = await countProjects(conditions);
+      const projectRows = await fetchProjects(conditions, orderBy, limit, offset);
+
+      const projectsWithDetails = await Promise.all(
+        projectRows.map(async (project) => ({
+          ...project,
+          permissions: await getProjectPermissions(project.id),
+          sessionsCount: await getSessionsCount(project.id),
+        }))
+      );
+
+      return reply.status(200).send({
+        projects: projectsWithDetails,
+        pagination: buildPaginationMeta({ page, limit, total }),
+      });
+    })
   );
 
-  // Get project by ID with details
   fastify.get(
     "/projects/:id",
     {
@@ -268,75 +425,24 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         params: z.object({ id: uuidSchema }),
         response: {
           200: z.object({ project: projectResponseSchema }),
+          400: errorResponseSchema,
           404: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      try {
-        // Get project with related data
-        const project = await db
-          .select({
-            id: projects.id,
-            accountId: projects.accountId,
-            name: projects.name,
-            description: projects.description,
-            status: projects.status,
-            createdAt: projects.createdAt,
-            updatedAt: projects.updatedAt,
-            createdBy: projects.createdBy,
-            creatorName: users.email,
-            accountName: accounts.name,
-          })
-          .from(projects)
-          .leftJoin(users, eq(projects.createdBy, users.id))
-          .leftJoin(accounts, eq(projects.accountId, accounts.id))
-          .where(eq(projects.id, id))
-          .limit(1);
-
-        if (project.length === 0) {
-          return reply.code(404).send({ error: "Project not found" });
-        }
-
-        // Get project permissions
-        const permissions = await db
-          .select({
-            userId: projectPermissions.userId,
-            permissionLevel: projectPermissions.permissionLevel,
-            grantedAt: projectPermissions.grantedAt,
-            expiresAt: projectPermissions.expiresAt,
-            userEmail: users.email,
-          })
-          .from(projectPermissions)
-          .leftJoin(users, eq(projectPermissions.userId, users.id))
-          .where(eq(projectPermissions.projectId, id));
-
-        // Get sessions count
-        const [{ sessionsCount }] = await db
-          .select({ sessionsCount: sql<number>`count(*)` })
-          .from(sessions)
-          .where(eq(sessions.projectId, id));
-
-        const projectData = {
-          ...project[0],
-          permissions,
-          sessionsCount: sessionsCount || 0,
-        };
-
-        return reply.code(200).send({ project: projectData });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching project");
-        return reply.code(500).send({
-          error: "Failed to fetch project",
-        });
+      const project = await buildProjectDetails(id);
+      if (!project) {
+        throw new NotFoundError("Project not found");
       }
-    }
+
+      return reply.status(200).send({ project });
+    })
   );
 
-  // Create new project
   fastify.post(
     "/projects",
     {
@@ -351,88 +457,46 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+    withErrorHandling(async (request, reply) => {
+      const clerkId = requireClerkUser(request);
+      const userId = await requireUserIdByClerkId(clerkId);
+      const body = request.body as z.infer<typeof createProjectSchema>;
 
-      if (!clerkId) {
-        return reply.code(401).send({ error: "Authentication required" });
-      }
-
-      try {
-        const body = createProjectSchema.parse(request.body);
-
-        // Get user ID from clerk ID
-        const user = await db
-          .select({ id: users.id })
-          .from(users)
-          .where(eq(users.clerkId, clerkId))
-          .limit(1);
-
-        if (user.length === 0) {
-          return reply.code(401).send({ error: "User not found" });
-        }
-
-        const newProject = await db.transaction(async (tx) => {
-          // Create the project
-          const project = await tx
-            .insert(projects)
-            .values({
-              accountId: body.accountId,
-              name: body.name,
-              description: body.description,
-              status: body.status,
-              createdBy: user[0].id,
-            })
-            .returning();
-
-          // Give creator full access
-          await tx.insert(projectPermissions).values({
-            projectId: project[0].id,
-            userId: user[0].id,
-            permissionLevel: "full_access",
-            grantedBy: user[0].id,
-          });
-
-          return project[0];
-        });
-
-        // Get the full project data with relationships
-        const projectWithDetails = await db
-          .select({
-            id: projects.id,
-            accountId: projects.accountId,
-            name: projects.name,
-            description: projects.description,
-            status: projects.status,
-            createdAt: projects.createdAt,
-            updatedAt: projects.updatedAt,
-            createdBy: projects.createdBy,
-            creatorName: users.email,
-            accountName: accounts.name,
+      const createdProject = await db.transaction(async (tx) => {
+        const [project] = await tx
+          .insert(projects)
+          .values({
+            accountId: body.accountId,
+            name: body.name,
+            description: body.description,
+            status: body.status,
+            createdBy: userId,
           })
-          .from(projects)
-          .leftJoin(users, eq(projects.createdBy, users.id))
-          .leftJoin(accounts, eq(projects.accountId, accounts.id))
-          .where(eq(projects.id, newProject.id))
-          .limit(1);
+          .returning();
 
-        return reply.code(201).send({ project: projectWithDetails[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error creating project");
-        if (error instanceof z.ZodError) {
-          return reply.code(400).send({
-            error: "Invalid input data",
-            details: error.issues,
-          });
+        if (!project) {
+          throw new AppError("Failed to create project record");
         }
-        return reply.code(500).send({
-          error: "Failed to create project",
+
+        await tx.insert(projectPermissions).values({
+          projectId: project.id,
+          userId,
+          permissionLevel: "full_access",
+          grantedBy: userId,
         });
+
+        return project.id;
+      });
+
+      const projectWithDetails = await buildProjectDetails(createdProject);
+      if (!projectWithDetails) {
+        throw new AppError("Project created but details could not be loaded");
       }
-    }
+
+      return reply.status(201).send({ project: projectWithDetails });
+    })
   );
 
-  // Update project
   fastify.put(
     "/projects/:id",
     {
@@ -450,97 +514,36 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+      const clerkId = requireClerkUser(request);
+      const userId = await requireUserIdByClerkId(clerkId);
 
-      if (!clerkId) {
-        return reply.code(401).send({ error: "Authentication required" });
+      await requireProjectPermission(id, userId, writablePermissions);
+
+      const body = request.body as z.infer<typeof updateProjectSchema>;
+      const [updatedProject] = await db
+        .update(projects)
+        .set({
+          ...body,
+          updatedAt: new Date(),
+        })
+        .where(eq(projects.id, id))
+        .returning({ id: projects.id });
+
+      if (!updatedProject) {
+        throw new NotFoundError("Project not found");
       }
 
-      try {
-        const body = updateProjectSchema.parse(request.body);
-
-        // Get user ID from clerk ID
-        const user = await db
-          .select({ id: users.id })
-          .from(users)
-          .where(eq(users.clerkId, clerkId))
-          .limit(1);
-
-        if (user.length === 0) {
-          return reply.code(401).send({ error: "User not found" });
-        }
-
-        // Check user permission for this project
-        const permission = await db
-          .select({ permissionLevel: projectPermissions.permissionLevel })
-          .from(projectPermissions)
-          .where(
-            and(
-              eq(projectPermissions.projectId, id),
-              eq(projectPermissions.userId, user[0].id)
-            )
-          )
-          .limit(1);
-
-        if (
-          permission.length === 0 ||
-          !["read_write", "full_access"].includes(permission[0].permissionLevel)
-        ) {
-          return reply.code(403).send({ error: "Insufficient permissions" });
-        }
-
-        const updatedProject = await db
-          .update(projects)
-          .set({
-            ...body,
-            updatedAt: new Date(),
-          })
-          .where(eq(projects.id, id))
-          .returning();
-
-        if (updatedProject.length === 0) {
-          return reply.code(404).send({ error: "Project not found" });
-        }
-
-        // Get updated project with relationships
-        const projectWithDetails = await db
-          .select({
-            id: projects.id,
-            accountId: projects.accountId,
-            name: projects.name,
-            description: projects.description,
-            status: projects.status,
-            createdAt: projects.createdAt,
-            updatedAt: projects.updatedAt,
-            createdBy: projects.createdBy,
-            creatorName: users.email,
-            accountName: accounts.name,
-          })
-          .from(projects)
-          .leftJoin(users, eq(projects.createdBy, users.id))
-          .leftJoin(accounts, eq(projects.accountId, accounts.id))
-          .where(eq(projects.id, id))
-          .limit(1);
-
-        return reply.code(200).send({ project: projectWithDetails[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error updating project");
-        if (error instanceof z.ZodError) {
-          return reply.code(400).send({
-            error: "Invalid input data",
-            details: error.issues,
-          });
-        }
-        return reply.code(500).send({
-          error: "Failed to update project",
-        });
+      const projectWithDetails = await buildProjectDetails(updatedProject.id);
+      if (!projectWithDetails) {
+        throw new AppError("Updated project could not be loaded");
       }
-    }
+
+      return reply.status(200).send({ project: projectWithDetails });
+    })
   );
 
-  // Delete project
   fastify.delete(
     "/projects/:id",
     {
@@ -556,187 +559,107 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+      const clerkId = requireClerkUser(request);
+      const userId = await requireUserIdByClerkId(clerkId);
 
-      if (!clerkId) {
-        return reply.code(401).send({ error: "Authentication required" });
+      await requireProjectPermission(id, userId, fullAccessOnly);
+
+      const project = await fetchProject(id);
+      if (!project) {
+        throw new NotFoundError("Project not found");
       }
 
-      try {
-        // Get user ID from clerk ID
-        const user = await db
-          .select({ id: users.id })
-          .from(users)
-          .where(eq(users.clerkId, clerkId))
-          .limit(1);
+      await db.transaction(async (tx) => {
+        await tx
+          .delete(projectPermissions)
+          .where(eq(projectPermissions.projectId, id));
+        await tx.delete(sessions).where(eq(sessions.projectId, id));
+        await tx.delete(projects).where(eq(projects.id, id));
+      });
 
-        if (user.length === 0) {
-          return reply.code(401).send({ error: "User not found" });
-        }
-
-        // Check if user has full access to this project
-        const permission = await db
-          .select({ permissionLevel: projectPermissions.permissionLevel })
-          .from(projectPermissions)
-          .where(
-            and(
-              eq(projectPermissions.projectId, id),
-              eq(projectPermissions.userId, user[0].id)
-            )
-          )
-          .limit(1);
-
-        if (
-          permission.length === 0 ||
-          permission[0].permissionLevel !== "full_access"
-        ) {
-          return reply.code(403).send({ error: "Insufficient permissions" });
-        }
-
-        // Use transaction to ensure atomicity
-        await db.transaction(async (tx) => {
-          // Delete project permissions first (FK constraint)
-          await tx
-            .delete(projectPermissions)
-            .where(eq(projectPermissions.projectId, id));
-
-          // Delete sessions (FK constraint)
-          await tx.delete(sessions).where(eq(sessions.projectId, id));
-
-          // Delete the project
-          await tx.delete(projects).where(eq(projects.id, id));
-        });
-
-        return reply.code(204).send();
-      } catch (error) {
-        fastify.log.error({ error }, "Error deleting project");
-        return reply.code(500).send({
-          error: "Failed to delete project",
-        });
-      }
-    }
+      return reply.status(204).send();
+    })
   );
 
-  // Add user permission to project
-  fastify.post("/projects/:id/permissions", async (request) => {
-    const { id } = request.params as { id: string };
+  fastify.post(
+    "/projects/:id/permissions",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      schema: {
+        params: z.object({ id: uuidSchema }),
+        body: addPermissionSchema,
+        response: {
+          200: z.object({ permission: projectPermissionResponseSchema }),
+          400: errorResponseSchema,
+          401: errorResponseSchema,
+          403: errorResponseSchema,
+          404: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
+    },
+    withErrorHandling(async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = request.body as z.infer<typeof addPermissionSchema>;
+      const clerkId = requireClerkUser(request);
+      const userId = await requireUserIdByClerkId(clerkId);
 
-    try {
-      const body = addPermissionSchema.parse(request.body);
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+      await requireProjectPermission(id, userId, fullAccessOnly);
 
-      if (!clerkId) {
-        return { success: false, error: "User not authenticated" };
-      }
+      const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
 
-      // Get user ID from clerk ID
-      const user = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.clerkId, clerkId))
-        .limit(1);
-
-      if (user.length === 0) {
-        return { success: false, error: "User not found" };
-      }
-
-      // Check if user has permission to grant permissions
-      const permission = await db
-        .select({ permissionLevel: projectPermissions.permissionLevel })
-        .from(projectPermissions)
-        .where(
-          and(
-            eq(projectPermissions.projectId, id),
-            eq(projectPermissions.userId, user[0].id)
-          )
-        )
-        .limit(1);
-
-      if (
-        permission.length === 0 ||
-        permission[0].permissionLevel !== "full_access"
-      ) {
-        return { success: false, error: "Insufficient permissions" };
-      }
-
-      // Add or update permission
-      const newPermission = await db
+      await db
         .insert(projectPermissions)
         .values({
           projectId: id,
           userId: body.userId,
           permissionLevel: body.permissionLevel,
-          grantedBy: user[0].id,
-          expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+          grantedBy: userId,
+          expiresAt,
         })
         .onConflictDoUpdate({
           target: [projectPermissions.projectId, projectPermissions.userId],
           set: {
             permissionLevel: body.permissionLevel,
-            grantedBy: user[0].id,
-            expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+            grantedBy: userId,
+            expiresAt,
           },
-        })
-        .returning();
+        });
 
-      return { success: true, data: newPermission[0] };
-    } catch (error) {
-      console.error("Error adding project permission:", error);
-      if (error instanceof z.ZodError) {
-        return {
-          success: false,
-          error: "Invalid input data",
-          details: error.issues,
-        };
-      }
-      return { success: false, error: "Failed to add project permission" };
-    }
-  });
+      const permission = await getProjectPermissionForUser(id, body.userId);
 
-  // Remove user permission from project
-  fastify.delete("/projects/:id/permissions/:userId", async (request) => {
-    const { id, userId } = request.params as { id: string; userId: string };
-
-    try {
-      const clerkId = request.headers["x-clerk-user-id"] as string;
-
-      if (!clerkId) {
-        return { success: false, error: "User not authenticated" };
+      if (!permission) {
+        throw new AppError("Failed to load updated permission");
       }
 
-      // Get user ID from clerk ID
-      const user = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.clerkId, clerkId))
-        .limit(1);
+      return reply.status(200).send({ permission });
+    })
+  );
 
-      if (user.length === 0) {
-        return { success: false, error: "User not found" };
-      }
+  fastify.delete(
+    "/projects/:id/permissions/:userId",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      schema: {
+        params: z.object({ id: uuidSchema, userId: uuidSchema }),
+        response: {
+          204: z.null(),
+          400: errorResponseSchema,
+          401: errorResponseSchema,
+          403: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
+    },
+    withErrorHandling(async (request, reply) => {
+      const { id, userId } = request.params as { id: string; userId: string };
+      const clerkId = requireClerkUser(request);
+      const requestingUserId = await requireUserIdByClerkId(clerkId);
 
-      // Check if user has permission to remove permissions
-      const permission = await db
-        .select({ permissionLevel: projectPermissions.permissionLevel })
-        .from(projectPermissions)
-        .where(
-          and(
-            eq(projectPermissions.projectId, id),
-            eq(projectPermissions.userId, user[0].id)
-          )
-        )
-        .limit(1);
+      await requireProjectPermission(id, requestingUserId, fullAccessOnly);
 
-      if (
-        permission.length === 0 ||
-        permission[0].permissionLevel !== "full_access"
-      ) {
-        return { success: false, error: "Insufficient permissions" };
-      }
-
-      // Remove permission
       await db
         .delete(projectPermissions)
         .where(
@@ -746,123 +669,83 @@ export default async function projectRoutes(fastify: FastifyInstance) {
           )
         );
 
-      return { success: true };
-    } catch (error) {
-      console.error("Error removing project permission:", error);
-      return { success: false, error: "Failed to remove project permission" };
-    }
-  });
+      return reply.status(204).send();
+    })
+  );
 
-  // Get all sessions across all projects
   fastify.get(
     "/sessions",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      schema: {
+        querystring: sessionsPaginationSchema,
+        response: {
+          200: sessionsListResponseSchema,
+          400: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
     },
-    async (request, reply) => {
-      // Parse query parameters manually to avoid schema issues
-      const query = request.query as Record<string, unknown>;
-      const page = Number.parseInt((query?.page as string) || "1");
-      const limit = Number.parseInt((query?.limit as string) || "20");
-      const sort = (query?.sort as string) || "createdAt";
-      const order = (query?.order as string) || "desc";
+    withErrorHandling(async (request, reply) => {
+      const { page, limit, sort, order } =
+        request.query as SessionsPaginationQuery;
 
-      try {
-        const offset = (page - 1) * limit;
+      const offset = getOffset({ page, limit });
+      const orderBy = buildSessionOrderBy(sort, order);
 
-        // Get sessions with related data
-        const orderBy = (() => {
-          switch (sort) {
-            case "createdAt":
-              return order === "asc"
-                ? asc(sessions.createdAt)
-                : desc(sessions.createdAt);
-            case "updatedAt":
-              return order === "asc"
-                ? asc(sessions.updatedAt)
-                : desc(sessions.updatedAt);
-            case "name":
-              return order === "asc" ? asc(sessions.name) : desc(sessions.name);
-            case "status":
-              return order === "asc"
-                ? asc(sessions.status)
-                : desc(sessions.status);
-            case "scheduledStart":
-              return order === "asc"
-                ? asc(sessions.scheduledStart)
-                : desc(sessions.scheduledStart);
-            default:
-              return desc(sessions.createdAt);
-          }
-        })();
-        const sessionsList = await db
-          .select({
-            id: sessions.id,
-            projectId: sessions.projectId,
-            name: sessions.name,
-            description: sessions.description,
-            sessionType: sessions.sessionType,
-            status: sessions.status,
-            scheduledStart: sessions.scheduledStart,
-            scheduledEnd: sessions.scheduledEnd,
-            actualStart: sessions.actualStart,
-            actualEnd: sessions.actualEnd,
-            createdAt: sessions.createdAt,
-            createdBy: sessions.createdBy,
-            creatorName: users.email,
-            projectName: projects.name,
-            accountName: accounts.name,
-          })
-          .from(sessions)
-          .leftJoin(users, eq(sessions.createdBy, users.id))
-          .leftJoin(projects, eq(sessions.projectId, projects.id))
-          .leftJoin(accounts, eq(projects.accountId, accounts.id))
-          .orderBy(orderBy)
-          .limit(limit)
-          .offset(offset);
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(sessions);
+      const total = Number(count ?? 0);
 
-        return reply.code(200).send({
-          success: true,
-          data: sessionsList,
-        });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching sessions");
-        return reply.code(500).send({
-          error: "Failed to fetch sessions",
-        });
-      }
-    }
-  );
-
-  // Get project sessions
-  fastify.get("/projects/:id/sessions", async (request) => {
-    const { id } = request.params as { id: string };
-
-    try {
-      const projectSessions = await db
-        .select({
-          id: sessions.id,
-          name: sessions.name,
-          description: sessions.description,
-          sessionType: sessions.sessionType,
-          status: sessions.status,
-          scheduledStart: sessions.scheduledStart,
-          scheduledEnd: sessions.scheduledEnd,
-          actualStart: sessions.actualStart,
-          actualEnd: sessions.actualEnd,
-          createdAt: sessions.createdAt,
-          createdBy: sessions.createdBy,
-          creatorName: users.email,
-        })
+      const sessionsList = await db
+        .select(sessionSelection)
         .from(sessions)
         .leftJoin(users, eq(sessions.createdBy, users.id))
+        .leftJoin(projects, eq(sessions.projectId, projects.id))
+        .leftJoin(accounts, eq(projects.accountId, accounts.id))
+        .orderBy(orderBy)
+        .limit(limit)
+        .offset(offset);
+
+      return reply.status(200).send({
+        data: sessionsList,
+        pagination: buildPaginationMeta({ page, limit, total }),
+      });
+    })
+  );
+
+  fastify.get(
+    "/projects/:id/sessions",
+    {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
+      schema: {
+        params: z.object({ id: uuidSchema }),
+        response: {
+          200: projectSessionsResponseSchema,
+          400: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
+    },
+    withErrorHandling(async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      const project = await fetchProject(id);
+      if (!project) {
+        throw new NotFoundError("Project not found");
+      }
+
+      const projectSessions = await db
+        .select(sessionSelection)
+        .from(sessions)
+        .leftJoin(users, eq(sessions.createdBy, users.id))
+        .leftJoin(projects, eq(sessions.projectId, projects.id))
+        .leftJoin(accounts, eq(projects.accountId, accounts.id))
         .where(eq(sessions.projectId, id))
         .orderBy(desc(sessions.scheduledStart));
 
-      return { success: true, data: projectSessions };
-    } catch (error) {
-      console.error("Error fetching project sessions:", error);
-      return { success: false, error: "Failed to fetch project sessions" };
-    }
-  });
+      return reply.status(200).send({ data: projectSessions });
+    })
+  );
 }

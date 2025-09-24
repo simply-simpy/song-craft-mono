@@ -1,17 +1,19 @@
+import { env } from "../config/env";
+
+// Internal helpers to classify database host
+const isLocalDatabase = (connectionString: string) =>
+  connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+
+const isNeonDatabase = (connectionString: string) =>
+  connectionString.includes("neon.tech");
+
 // Environment detection and configuration utilities
 export const Environment = {
-  isLocal: () =>
-    process.env.NODE_ENV === "development" &&
-    (process.env.DATABASE_URL?.includes("localhost") ||
-      process.env.DATABASE_URL?.includes("127.0.0.1")),
+  isLocal: () => env.NODE_ENV === "development" && isLocalDatabase(env.DATABASE_URL),
 
-  isNeonDev: () =>
-    process.env.NODE_ENV === "development" &&
-    process.env.DATABASE_URL?.includes("neon.tech"),
+  isNeonDev: () => env.NODE_ENV === "development" && isNeonDatabase(env.DATABASE_URL),
 
-  isNeonProd: () =>
-    process.env.NODE_ENV === "production" &&
-    process.env.DATABASE_URL?.includes("neon.tech"),
+  isNeonProd: () => env.NODE_ENV === "production" && isNeonDatabase(env.DATABASE_URL),
 
   getDatabaseType: () => {
     if (Environment.isLocal()) return "local-postgres";
@@ -20,13 +22,13 @@ export const Environment = {
     return "unknown";
   },
 
-  isClerkEnabled: () => Boolean(process.env.CLERK_SECRET_KEY),
+  isClerkEnabled: () => Boolean(env.CLERK_SECRET_KEY),
 
   getConfig: () => ({
     environment: Environment.getDatabaseType(),
     clerkEnabled: Environment.isClerkEnabled(),
-    databaseUrl: process.env.DATABASE_URL,
-    nodeEnv: process.env.NODE_ENV,
+    databaseUrl: env.DATABASE_URL,
+    nodeEnv: env.NODE_ENV,
   }),
 } as const;
 

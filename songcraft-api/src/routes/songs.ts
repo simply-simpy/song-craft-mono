@@ -1,16 +1,24 @@
-import type { FastifyInstance } from "fastify";
-import { z } from "zod";
-import { db } from "../db";
-import { songs, lyricVersions } from "../schema";
-import { eq, desc, sql, and, asc } from "drizzle-orm";
 import crypto from "node:crypto";
 
-// Input validation schemas
+import type { FastifyInstance } from "fastify";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
+import { z } from "zod";
+
+import { db } from "../db";
+import { lyricVersions, songs } from "../schema";
+import { AppError, ForbiddenError, NotFoundError } from "../lib/errors";
+import { requireClerkUser } from "./_utils/auth";
+import {
+  buildPaginationMeta,
+  createPaginationSchema,
+  getOffset,
+  orderDirectionSchema,
+} from "./_utils/pagination";
+import { withErrorHandling } from "./_utils/route-helpers";
+
 const uuidSchema = z.string().uuid();
-const songIdSchema = z
-  .string()
-  .length(16)
-  .regex(/^[a-f0-9]{16}$/);
+const shortIdSchema = z.string().length(16).regex(/^[a-f0-9]{16}$/);
 
 const songSchema = z.object({
   title: z.string().min(1).max(200),
@@ -23,28 +31,14 @@ const songSchema = z.object({
   collaborators: z.array(z.string()).default([]),
 });
 
-const paginationSchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0)
-    .default(1),
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .refine((n) => n > 0 && n <= 100)
-    .default(20),
-  sort: z
-    .enum(["createdAt", "updatedAt", "title", "artist"])
-    .default("updatedAt"),
-  order: z.enum(["asc", "desc"]).default("desc"),
+const paginationSchema = createPaginationSchema({
+  sortOptions: ["createdAt", "updatedAt", "title", "artist"] as const,
+  defaultSort: "updatedAt",
+}).extend({
   accountId: z.string().uuid().optional(),
   ownerClerkId: z.string().optional(),
 });
 
-// Response schemas
 const songResponseSchema = z.object({
   id: z.string().uuid(),
   shortId: z.string().length(16),
@@ -73,92 +67,154 @@ const songsListResponseSchema = z.object({
   }),
 });
 
+const versionsResponseSchema = z.object({
+  versions: z.array(z.any()),
+});
+
 const errorResponseSchema = z.object({
   error: z.string(),
   code: z.string().optional(),
   details: z.any().optional(),
 });
 
+const songOrderColumns = {
+  createdAt: songs.createdAt,
+  updatedAt: songs.updatedAt,
+  title: songs.title,
+  artist: songs.artist,
+} as const;
+
+type SongOrderColumnKey = keyof typeof songOrderColumns;
+
+type PaginationQuery = z.infer<typeof paginationSchema>;
+
+const buildOrderBy = (sort: SongOrderColumnKey, order: z.infer<typeof orderDirectionSchema>) => {
+  const column = songOrderColumns[sort];
+  return order === "asc" ? asc(column) : desc(column);
+};
+
+const countSongs = async (conditions: SQL[]) => {
+  let query = db
+    .select({ count: sql<number>`count(*)` })
+    .from(songs)
+    .$dynamic();
+
+  if (conditions.length > 0) {
+    query = query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+  }
+
+  const [result] = await query;
+  return Number(result?.count ?? 0);
+};
+
+const fetchSongs = async (
+  conditions: SQL[],
+  orderBy: ReturnType<typeof buildOrderBy>,
+  limit: number,
+  offset: number
+) => {
+  let baseQuery = db.select().from(songs).$dynamic();
+
+  if (conditions.length > 0) {
+    baseQuery = baseQuery.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+  }
+
+  return baseQuery.orderBy(orderBy).limit(limit).offset(offset);
+};
+
+const generateUniqueShortId = async () => {
+  const maxAttempts = 5;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const shortId = crypto.randomBytes(8).toString("hex").toLowerCase();
+
+    const existing = await db
+      .select({ id: songs.id })
+      .from(songs)
+      .where(eq(songs.shortId, shortId))
+      .limit(1);
+
+    if (existing.length === 0) {
+      return shortId;
+    }
+  }
+
+  throw new AppError("Failed to generate unique song ID", {
+    statusCode: 500,
+    code: "SHORT_ID_GENERATION_FAILED",
+  });
+};
+
+const findSongById = async (id: string) => {
+  const [song] = await db
+    .select()
+    .from(songs)
+    .where(eq(songs.id, id))
+    .limit(1);
+  return song ?? null;
+};
+
+const findSongByShortId = async (shortId: string) => {
+  const [song] = await db
+    .select()
+    .from(songs)
+    .where(eq(songs.shortId, shortId))
+    .limit(1);
+  return song ?? null;
+};
+
+const assertSongOwner = async (id: string, clerkId: string) => {
+  const song = await findSongById(id);
+  if (!song) {
+    throw new NotFoundError("Song not found");
+  }
+
+  if (song.ownerClerkId !== clerkId) {
+    throw new ForbiddenError();
+  }
+
+  return song;
+};
+
 export default async function songRoutes(fastify: FastifyInstance) {
-  // Get all songs with pagination and filtering
-  fastify.get("/songs", async (request, reply) => {
-    // Parse query parameters manually to avoid schema issues
-    const query = request.query as Record<string, unknown>;
-    const page = Number.parseInt((query?.page as string) || "1");
-    const limit = Number.parseInt((query?.limit as string) || "20");
-    const sort = (query?.sort as string) || "updatedAt";
-    const order = (query?.order as string) || "desc";
-    const accountId = query?.accountId as string | undefined;
-    const ownerClerkId = query?.ownerClerkId as string | undefined;
+  fastify.get(
+    "/songs",
+    {
+      schema: {
+        querystring: paginationSchema,
+        response: {
+          200: songsListResponseSchema,
+          400: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
+    },
+    withErrorHandling(async (request, reply) => {
+      const { page, limit, sort, order, accountId, ownerClerkId } =
+        request.query as PaginationQuery;
 
-    try {
-      const offset = (page - 1) * limit;
-
-      // Build base query
-      let baseQuery = db.select().from(songs).$dynamic();
-      let countQuery = db
-        .select({ count: sql<number>`count(*)` })
-        .from(songs)
-        .$dynamic();
-
-      // Apply filters
-      const conditions = [];
-      if (accountId) conditions.push(eq(songs.accountId, accountId));
-      if (ownerClerkId) conditions.push(eq(songs.ownerClerkId, ownerClerkId));
-
-      if (conditions.length > 0) {
-        const whereClause =
-          conditions.length === 1 ? conditions[0] : and(...conditions);
-        baseQuery = baseQuery.where(whereClause);
-        countQuery = countQuery.where(whereClause);
+      const conditions: SQL[] = [];
+      if (accountId) {
+        conditions.push(eq(songs.accountId, accountId));
+      }
+      if (ownerClerkId) {
+        conditions.push(eq(songs.ownerClerkId, ownerClerkId));
       }
 
-      // Get total count
-      const [{ count }] = await countQuery;
-      const totalPages = Math.ceil(count / limit);
+      const offset = getOffset({ page, limit });
+      const orderBy = buildOrderBy(sort, order);
 
-      // Get songs with sorting
-      const orderBy = (() => {
-        switch (sort) {
-          case "createdAt":
-            return order === "asc"
-              ? asc(songs.createdAt)
-              : desc(songs.createdAt);
-          case "updatedAt":
-            return order === "asc"
-              ? asc(songs.updatedAt)
-              : desc(songs.updatedAt);
-          case "title":
-            return order === "asc" ? asc(songs.title) : desc(songs.title);
-          case "artist":
-            return order === "asc" ? asc(songs.artist) : desc(songs.artist);
-          default:
-            return desc(songs.updatedAt);
-        }
-      })();
-      const songsList = await baseQuery
-        .orderBy(orderBy)
-        .limit(limit)
-        .offset(offset);
+      const total = await countSongs(conditions);
 
-      return reply.code(200).send({
+      const songsList = await fetchSongs(conditions, orderBy, limit, offset);
+
+      return reply.status(200).send({
         songs: songsList,
-        pagination: {
-          page,
-          limit,
-          total: count,
-          pages: totalPages,
-        },
+        pagination: buildPaginationMeta({ page, limit, total }),
       });
-    } catch (error) {
-      fastify.log.error({ error }, "Error fetching songs");
-      return reply.code(500).send({
-        error: "Failed to fetch songs",
-      });
-    }
-  });
+    })
+  );
 
-  // Get song by ID (UUID primary key)
   fastify.get(
     "/songs/:id",
     {
@@ -166,122 +222,89 @@ export default async function songRoutes(fastify: FastifyInstance) {
         params: z.object({ id: uuidSchema }),
         response: {
           200: z.object({ song: songResponseSchema }),
+          400: errorResponseSchema,
           404: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      try {
-        const song = await db
-          .select()
-          .from(songs)
-          .where(eq(songs.id, id))
-          .limit(1);
-
-        if (song.length === 0) {
-          return reply.code(404).send({ error: "Song not found" });
-        }
-
-        return reply.code(200).send({ song: song[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching song");
-        return reply.code(500).send({
-          error: "Failed to fetch song",
-        });
+      const song = await findSongById(id);
+      if (!song) {
+        throw new NotFoundError("Song not found");
       }
-    }
+
+      return reply.status(200).send({ song });
+    })
   );
 
-  // Get song by shortId (16-char hex)
   fastify.get(
     "/songs/short/:shortId",
     {
       schema: {
-        params: z.object({ shortId: songIdSchema }),
+        params: z.object({ shortId: shortIdSchema }),
         response: {
           200: z.object({ song: songResponseSchema }),
+          400: errorResponseSchema,
           404: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { shortId } = request.params as { shortId: string };
 
-      try {
-        const song = await db
-          .select()
-          .from(songs)
-          .where(eq(songs.shortId, shortId))
-          .limit(1);
-
-        if (song.length === 0) {
-          return reply.code(404).send({ error: "Song not found" });
-        }
-
-        return reply.code(200).send({ song: song[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching song by shortId");
-        return reply.code(500).send({
-          error: "Failed to fetch song",
-        });
+      const song = await findSongByShortId(shortId);
+      if (!song) {
+        throw new NotFoundError("Song not found");
       }
-    }
+
+      return reply.status(200).send({ song });
+    })
   );
 
-  // Get lyrics for a song by UUID
   fastify.get(
     "/songs/:id/versions",
     {
       schema: {
         params: z.object({ id: uuidSchema }),
         response: {
-          200: z.object({ versions: z.array(z.any()) }),
+          200: versionsResponseSchema,
+          400: errorResponseSchema,
           404: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      try {
-        // Verify song exists and get ownership info for authorization
-        const song = await db
-          .select({
-            id: songs.id,
-            ownerClerkId: songs.ownerClerkId,
-            accountId: songs.accountId,
-          })
-          .from(songs)
-          .where(eq(songs.id, id))
-          .limit(1);
+      const song = await db
+        .select({
+          id: songs.id,
+          ownerClerkId: songs.ownerClerkId,
+          accountId: songs.accountId,
+        })
+        .from(songs)
+        .where(eq(songs.id, id))
+        .limit(1);
 
-        if (song.length === 0) {
-          return reply.code(404).send({ error: "Song not found" });
-        }
-
-        // Get lyric versions
-        const versions = await db
-          .select()
-          .from(lyricVersions)
-          .where(eq(lyricVersions.songId, id))
-          .orderBy(desc(lyricVersions.createdAt));
-
-        return reply.code(200).send({ versions });
-      } catch (error) {
-        fastify.log.error({ error }, "Error fetching lyric versions");
-        return reply.code(500).send({
-          error: "Failed to fetch lyric versions",
-        });
+      if (song.length === 0) {
+        throw new NotFoundError("Song not found");
       }
-    }
+
+      const versions = await db
+        .select()
+        .from(lyricVersions)
+        .where(eq(lyricVersions.songId, id))
+        .orderBy(desc(lyricVersions.createdAt));
+
+      return reply.status(200).send({ versions });
+    })
   );
 
-  // Create new song
   fastify.post(
     "/songs",
     {
@@ -290,48 +313,21 @@ export default async function songRoutes(fastify: FastifyInstance) {
         response: {
           201: z.object({ song: songResponseSchema }),
           400: errorResponseSchema,
+          401: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+    withErrorHandling(async (request, reply) => {
+      const clerkId = requireClerkUser(request);
+      const accountId = (request.headers["x-account-id"] as string | undefined) ?? null;
 
-      if (!clerkId) {
-        return reply.code(400).send({ error: "Authentication required" });
-      }
+      const body = request.body as z.infer<typeof songSchema>;
+      const shortId = await generateUniqueShortId();
 
-      try {
-        // Generate unique shortId using CSPRNG
-        let shortId: string;
-        let attempts = 0;
-        const maxAttempts = 5;
-
-        do {
-          shortId = crypto.randomBytes(8).toString("hex").toLowerCase();
-          attempts++;
-
-          if (attempts >= maxAttempts) {
-            return reply.code(500).send({
-              error: "Failed to generate unique song ID",
-            });
-          }
-        } while (
-          await db
-            .select()
-            .from(songs)
-            .where(eq(songs.shortId, shortId))
-            .limit(1)
-            .then((result) => result.length > 0)
-        );
-
-        // Get user's current account context (this would come from your auth system)
-        // For now, we'll require it to be passed or use a default
-        const accountId = request.headers["x-account-id"] as string;
-
-        const body = songSchema.parse(request.body);
-
-        const songData = {
+      const newSong = await db
+        .insert(songs)
+        .values({
           shortId,
           ownerClerkId: clerkId,
           title: body.title,
@@ -342,28 +338,14 @@ export default async function songRoutes(fastify: FastifyInstance) {
           lyrics: body.lyrics,
           midiData: body.midiData,
           collaborators: body.collaborators,
-          accountId: accountId || null, // Remove hard-coded value
-        };
+          accountId,
+        })
+        .returning();
 
-        const newSong = await db.insert(songs).values(songData).returning();
-
-        return reply.code(201).send({ song: newSong[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error creating song");
-        if (error instanceof z.ZodError) {
-          return reply.code(400).send({
-            error: "Invalid song data",
-            details: error.issues,
-          });
-        }
-        return reply.code(500).send({
-          error: "Failed to create song",
-        });
-      }
-    }
+      return reply.status(201).send({ song: newSong[0] });
+    })
   );
 
-  // Update song
   fastify.put(
     "/songs/:id",
     {
@@ -373,64 +355,38 @@ export default async function songRoutes(fastify: FastifyInstance) {
         response: {
           200: z.object({ song: songResponseSchema }),
           400: errorResponseSchema,
+          401: errorResponseSchema,
           403: errorResponseSchema,
           404: errorResponseSchema,
           500: errorResponseSchema,
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+      const clerkId = requireClerkUser(request);
 
-      if (!clerkId) {
-        return reply.code(400).send({ error: "Authentication required" });
+      await assertSongOwner(id, clerkId);
+
+      const body = request.body as Partial<z.infer<typeof songSchema>>;
+
+      const updatedSong = await db
+        .update(songs)
+        .set({
+          ...body,
+          updatedAt: new Date(),
+        })
+        .where(eq(songs.id, id))
+        .returning();
+
+      if (updatedSong.length === 0) {
+        throw new NotFoundError("Song not found");
       }
 
-      try {
-        // Verify ownership
-        const song = await db
-          .select()
-          .from(songs)
-          .where(eq(songs.id, id))
-          .limit(1);
-
-        if (song.length === 0) {
-          return reply.code(404).send({ error: "Song not found" });
-        }
-
-        if (song[0].ownerClerkId !== clerkId) {
-          return reply.code(403).send({ error: "Insufficient permissions" });
-        }
-
-        const body = songSchema.partial().parse(request.body);
-
-        const updatedSong = await db
-          .update(songs)
-          .set({
-            ...body,
-            updatedAt: new Date(),
-          })
-          .where(eq(songs.id, id))
-          .returning();
-
-        return reply.code(200).send({ song: updatedSong[0] });
-      } catch (error) {
-        fastify.log.error({ error }, "Error updating song");
-        if (error instanceof z.ZodError) {
-          return reply.code(400).send({
-            error: "Invalid song data",
-            details: error.issues,
-          });
-        }
-        return reply.code(500).send({
-          error: "Failed to update song",
-        });
-      }
-    }
+      return reply.status(200).send({ song: updatedSong[0] });
+    })
   );
 
-  // Delete song by UUID
   fastify.delete(
     "/songs/:id",
     {
@@ -445,45 +401,18 @@ export default async function songRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
+    withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = request.headers["x-clerk-user-id"] as string;
+      const clerkId = requireClerkUser(request);
 
-      if (!clerkId) {
-        return reply.code(401).send({ error: "Authentication required" });
-      }
+      await assertSongOwner(id, clerkId);
 
-      try {
-        // Verify ownership
-        const song = await db
-          .select()
-          .from(songs)
-          .where(eq(songs.id, id))
-          .limit(1);
+      await db.transaction(async (tx) => {
+        await tx.delete(lyricVersions).where(eq(lyricVersions.songId, id));
+        await tx.delete(songs).where(eq(songs.id, id));
+      });
 
-        if (song.length === 0) {
-          return reply.code(404).send({ error: "Song not found" });
-        }
-
-        if (song[0].ownerClerkId !== clerkId) {
-          return reply.code(403).send({ error: "Insufficient permissions" });
-        }
-
-        // Use transaction to ensure atomicity
-        await db.transaction(async (tx) => {
-          // Delete lyric versions first (FK constraint)
-          await tx.delete(lyricVersions).where(eq(lyricVersions.songId, id));
-          // Delete the song
-          await tx.delete(songs).where(eq(songs.id, id));
-        });
-
-        return reply.code(204).send();
-      } catch (error) {
-        fastify.log.error({ error }, "Error deleting song");
-        return reply.code(500).send({
-          error: "Failed to delete song",
-        });
-      }
-    }
+      return reply.status(204).send();
+    })
   );
 }

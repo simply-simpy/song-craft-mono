@@ -2,25 +2,40 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import { z } from "zod";
 import { requireAuth } from "../../lib/requireAuth.server";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { SongCard } from "../../components/SongCard";
-import { API_ENDPOINTS } from "../../lib/api";
-
-interface Song {
-  id: string;
-  shortId: string;
-  title: string;
-  artist?: string;
-  bpm?: number;
-  key?: string;
-  createdAt?: string;
-}
+import { API_ENDPOINTS, ApiError, apiRequest } from "../../lib/api";
 
 export const Route = createFileRoute("/songs/")({
   beforeLoad: () => requireAuth(),
   component: RouteComponent,
 });
+
+const songResponseSchema = z.object({
+  id: z.string().uuid(),
+  shortId: z.string().min(1),
+  ownerClerkId: z.string(),
+  title: z.string(),
+  artist: z.string().nullable().optional(),
+  bpm: z.number().nullable().optional(),
+  key: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+
+const songsListSchema = z.object({
+  songs: z.array(songResponseSchema),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    pages: z.number(),
+  }),
+});
+
+type Song = z.infer<typeof songResponseSchema>;
 
 function RouteComponent() {
   const queryClient = useQueryClient();
@@ -32,22 +47,20 @@ function RouteComponent() {
         ? window.confirm("Delete this song?")
         : true;
     if (!ok) return;
-    await fetch(API_ENDPOINTS.song(id), { method: "DELETE" });
+    await apiRequest({ endpoint: API_ENDPOINTS.song(id), method: "DELETE" });
     await queryClient.invalidateQueries({ queryKey: ["songs"] });
   };
 
   const { data: songsData, isLoading, error } = useQuery({
     queryKey: ["songs"],
-    queryFn: async () => {
-      const response = await fetch(API_ENDPOINTS.songs());
-      if (!response.ok) {
-        throw new Error("Failed to fetch songs");
-      }
-      return response.json();
-    },
+    queryFn: async () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.songs(),
+        schema: songsListSchema,
+      }),
   });
 
-  const songs = songsData?.data || [];
+  const songs: Song[] = songsData?.songs ?? [];
 
   // Set up virtualization - only virtualize if we have more than 20 songs
   const shouldVirtualize = songs.length > 20;
@@ -68,10 +81,16 @@ function RouteComponent() {
   }
 
   if (error) {
+    const message =
+      error instanceof ApiError
+        ? `${error.status} ${error.statusText}`
+        : error instanceof Error
+        ? error.message
+        : "Unknown error";
     return (
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center text-red-600">
-          Error loading songs: {error.message}
+          Error loading songs: {message}
         </div>
       </div>
     );
