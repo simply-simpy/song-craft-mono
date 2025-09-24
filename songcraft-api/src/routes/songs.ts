@@ -20,6 +20,8 @@ import { withErrorHandling } from "./_utils/route-helpers";
 const uuidSchema = z.string().uuid();
 const shortIdSchema = z.string().length(16).regex(/^[a-f0-9]{16}$/);
 
+type DbSong = typeof songs.$inferSelect;
+
 const songSchema = z.object({
   title: z.string().min(1).max(200),
   artist: z.string().max(200).optional(),
@@ -88,6 +90,51 @@ type SongOrderColumnKey = keyof typeof songOrderColumns;
 
 type PaginationQuery = z.infer<typeof paginationSchema>;
 
+const toStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+      .filter((item): item is string => item !== null && item.length > 0);
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+          .filter((item): item is string => item !== null && item.length > 0);
+      }
+    } catch (error) {
+      // Ignore parse failures and fall back to raw string value
+    }
+    return [value];
+  }
+
+  if (value && typeof value === "object") {
+    return Object.values(value)
+      .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+      .filter((item): item is string => item !== null && item.length > 0);
+  }
+
+  return [];
+};
+
+const serializeSong = (song: DbSong) => ({
+  ...song,
+  artist: song.artist ?? null,
+  bpm: song.bpm ?? null,
+  key: song.key ?? null,
+  lyrics: song.lyrics ?? null,
+  midiData: song.midiData ?? null,
+  accountId: song.accountId ?? null,
+  projectId: song.projectId ?? null,
+  tags: toStringArray(song.tags),
+  collaborators: toStringArray(song.collaborators),
+  createdAt: song.createdAt.toISOString(),
+  updatedAt: song.updatedAt.toISOString(),
+});
+
 const buildOrderBy = (sort: SongOrderColumnKey, order: z.infer<typeof orderDirectionSchema>) => {
   const column = songOrderColumns[sort];
   return order === "asc" ? asc(column) : desc(column);
@@ -119,7 +166,8 @@ const fetchSongs = async (
     baseQuery = baseQuery.where(conditions.length === 1 ? conditions[0] : and(...conditions));
   }
 
-  return baseQuery.orderBy(orderBy).limit(limit).offset(offset);
+  const rows = await baseQuery.orderBy(orderBy).limit(limit).offset(offset);
+  return rows.map(serializeSong);
 };
 
 const generateUniqueShortId = async () => {
@@ -151,7 +199,7 @@ const findSongById = async (id: string) => {
     .from(songs)
     .where(eq(songs.id, id))
     .limit(1);
-  return song ?? null;
+  return song ? serializeSong(song) : null;
 };
 
 const findSongByShortId = async (shortId: string) => {
@@ -160,7 +208,7 @@ const findSongByShortId = async (shortId: string) => {
     .from(songs)
     .where(eq(songs.shortId, shortId))
     .limit(1);
-  return song ?? null;
+  return song ? serializeSong(song) : null;
 };
 
 const assertSongOwner = async (id: string, clerkId: string) => {
@@ -342,7 +390,9 @@ export default async function songRoutes(fastify: FastifyInstance) {
         })
         .returning();
 
-      return reply.status(201).send({ song: newSong[0] });
+      const song = serializeSong(newSong[0]);
+
+      return reply.status(201).send({ song });
     })
   );
 
@@ -383,7 +433,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
         throw new NotFoundError("Song not found");
       }
 
-      return reply.status(200).send({ song: updatedSong[0] });
+      return reply.status(200).send({ song: serializeSong(updatedSong[0]) });
     })
   );
 

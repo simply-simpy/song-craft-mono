@@ -143,6 +143,79 @@ const projectPermissionsSelection = {
   userEmail: users.email,
 } as const;
 
+type ProjectRow = {
+  id: string;
+  accountId: string;
+  name: string;
+  description: string | null;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  creatorName: string | null;
+  accountName: string | null;
+};
+
+type ProjectPermissionRow = {
+  userId: string;
+  permissionLevel: PermissionLevel;
+  grantedAt: Date;
+  expiresAt: Date | null;
+  userEmail: string | null;
+};
+
+type SessionRow = {
+  id: string;
+  projectId: string;
+  name: string;
+  description: string | null;
+  sessionType: string;
+  status: string;
+  scheduledStart: Date | null;
+  scheduledEnd: Date | null;
+  actualStart: Date | null;
+  actualEnd: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  creatorName: string | null;
+  projectName: string | null;
+  accountName: string | null;
+};
+
+const toIsoString = (value: Date | null | undefined) =>
+  value ? value.toISOString() : null;
+
+const serializeProject = (project: ProjectRow) => ({
+  ...project,
+  description: project.description ?? null,
+  creatorName: project.creatorName ?? null,
+  accountName: project.accountName ?? null,
+  createdAt: project.createdAt.toISOString(),
+  updatedAt: project.updatedAt.toISOString(),
+});
+
+const serializeProjectPermission = (permission: ProjectPermissionRow) => ({
+  ...permission,
+  userEmail: permission.userEmail ?? null,
+  grantedAt: permission.grantedAt.toISOString(),
+  expiresAt: toIsoString(permission.expiresAt),
+});
+
+const serializeSession = (session: SessionRow) => ({
+  ...session,
+  description: session.description ?? null,
+  scheduledStart: toIsoString(session.scheduledStart),
+  scheduledEnd: toIsoString(session.scheduledEnd),
+  actualStart: toIsoString(session.actualStart),
+  actualEnd: toIsoString(session.actualEnd),
+  createdAt: session.createdAt.toISOString(),
+  updatedAt: session.updatedAt.toISOString(),
+  creatorName: session.creatorName ?? null,
+  projectName: session.projectName ?? null,
+  accountName: session.accountName ?? null,
+});
+
 const projectResponseSchema = z.object({
   id: uuidSchema,
   accountId: uuidSchema,
@@ -266,7 +339,8 @@ const fetchProjects = async (
     query = query.where(mergeConditions(conditions));
   }
 
-  return query.orderBy(orderBy).limit(limit).offset(offset);
+  const rows = await query.orderBy(orderBy).limit(limit).offset(offset);
+  return rows.map((project) => serializeProject(project as ProjectRow));
 };
 
 const fetchProject = async (id: string) => {
@@ -278,15 +352,16 @@ const fetchProject = async (id: string) => {
     .where(eq(projects.id, id))
     .limit(1);
 
-  return project ?? null;
+  return project ? serializeProject(project as ProjectRow) : null;
 };
 
 const getProjectPermissions = async (projectId: string) =>
-  db
+  (await db
     .select(projectPermissionsSelection)
     .from(projectPermissions)
     .leftJoin(users, eq(projectPermissions.userId, users.id))
-    .where(eq(projectPermissions.projectId, projectId));
+    .where(eq(projectPermissions.projectId, projectId)))
+    .map((permission) => serializeProjectPermission(permission as ProjectPermissionRow));
 
 const getProjectPermissionForUser = async (projectId: string, userId: string) => {
   const [permission] = await db
@@ -301,7 +376,9 @@ const getProjectPermissionForUser = async (projectId: string, userId: string) =>
     )
     .limit(1);
 
-  return permission ?? null;
+  return permission
+    ? serializeProjectPermission(permission as ProjectPermissionRow)
+    : null;
 };
 
 const getSessionsCount = async (projectId: string) => {
@@ -709,7 +786,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         .offset(offset);
 
       return reply.status(200).send({
-        data: sessionsList,
+        data: sessionsList.map((session) => serializeSession(session as SessionRow)),
         pagination: buildPaginationMeta({ page, limit, total }),
       });
     })
@@ -745,7 +822,9 @@ export default async function projectRoutes(fastify: FastifyInstance) {
         .where(eq(sessions.projectId, id))
         .orderBy(desc(sessions.scheduledStart));
 
-      return reply.status(200).send({ data: projectSessions });
+      return reply.status(200).send({
+        data: projectSessions.map((session) => serializeSession(session as SessionRow)),
+      });
     })
   );
 }
