@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 
 import { env } from "../env";
 
@@ -85,16 +85,22 @@ export const apiRequest = async <T = unknown>(
     requestHeaders.set("Accept", "application/json");
   }
 
-  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
-  if (!isFormData && body !== undefined && !requestHeaders.has("Content-Type")) {
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
+  if (
+    !isFormData &&
+    body !== undefined &&
+    !requestHeaders.has("Content-Type")
+  ) {
     requestHeaders.set("Content-Type", "application/json");
   }
   if (isFormData) {
     requestHeaders.delete("Content-Type");
   }
 
-  const normalizedContentType =
-    (requestHeaders.get("Content-Type") ?? "").toLowerCase();
+  const normalizedContentType = (
+    requestHeaders.get("Content-Type") ?? ""
+  ).toLowerCase();
 
   let requestBody: BodyInit | undefined;
   if (isFormData) {
