@@ -32,6 +32,9 @@ export const API_ENDPOINTS = {
     switchUserContext: (userId: string) =>
       buildApiUrl(`/admin/users/${userId}/context/switch`),
   },
+  projects: () => buildApiUrl("/projects"),
+  project: (id: string) => buildApiUrl(`/projects/${id}`),
+  projectSessions: (id: string) => buildApiUrl(`/projects/${id}/sessions`),
 } as const;
 
 // Helper function for API requests

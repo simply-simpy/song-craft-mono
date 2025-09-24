@@ -10,6 +10,7 @@ import {
 } from "../schema";
 import { eq, and, desc, asc, sql, count } from "drizzle-orm";
 import crypto from "node:crypto";
+import { GlobalRole } from "../lib/super-user";
 
 // Input validation schemas
 const uuidSchema = z.string().uuid();
@@ -105,6 +106,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/projects",
     {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
         querystring: paginationSchema,
         response: {
@@ -230,6 +232,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/projects/:id",
     {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
         params: z.object({ id: uuidSchema }),
         response: {
@@ -306,6 +309,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/projects",
     {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
         body: createProjectSchema,
         response: {
@@ -401,6 +405,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/projects/:id",
     {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
         params: z.object({ id: uuidSchema }),
         body: updateProjectSchema,
@@ -508,6 +513,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
   fastify.delete(
     "/projects/:id",
     {
+      preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
         params: z.object({ id: uuidSchema }),
         response: {

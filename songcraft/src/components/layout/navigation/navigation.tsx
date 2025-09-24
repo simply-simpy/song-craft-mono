@@ -42,11 +42,9 @@ function Navigation() {
                 <li>
                   <NavItem to="/admin/users">Users</NavItem>
                 </li>
+                <li>{/* <NavItem to="/admin/stats">Stats</NavItem> */}</li>
                 <li>
-                  <NavItem to="/admin/stats">Stats</NavItem>
-                </li>
-                <li>
-                  <NavItem to="/admin/audit-logs">Audit Logs</NavItem>
+                  {/* <NavItem to="/admin/audit-logs">Audit Logs</NavItem> */}
                 </li>
               </ul>
             </details>
