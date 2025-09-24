@@ -13,12 +13,15 @@ import {
   buildPaginationMeta,
   createPaginationSchema,
   getOffset,
-  orderDirectionSchema,
 } from "./_utils/pagination";
+import type { orderDirectionSchema } from "./_utils/pagination";
 import { withErrorHandling } from "./_utils/route-helpers";
 
 const uuidSchema = z.string().uuid();
-const shortIdSchema = z.string().length(16).regex(/^[a-f0-9]{16}$/);
+const shortIdSchema = z
+  .string()
+  .length(16)
+  .regex(/^[a-f0-9]{16}$/);
 
 type DbSong = typeof songs.$inferSelect;
 
@@ -93,7 +96,9 @@ type PaginationQuery = z.infer<typeof paginationSchema>;
 const toStringArray = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value
-      .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+      .map((item) =>
+        typeof item === "string" ? item : item != null ? String(item) : null
+      )
       .filter((item): item is string => item !== null && item.length > 0);
   }
 
@@ -102,7 +107,9 @@ const toStringArray = (value: unknown): string[] => {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
         return parsed
-          .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+          .map((item) =>
+            typeof item === "string" ? item : item != null ? String(item) : null
+          )
           .filter((item): item is string => item !== null && item.length > 0);
       }
     } catch (error) {
@@ -113,7 +120,9 @@ const toStringArray = (value: unknown): string[] => {
 
   if (value && typeof value === "object") {
     return Object.values(value)
-      .map((item) => (typeof item === "string" ? item : item != null ? String(item) : null))
+      .map((item) =>
+        typeof item === "string" ? item : item != null ? String(item) : null
+      )
       .filter((item): item is string => item !== null && item.length > 0);
   }
 
@@ -135,7 +144,10 @@ const serializeSong = (song: DbSong) => ({
   updatedAt: song.updatedAt.toISOString(),
 });
 
-const buildOrderBy = (sort: SongOrderColumnKey, order: z.infer<typeof orderDirectionSchema>) => {
+const buildOrderBy = (
+  sort: SongOrderColumnKey,
+  order: z.infer<typeof orderDirectionSchema>
+) => {
   const column = songOrderColumns[sort];
   return order === "asc" ? asc(column) : desc(column);
 };
@@ -147,7 +159,9 @@ const countSongs = async (conditions: SQL[]) => {
     .$dynamic();
 
   if (conditions.length > 0) {
-    query = query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+    query = query.where(
+      conditions.length === 1 ? conditions[0] : and(...conditions)
+    );
   }
 
   const [result] = await query;
@@ -163,7 +177,9 @@ const fetchSongs = async (
   let baseQuery = db.select().from(songs).$dynamic();
 
   if (conditions.length > 0) {
-    baseQuery = baseQuery.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+    baseQuery = baseQuery.where(
+      conditions.length === 1 ? conditions[0] : and(...conditions)
+    );
   }
 
   const rows = await baseQuery.orderBy(orderBy).limit(limit).offset(offset);
@@ -194,11 +210,7 @@ const generateUniqueShortId = async () => {
 };
 
 const findSongById = async (id: string) => {
-  const [song] = await db
-    .select()
-    .from(songs)
-    .where(eq(songs.id, id))
-    .limit(1);
+  const [song] = await db.select().from(songs).where(eq(songs.id, id)).limit(1);
   return song ? serializeSong(song) : null;
 };
 
@@ -368,7 +380,8 @@ export default async function songRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const clerkId = requireClerkUser(request);
-      const accountId = (request.headers["x-account-id"] as string | undefined) ?? null;
+      const accountId =
+        (request.headers["x-account-id"] as string | undefined) ?? null;
 
       const body = request.body as z.infer<typeof songSchema>;
       const shortId = await generateUniqueShortId();
