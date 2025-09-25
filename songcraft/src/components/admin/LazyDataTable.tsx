@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 
 // Lazy load the DataTable component
@@ -43,11 +43,11 @@ const DataTableSkeleton = ({ title }: { title: string }) => (
     </div>
   </div>
 );
-
+// TODO: check if this is safe with unknown
 export function LazyDataTable<TData>(props: DataTableProps<TData>) {
   return (
     <Suspense fallback={<DataTableSkeleton title={props.title} />}>
-      <DataTable {...props} />
+      <DataTable {...(props as DataTableProps<unknown>)} />
     </Suspense>
   );
 }

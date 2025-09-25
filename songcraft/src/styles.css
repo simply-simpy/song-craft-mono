@@ -1,35 +1,107 @@
+/* Import Tailwind CSS */
 @import "tailwindcss";
 
-/* DaisyUI */
+/* Import our generated design tokens */
+@import "./styles/tokens.css";
+
+/* DaisyUI (keep during migration) */
 @plugin "daisyui";
 
+/* Base styles using semantic tokens */
 body {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: normal;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-normal);
+  color: var(--fg-primary);
+  background-color: var(--bg-primary);
+  line-height: var(--font-leading-normal);
 }
 
-/* Typography */
+/* Typography utility classes using tokens */
+.font-sans {
+  font-family: var(--font-font-sans);
+}
+
+.font-mono {
+  font-family: var(--font-font-mono);
+}
+
+.text-primary {
+  color: var(--fg-primary);
+}
+
+.text-secondary {
+  color: var(--fg-secondary);
+}
+
+.text-tertiary {
+  color: var(--fg-tertiary);
+}
+
+.text-brand {
+  color: var(--fg-brand);
+}
+
+.text-accent {
+  color: var(--fg-accent);
+}
+
+/* Background utility classes using tokens */
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-surface {
+  background-color: var(--surface-elevated);
+}
+
+.bg-brand {
+  background-color: var(--bg-brand);
+  color: var(--fg-on-brand);
+}
+
+.bg-accent {
+  background-color: var(--bg-accent);
+  color: var(--fg-on-accent);
+}
+
+/* Border utility classes using tokens */
+.border-primary {
+  border-color: var(--border-primary);
+}
+
+.border-secondary {
+  border-color: var(--border-secondary);
+}
+
+.border-focus {
+  border-color: var(--border-focus);
+}
+
+/* Legacy Lato classes (for backward compatibility during migration) */
 .lato-light {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-light);
   font-style: normal;
 }
 
 .lato-regular {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-normal);
   font-style: normal;
 }
 
 .lato-bold {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-bold);
   font-style: normal;
 }
 
 .lato-light-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-light);
   font-style: italic;
 }

@@ -16,6 +16,7 @@ import { AccountContextDisplay } from "@/components/layout/navigation/AccountCon
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
 import CurrentUser from "@/components/admin/currentUser";
+import { ThemeProvider } from "@/components/ui-v2";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -75,7 +76,8 @@ function Root() {
         <HeadContent />
       </head>
       <ClerkProvider>
-        <body>
+        <ThemeProvider>
+          <body>
           {isAuthPage ? (
             <main className="p-6 min-h-screen grid place-items-center">
               <Outlet />
@@ -97,6 +99,9 @@ function Root() {
                   <div className="flex items-center gap-3 px-3 border-b border-gray-200">
                     <Link to="/" className="font-bold">
                       SongScribe
+                    </Link>
+                    <Link to="/ui-simple" className="text-sm text-blue-600 hover:underline">
+                      UI Demo
                     </Link>
                     <input
                       placeholder="Search (⌘K)"
@@ -180,7 +185,8 @@ function Root() {
             </>
           )}
           <Scripts />
-        </body>
+          </body>
+        </ThemeProvider>
       </ClerkProvider>
     </html>
   );

@@ -11,6 +11,7 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UiSimpleRouteImport } from './routes/ui-simple'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
@@ -32,6 +33,11 @@ import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.
 
 const rootServerRouteImport = createServerRootRoute()
 
+const UiSimpleRoute = UiSimpleRouteImport.update({
+  id: '/ui-simple',
+  path: '/ui-simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
@@ -126,6 +132,7 @@ const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SignInRoute: typeof SignInRouteWithChildren
+  UiSimpleRoute: typeof UiSimpleRoute
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminOrgsRoute: typeof AdminOrgsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -283,6 +296,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ui-simple': {
+      id: '/ui-simple'
+      path: '/ui-simple'
+      fullPath: '/ui-simple'
+      preLoaderRoute: typeof UiSimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
@@ -430,6 +450,7 @@ const SignInRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SignInRoute: SignInRouteWithChildren,
+  UiSimpleRoute: UiSimpleRoute,
   AdminAccountsRoute: AdminAccountsRoute,
   AdminOrgsRoute: AdminOrgsRoute,
   AdminUsersRoute: AdminUsersRoute,
