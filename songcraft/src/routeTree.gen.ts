@@ -28,7 +28,6 @@ import { Route as SongsSongIdPackageRouteImport } from './routes/songs/$songId/p
 import { Route as SongsSongIdMidiRouteImport } from './routes/songs/$songId/midi'
 import { Route as SongsSongIdLyricsRouteImport } from './routes/songs/$songId/lyrics'
 import { Route as SongsSongIdCollabRouteImport } from './routes/songs/$songId/collab'
-import { ServerRoute as McpServerRouteImport } from './routes/mcp'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -117,11 +116,6 @@ const SongsSongIdCollabRoute = SongsSongIdCollabRouteImport.update({
   id: '/songs/$songId/collab',
   path: '/songs/$songId/collab',
   getParentRoute: () => rootRouteImport,
-} as any)
-const McpServerRoute = McpServerRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootServerRouteImport,
 } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
@@ -266,28 +260,24 @@ export interface RootRouteChildren {
   SongsSongIdIndexRoute: typeof SongsSongIdIndexRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/mcp': typeof McpServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/mcp': typeof McpServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/mcp': typeof McpServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/mcp' | '/api/trpc/$'
+  fullPaths: '/api/trpc/$'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/mcp' | '/api/trpc/$'
-  id: '__root__' | '/mcp' | '/api/trpc/$'
+  to: '/api/trpc/$'
+  id: '__root__' | '/api/trpc/$'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  McpServerRoute: typeof McpServerRoute
   ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
 }
 
@@ -416,13 +406,6 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -466,7 +449,6 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  McpServerRoute: McpServerRoute,
   ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport

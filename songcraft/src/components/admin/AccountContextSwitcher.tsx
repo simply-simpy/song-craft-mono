@@ -65,6 +65,7 @@ export function AccountContextSwitcher({
           stroke="currentColor"
           viewBox="0 0 24 24"
           aria-label="Toggle dropdown"
+          role="img"
         >
           <path
             strokeLinecap="round"

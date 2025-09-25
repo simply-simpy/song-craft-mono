@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  ColumnDef,
-  PaginationState,
-} from "@tanstack/react-table";
+  type ColumnDef,
+  type PaginationState,
+  } from "@tanstack/react-table";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 interface DataTableProps<TData> {
@@ -65,7 +65,7 @@ export function DataTable<TData>({
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">{title}</h1>
         <div className="flex justify-center items-center h-32">
-          <span className="loading loading-spinner loading-lg"></span>
+          <span className="loading loading-spinner loading-lg" />
         </div>
       </div>
     );
@@ -128,6 +128,7 @@ export function DataTable<TData>({
       {/* Pagination Controls */}
       <div className="flex items-center gap-2 mt-4">
         <button
+          type="button"
           className="btn btn-sm"
           onClick={() => table.firstPage()}
           disabled={!table.getCanPreviousPage()}
@@ -135,6 +136,7 @@ export function DataTable<TData>({
           {"<<"}
         </button>
         <button
+          type="button"
           className="btn btn-sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
@@ -142,6 +144,7 @@ export function DataTable<TData>({
           {"<"}
         </button>
         <button
+          type="button"
           className="btn btn-sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
@@ -149,6 +152,7 @@ export function DataTable<TData>({
           {">"}
         </button>
         <button
+          type="button"
           className="btn btn-sm"
           onClick={() => table.lastPage()}
           disabled={!table.getCanNextPage()}
@@ -190,7 +194,7 @@ export function DataTable<TData>({
           ))}
         </select>
         {isFetching ? (
-          <span className="loading loading-spinner loading-sm"></span>
+          <span className="loading loading-spinner loading-sm" />
         ) : null}
       </div>
       <div className="mt-2 text-sm text-gray-600">

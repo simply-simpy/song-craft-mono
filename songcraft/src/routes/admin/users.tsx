@@ -4,7 +4,7 @@ import { requireAuth } from "../../lib/requireAuth.server";
 import { useAuth } from "../../lib/auth";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
-import { DataTable } from "../../components/admin/DataTable";
+import { LazyDataTable } from "../../components/admin/LazyDataTable";
 
 export const Route = createFileRoute("/admin/users")({
   beforeLoad: () => requireAuth(),
@@ -125,7 +125,7 @@ function UsersPage() {
   }
 
   return (
-    <DataTable
+    <LazyDataTable
       title="Users"
       columns={columns}
       queryKey={["admin", "users"]}

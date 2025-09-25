@@ -7,6 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { wrapVinxiConfigWithSentry } from "@sentry/tanstackstart-react";
 
 import postgresPlugin from "@neondatabase/vite-plugin-postgres";
+import { manualChunks, performanceBudgets } from "./build.config";
 
 const config = defineConfig({
   plugins: [
@@ -29,6 +30,9 @@ const config = defineConfig({
     }),
     viteReact(),
   ],
+  build: {
+    chunkSizeWarningLimit: performanceBudgets.chunkSizeWarningLimit
+  }
 });
 
 export default wrapVinxiConfigWithSentry(config, {
