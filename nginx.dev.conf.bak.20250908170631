@@ -16,6 +16,7 @@ http {
     access_log /var/log/nginx/access.log dev;
     error_log /var/log/nginx/error.log debug;
 
+    # Development: allow larger uploads
     client_max_body_size 100M;
     client_body_timeout 60s;
 
@@ -23,6 +24,7 @@ http {
     limit_req_zone $binary_remote_addr zone=api:10m rate=100r/s;
     limit_req_zone $binary_remote_addr zone=login:10m rate=20r/m;
 
+    # Upstream definitions
     upstream frontend {
         server frontend:3000;
     }
@@ -71,7 +73,7 @@ http {
             stub_status on;
         }
 
-        # Disable caching of static assets
+        # Development: disable caching of static assets
         location ~* \.(map|js|css|png|jpg|jpeg|gif|ico|svg)$ {
             expires -1;
             add_header Cache-Control "no-cache, no-store, must-revalidate";
@@ -79,8 +81,8 @@ http {
         }
 
         error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
-            root /usr/share/nginx/html;
+        location = /50x.html { 
+            root /usr/share/nginx/html; 
         }
     }
 }

@@ -47,7 +47,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://127.0.0.1:4500/health",
+          "http://localhost:4500/health",
         ]
       interval: 30s
       timeout: 10s
@@ -58,8 +58,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ssr
-      args:
-        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_Zml0LXNxdWlycmVsLTY0LmNsZXJrLmFjY291bnRzLmRldiQ}
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -69,7 +67,7 @@ services:
       # CORS and security
       - CORS_ORIGIN=*
       - ALLOW_HTTP=true
-      - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+      - VITE_CLERK_PUBLISHABLE_KEY=pk_test_Zml0LXNxdWlycmVsLTY0LmNsZXJrLmFjY291bnRzLmRldiQ
       # Add your auth env here, e.g. Clerk/NextAuth/etc:
       # - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       # - AUTH_SECRET=${AUTH_SECRET}
