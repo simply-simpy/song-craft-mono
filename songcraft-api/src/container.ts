@@ -7,8 +7,12 @@ import {
   MembershipRepository,
   UserContextRepository,
 } from "./repositories/membership.repository";
+import { ProjectRepository } from "./repositories/project.repository";
+import { ProjectPermissionsRepository } from "./repositories/project-permissions.repository";
+import { SessionRepository } from "./repositories/session.repository";
 import { createSongsService, SongsService } from "./services/songs.service";
 import { AdminService } from "./services/admin.service";
+import { ProjectService } from "./services/project.service";
 
 /**
  * Simple dependency injection container
@@ -21,8 +25,12 @@ export class Container {
   private _organizationRepository?: OrganizationRepository;
   private _membershipRepository?: MembershipRepository;
   private _userContextRepository?: UserContextRepository;
+  private _projectRepository?: ProjectRepository;
+  private _projectPermissionsRepository?: ProjectPermissionsRepository;
+  private _sessionRepository?: SessionRepository;
   private _songsService?: SongsService;
   private _adminService?: AdminService;
+  private _projectService?: ProjectService;
 
   /**
    * Get or create SongRepository instance
@@ -95,6 +103,36 @@ export class Container {
   }
 
   /**
+   * Get or create ProjectRepository instance
+   */
+  get projectRepository(): ProjectRepository {
+    if (!this._projectRepository) {
+      this._projectRepository = new ProjectRepository(db);
+    }
+    return this._projectRepository;
+  }
+
+  /**
+   * Get or create ProjectPermissionsRepository instance
+   */
+  get projectPermissionsRepository(): ProjectPermissionsRepository {
+    if (!this._projectPermissionsRepository) {
+      this._projectPermissionsRepository = new ProjectPermissionsRepository(db);
+    }
+    return this._projectPermissionsRepository;
+  }
+
+  /**
+   * Get or create SessionRepository instance
+   */
+  get sessionRepository(): SessionRepository {
+    if (!this._sessionRepository) {
+      this._sessionRepository = new SessionRepository(db);
+    }
+    return this._sessionRepository;
+  }
+
+  /**
    * Get or create AdminService instance
    */
   get adminService(): AdminService {
@@ -111,6 +149,21 @@ export class Container {
   }
 
   /**
+   * Get or create ProjectService instance
+   */
+  get projectService(): ProjectService {
+    if (!this._projectService) {
+      this._projectService = new ProjectService(
+        this.projectRepository,
+        this.projectPermissionsRepository,
+        this.sessionRepository,
+        this.userRepository
+      );
+    }
+    return this._projectService;
+  }
+
+  /**
    * Reset container (useful for testing)
    */
   reset(): void {
@@ -120,8 +173,12 @@ export class Container {
     this._organizationRepository = undefined;
     this._membershipRepository = undefined;
     this._userContextRepository = undefined;
+    this._projectRepository = undefined;
+    this._projectPermissionsRepository = undefined;
+    this._sessionRepository = undefined;
     this._songsService = undefined;
     this._adminService = undefined;
+    this._projectService = undefined;
   }
 }
 

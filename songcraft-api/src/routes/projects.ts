@@ -1,16 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
-import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
-import { db } from "../db";
-import {
-  accounts,
-  projectPermissions,
-  projects,
-  sessions,
-  users,
-} from "../schema";
 import {
   AppError,
   ForbiddenError,
@@ -24,8 +14,8 @@ import {
   createPaginationSchema,
   getOffset,
 } from "./_utils/pagination";
-import type { orderDirectionSchema } from "./_utils/pagination";
 import { withErrorHandling } from "./_utils/route-helpers";
+import { container } from "../container";
 
 const uuidSchema = z.string().uuid();
 const permissionLevelSchema = z.enum([
@@ -36,9 +26,6 @@ const permissionLevelSchema = z.enum([
 ]);
 
 type PermissionLevel = z.infer<typeof permissionLevelSchema>;
-
-const writablePermissions: PermissionLevel[] = ["read_write", "full_access"];
-const fullAccessOnly: PermissionLevel[] = ["full_access"];
 
 const createProjectSchema = z.object({
   accountId: uuidSchema,
@@ -81,140 +68,6 @@ const sessionsPaginationSchema = createPaginationSchema({
 });
 
 type SessionsPaginationQuery = z.infer<typeof sessionsPaginationSchema>;
-
-const projectSelection = {
-  id: projects.id,
-  accountId: projects.accountId,
-  name: projects.name,
-  description: projects.description,
-  status: projects.status,
-  createdAt: projects.createdAt,
-  updatedAt: projects.updatedAt,
-  createdBy: projects.createdBy,
-  creatorName: users.email,
-  accountName: accounts.name,
-} as const;
-
-const projectOrderColumns = {
-  createdAt: projects.createdAt,
-  updatedAt: projects.updatedAt,
-  name: projects.name,
-  status: projects.status,
-} as const;
-
-type ProjectOrderKey = keyof typeof projectOrderColumns;
-
-type OrderDirection = z.infer<typeof orderDirectionSchema>;
-
-const sessionSelection = {
-  id: sessions.id,
-  projectId: sessions.projectId,
-  name: sessions.name,
-  description: sessions.description,
-  sessionType: sessions.sessionType,
-  status: sessions.status,
-  scheduledStart: sessions.scheduledStart,
-  scheduledEnd: sessions.scheduledEnd,
-  actualStart: sessions.actualStart,
-  actualEnd: sessions.actualEnd,
-  createdAt: sessions.createdAt,
-  updatedAt: sessions.updatedAt,
-  createdBy: sessions.createdBy,
-  creatorName: users.email,
-  projectName: projects.name,
-  accountName: accounts.name,
-} as const;
-
-const sessionOrderColumns = {
-  createdAt: sessions.createdAt,
-  updatedAt: sessions.updatedAt,
-  name: sessions.name,
-  status: sessions.status,
-  scheduledStart: sessions.scheduledStart,
-} as const;
-
-type SessionOrderKey = keyof typeof sessionOrderColumns;
-
-const projectPermissionsSelection = {
-  userId: projectPermissions.userId,
-  permissionLevel: projectPermissions.permissionLevel,
-  grantedAt: projectPermissions.grantedAt,
-  expiresAt: projectPermissions.expiresAt,
-  userEmail: users.email,
-} as const;
-
-type ProjectRow = {
-  id: string;
-  accountId: string;
-  name: string;
-  description: string | null;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-  creatorName: string | null;
-  accountName: string | null;
-};
-
-type ProjectPermissionRow = {
-  userId: string;
-  permissionLevel: PermissionLevel;
-  grantedAt: Date;
-  expiresAt: Date | null;
-  userEmail: string | null;
-};
-
-type SessionRow = {
-  id: string;
-  projectId: string;
-  name: string;
-  description: string | null;
-  sessionType: string;
-  status: string;
-  scheduledStart: Date | null;
-  scheduledEnd: Date | null;
-  actualStart: Date | null;
-  actualEnd: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-  creatorName: string | null;
-  projectName: string | null;
-  accountName: string | null;
-};
-
-const toIsoString = (value: Date | null | undefined) =>
-  value ? value.toISOString() : null;
-
-const serializeProject = (project: ProjectRow) => ({
-  ...project,
-  description: project.description ?? null,
-  creatorName: project.creatorName ?? null,
-  accountName: project.accountName ?? null,
-  createdAt: project.createdAt.toISOString(),
-  updatedAt: project.updatedAt.toISOString(),
-});
-
-const serializeProjectPermission = (permission: ProjectPermissionRow) => ({
-  ...permission,
-  userEmail: permission.userEmail ?? null,
-  grantedAt: permission.grantedAt.toISOString(),
-  expiresAt: toIsoString(permission.expiresAt),
-});
-
-const serializeSession = (session: SessionRow) => ({
-  ...session,
-  description: session.description ?? null,
-  scheduledStart: toIsoString(session.scheduledStart),
-  scheduledEnd: toIsoString(session.scheduledEnd),
-  actualStart: toIsoString(session.actualStart),
-  actualEnd: toIsoString(session.actualEnd),
-  createdAt: session.createdAt.toISOString(),
-  updatedAt: session.updatedAt.toISOString(),
-  creatorName: session.creatorName ?? null,
-  projectName: session.projectName ?? null,
-  accountName: session.accountName ?? null,
-});
 
 const projectResponseSchema = z.object({
   id: uuidSchema,
@@ -295,169 +148,10 @@ const errorResponseSchema = z.object({
   details: z.any().optional(),
 });
 
-const buildProjectOrderBy = (sort: ProjectOrderKey, order: OrderDirection) => {
-  const column = projectOrderColumns[sort];
-  return order === "asc" ? asc(column) : desc(column);
-};
-
-const buildSessionOrderBy = (sort: SessionOrderKey, order: OrderDirection) => {
-  const column = sessionOrderColumns[sort];
-  return order === "asc" ? asc(column) : desc(column);
-};
-
-const mergeConditions = (conditions: SQL[]) =>
-  conditions.length === 1 ? conditions[0] : and(...conditions);
-
-const countProjects = async (conditions: SQL[]) => {
-  let query = db
-    .select({ count: sql<number>`count(*)` })
-    .from(projects)
-    .$dynamic();
-
-  if (conditions.length > 0) {
-    query = query.where(mergeConditions(conditions));
-  }
-
-  const [result] = await query;
-  return Number(result?.count ?? 0);
-};
-
-const fetchProjects = async (
-  conditions: SQL[],
-  orderBy: ReturnType<typeof buildProjectOrderBy>,
-  limit: number,
-  offset: number
-) => {
-  let query = db
-    .select(projectSelection)
-    .from(projects)
-    .leftJoin(users, eq(projects.createdBy, users.id))
-    .leftJoin(accounts, eq(projects.accountId, accounts.id))
-    .$dynamic();
-
-  if (conditions.length > 0) {
-    query = query.where(mergeConditions(conditions));
-  }
-
-  const rows = await query.orderBy(orderBy).limit(limit).offset(offset);
-  return rows.map((project) => serializeProject(project as ProjectRow));
-};
-
-const fetchProject = async (id: string) => {
-  const [project] = await db
-    .select(projectSelection)
-    .from(projects)
-    .leftJoin(users, eq(projects.createdBy, users.id))
-    .leftJoin(accounts, eq(projects.accountId, accounts.id))
-    .where(eq(projects.id, id))
-    .limit(1);
-
-  return project ? serializeProject(project as ProjectRow) : null;
-};
-
-const getProjectPermissions = async (projectId: string) =>
-  (
-    await db
-      .select(projectPermissionsSelection)
-      .from(projectPermissions)
-      .leftJoin(users, eq(projectPermissions.userId, users.id))
-      .where(eq(projectPermissions.projectId, projectId))
-  ).map((permission) =>
-    serializeProjectPermission(permission as ProjectPermissionRow)
-  );
-
-const getProjectPermissionForUser = async (
-  projectId: string,
-  userId: string
-) => {
-  const [permission] = await db
-    .select(projectPermissionsSelection)
-    .from(projectPermissions)
-    .leftJoin(users, eq(projectPermissions.userId, users.id))
-    .where(
-      and(
-        eq(projectPermissions.projectId, projectId),
-        eq(projectPermissions.userId, userId)
-      )
-    )
-    .limit(1);
-
-  return permission
-    ? serializeProjectPermission(permission as ProjectPermissionRow)
-    : null;
-};
-
-const getSessionsCount = async (projectId: string) => {
-  const [result] = await db
-    .select({ sessionsCount: sql<number>`count(*)` })
-    .from(sessions)
-    .where(eq(sessions.projectId, projectId));
-
-  return Number(result?.sessionsCount ?? 0);
-};
-
-const buildProjectDetails = async (projectId: string) => {
-  const project = await fetchProject(projectId);
-
-  if (!project) {
-    return null;
-  }
-
-  const [permissions, sessionsCount] = await Promise.all([
-    getProjectPermissions(projectId),
-    getSessionsCount(projectId),
-  ]);
-
-  return {
-    ...project,
-    permissions,
-    sessionsCount,
-  };
-};
-
-const findUserIdByClerkId = async (clerkId: string) => {
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.clerkId, clerkId))
-    .limit(1);
-
-  return user?.id ?? null;
-};
-
-const requireUserIdByClerkId = async (clerkId: string) => {
-  const userId = await findUserIdByClerkId(clerkId);
-  if (!userId) {
-    throw new UnauthorizedError("User not found");
-  }
-  return userId;
-};
-
-const requireProjectPermission = async (
-  projectId: string,
-  userId: string,
-  allowedLevels: PermissionLevel[]
-) => {
-  const [permission] = await db
-    .select({ level: projectPermissions.permissionLevel })
-    .from(projectPermissions)
-    .where(
-      and(
-        eq(projectPermissions.projectId, projectId),
-        eq(projectPermissions.userId, userId)
-      )
-    )
-    .limit(1);
-
-  if (
-    !permission ||
-    !allowedLevels.includes(permission.level as PermissionLevel)
-  ) {
-    throw new ForbiddenError();
-  }
-};
 
 export default async function projectRoutes(fastify: FastifyInstance) {
+  const projectService = container.projectService;
+
   fastify.get(
     "/projects",
     {
@@ -472,38 +166,14 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const { page, limit, sort, order, accountId, createdBy } =
-        request.query as ProjectPaginationQuery;
-
-      const conditions: SQL[] = [];
-      if (accountId) {
-        conditions.push(eq(projects.accountId, accountId));
-      }
-      if (createdBy) {
-        conditions.push(eq(projects.createdBy, createdBy));
-      }
-
-      const offset = getOffset({ page, limit });
-      const orderBy = buildProjectOrderBy(sort, order);
-      const total = await countProjects(conditions);
-      const projectRows = await fetchProjects(
-        conditions,
-        orderBy,
-        limit,
-        offset
-      );
-
-      const projectsWithDetails = await Promise.all(
-        projectRows.map(async (project) => ({
-          ...project,
-          permissions: await getProjectPermissions(project.id),
-          sessionsCount: await getSessionsCount(project.id),
-        }))
-      );
+      const query = request.query as ProjectPaginationQuery;
+      const { page, limit } = query;
+      
+      const result = await projectService.listProjects(query);
 
       return reply.status(200).send({
-        projects: projectsWithDetails,
-        pagination: buildPaginationMeta({ page, limit, total }),
+        projects: result.projects,
+        pagination: buildPaginationMeta({ page, limit, total: result.pagination.total }),
       });
     })
   );
@@ -525,7 +195,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const project = await buildProjectDetails(id);
+      const project = await projectService.getProject(id);
       if (!project) {
         throw new NotFoundError("Project not found");
       }
@@ -550,41 +220,17 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const clerkId = requireClerkUser(request);
-      const userId = await requireUserIdByClerkId(clerkId);
       const body = request.body as z.infer<typeof createProjectSchema>;
 
-      const createdProject = await db.transaction(async (tx) => {
-        const [project] = await tx
-          .insert(projects)
-          .values({
-            accountId: body.accountId,
-            name: body.name,
-            description: body.description,
-            status: body.status,
-            createdBy: userId,
-          })
-          .returning();
-
-        if (!project) {
-          throw new AppError("Failed to create project record");
-        }
-
-        await tx.insert(projectPermissions).values({
-          projectId: project.id,
-          userId,
-          permissionLevel: "full_access",
-          grantedBy: userId,
-        });
-
-        return project.id;
+      const project = await projectService.createProject({
+        accountId: body.accountId,
+        name: body.name,
+        description: body.description,
+        status: body.status,
+        creatorClerkId: clerkId,
       });
 
-      const projectWithDetails = await buildProjectDetails(createdProject);
-      if (!projectWithDetails) {
-        throw new AppError("Project created but details could not be loaded");
-      }
-
-      return reply.status(201).send({ project: projectWithDetails });
+      return reply.status(201).send({ project });
     })
   );
 
@@ -608,30 +254,17 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
       const clerkId = requireClerkUser(request);
-      const userId = await requireUserIdByClerkId(clerkId);
-
-      await requireProjectPermission(id, userId, writablePermissions);
-
       const body = request.body as z.infer<typeof updateProjectSchema>;
-      const [updatedProject] = await db
-        .update(projects)
-        .set({
-          ...body,
-          updatedAt: new Date(),
-        })
-        .where(eq(projects.id, id))
-        .returning({ id: projects.id });
 
-      if (!updatedProject) {
-        throw new NotFoundError("Project not found");
-      }
+      const project = await projectService.updateProject({
+        id,
+        name: body.name,
+        description: body.description,
+        status: body.status,
+        editorClerkId: clerkId,
+      });
 
-      const projectWithDetails = await buildProjectDetails(updatedProject.id);
-      if (!projectWithDetails) {
-        throw new AppError("Updated project could not be loaded");
-      }
-
-      return reply.status(200).send({ project: projectWithDetails });
+      return reply.status(200).send({ project });
     })
   );
 
@@ -653,22 +286,8 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
       const clerkId = requireClerkUser(request);
-      const userId = await requireUserIdByClerkId(clerkId);
 
-      await requireProjectPermission(id, userId, fullAccessOnly);
-
-      const project = await fetchProject(id);
-      if (!project) {
-        throw new NotFoundError("Project not found");
-      }
-
-      await db.transaction(async (tx) => {
-        await tx
-          .delete(projectPermissions)
-          .where(eq(projectPermissions.projectId, id));
-        await tx.delete(sessions).where(eq(sessions.projectId, id));
-        await tx.delete(projects).where(eq(projects.id, id));
-      });
+      await projectService.deleteProject(id, clerkId);
 
       return reply.status(204).send();
     })
@@ -695,35 +314,14 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const body = request.body as z.infer<typeof addPermissionSchema>;
       const clerkId = requireClerkUser(request);
-      const userId = await requireUserIdByClerkId(clerkId);
 
-      await requireProjectPermission(id, userId, fullAccessOnly);
-
-      const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
-
-      await db
-        .insert(projectPermissions)
-        .values({
-          projectId: id,
-          userId: body.userId,
-          permissionLevel: body.permissionLevel,
-          grantedBy: userId,
-          expiresAt,
-        })
-        .onConflictDoUpdate({
-          target: [projectPermissions.projectId, projectPermissions.userId],
-          set: {
-            permissionLevel: body.permissionLevel,
-            grantedBy: userId,
-            expiresAt,
-          },
-        });
-
-      const permission = await getProjectPermissionForUser(id, body.userId);
-
-      if (!permission) {
-        throw new AppError("Failed to load updated permission");
-      }
+      const permission = await projectService.addProjectPermission({
+        projectId: id,
+        userId: body.userId,
+        permissionLevel: body.permissionLevel,
+        expiresAt: body.expiresAt,
+        granterClerkId: clerkId,
+      });
 
       return reply.status(200).send({ permission });
     })
@@ -747,18 +345,8 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id, userId } = request.params as { id: string; userId: string };
       const clerkId = requireClerkUser(request);
-      const requestingUserId = await requireUserIdByClerkId(clerkId);
 
-      await requireProjectPermission(id, requestingUserId, fullAccessOnly);
-
-      await db
-        .delete(projectPermissions)
-        .where(
-          and(
-            eq(projectPermissions.projectId, id),
-            eq(projectPermissions.userId, userId)
-          )
-        );
+      await projectService.removeProjectPermission(id, userId, clerkId);
 
       return reply.status(204).send();
     })
@@ -778,32 +366,14 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const { page, limit, sort, order } =
-        request.query as SessionsPaginationQuery;
+      const query = request.query as SessionsPaginationQuery;
+      const { page, limit } = query;
 
-      const offset = getOffset({ page, limit });
-      const orderBy = buildSessionOrderBy(sort, order);
-
-      const [{ count }] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(sessions);
-      const total = Number(count ?? 0);
-
-      const sessionsList = await db
-        .select(sessionSelection)
-        .from(sessions)
-        .leftJoin(users, eq(sessions.createdBy, users.id))
-        .leftJoin(projects, eq(sessions.projectId, projects.id))
-        .leftJoin(accounts, eq(projects.accountId, accounts.id))
-        .orderBy(orderBy)
-        .limit(limit)
-        .offset(offset);
+      const result = await projectService.listSessions(query);
 
       return reply.status(200).send({
-        data: sessionsList.map((session) =>
-          serializeSession(session as SessionRow)
-        ),
-        pagination: buildPaginationMeta({ page, limit, total }),
+        data: result.data,
+        pagination: buildPaginationMeta({ page, limit, total: result.pagination.total }),
       });
     })
   );
@@ -824,24 +394,10 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const project = await fetchProject(id);
-      if (!project) {
-        throw new NotFoundError("Project not found");
-      }
-
-      const projectSessions = await db
-        .select(sessionSelection)
-        .from(sessions)
-        .leftJoin(users, eq(sessions.createdBy, users.id))
-        .leftJoin(projects, eq(sessions.projectId, projects.id))
-        .leftJoin(accounts, eq(projects.accountId, accounts.id))
-        .where(eq(sessions.projectId, id))
-        .orderBy(desc(sessions.scheduledStart));
+      const result = await projectService.getProjectSessions(id);
 
       return reply.status(200).send({
-        data: projectSessions.map((session) =>
-          serializeSession(session as SessionRow)
-        ),
+        data: result.data,
       });
     })
   );
