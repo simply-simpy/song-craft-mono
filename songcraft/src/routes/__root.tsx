@@ -5,20 +5,17 @@ import {
   Scripts,
   createRootRoute,
   useRouterState,
-  Navigate,
 } from "@tanstack/react-router";
 // app/routes/__root.tsx
 import * as React from "react";
 import ClerkProvider from "../integrations/clerk/provider";
-import {
-  SignedIn,
-  SignedOut,
-  SignOutButton,
-} from "@clerk/tanstack-react-start";
-import HeaderUser from "../integrations/clerk/header-user";
 // Import styles
 import "../styles.css";
-
+import Navigation from "@/components/layout/navigation/navigation";
+import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { Navigate } from "@tanstack/react-router";
+import CurrentUser from "@/components/admin/currentUser";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -85,6 +82,7 @@ function Root() {
             </main>
           ) : (
             <>
+              {/* Temporarily disable auth redirect for development */}
               <SignedOut>
                 <Navigate
                   to="/sign-in"
@@ -92,7 +90,7 @@ function Root() {
                     returnTo: `${location.pathname}${location.search ?? ""}`,
                   }}
                 />
-              </SignedOut>
+              </SignedOut>{" "}
               <SignedIn>
                 <div className="h-screen grid grid-rows-[48px_1fr]">
                   {/* Top bar with search */}
@@ -106,14 +104,13 @@ function Root() {
                       className="flex-1 h-8 border border-gray-300 rounded-md px-2"
                     />
                     <SignedIn>
-                      <SignOutButton>
-                        <button
-                          type="button"
-                          className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-                        >
-                          Sign out
-                        </button>
-                      </SignOutButton>
+                      <button
+                        type="button"
+                        className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                      >
+                        Sign out
+                      </button>
+                      <AccountContextDisplay />
                     </SignedIn>
                     <button
                       type="button"
@@ -128,26 +125,8 @@ function Root() {
                   <div className="grid grid-cols-[260px_1fr]   h-full">
                     {/* Left nav */}
                     <aside className="border-r border-gray-200 p-3">
-                      <nav className="grid gap-2">
-                        <Link
-                          to="/songs"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          Songs
-                        </Link>
-                        <Link
-                          to="/songs/new"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          New Song
-                        </Link>
-                        <Link
-                          to="/admin"
-                          className="px-3 py-2 rounded-md hover:bg-gray-50"
-                        >
-                          Admin
-                        </Link>
-                      </nav>
+                      <Navigation />
+                      <CurrentUser />
                     </aside>
 
                     {/* Main content */}

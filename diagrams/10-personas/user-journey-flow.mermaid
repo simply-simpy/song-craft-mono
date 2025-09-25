@@ -1,0 +1,92 @@
+graph TD
+    Start([User Starts Journey])
+    
+    %% Signup and Onboarding
+    Signup[Sign up via Clerk]
+    EmailVerify[Receive confirmation email]
+    FirstLogin[First login to platform]
+    
+    %% Account Creation/Joining
+    CreateAccount[Create personal account]
+    JoinAccount[Receive invitation to existing account]
+    AcceptInvite[Accept invitation]
+    
+    %% Project and Session Management
+    CreateProject[Create new project]
+    InviteCollaborators[Invite collaborators to project]
+    ScheduleSession[Schedule writing session]
+    JoinSession[Join writing session]
+    
+    %% Collaboration Workflows
+    Contribute[Contribute to songs]
+    Review[Review and provide feedback]
+    ManageVersions[Manage song versions]
+    TrackCredits[Track contributions and credits]
+    
+    %% Publishing and Licensing
+    Finalize[Finalize songs for publishing]
+    HandleLicensing[Handle licensing and royalties]
+    Publish[Publish completed work]
+    
+    %% Decision Points
+    Decision1{New user or<br/>existing user?}
+    Decision2{Account owner or<br/>collaborator?}
+    Decision3{Project-level or<br/>session-level access?}
+    Decision4{Feedback provider or<br/>active contributor?}
+    
+    %% User Paths
+    NewUserPath[New User Path]
+    ExistingUserPath[Existing User Path]
+    OwnerPath[Account Owner Path]
+    CollaboratorPath[Collaborator Path]
+    FeedbackPath[Feedback Provider Path]
+    
+    %% Flow connections
+    Start --> Signup
+    Signup --> EmailVerify
+    EmailVerify --> FirstLogin
+    FirstLogin --> Decision1
+    
+    Decision1 -->|New| NewUserPath
+    Decision1 -->|Existing| ExistingUserPath
+    
+    NewUserPath --> CreateAccount
+    ExistingUserPath --> JoinAccount
+    JoinAccount --> AcceptInvite
+    
+    CreateAccount --> Decision2
+    AcceptInvite --> Decision2
+    
+    Decision2 -->|Owner| OwnerPath
+    Decision2 -->|Collaborator| CollaboratorPath
+    
+    OwnerPath --> CreateProject
+    CreateProject --> InviteCollaborators
+    InviteCollaborators --> ScheduleSession
+    
+    CollaboratorPath --> Decision3
+    Decision3 -->|Project| JoinSession
+    Decision3 -->|Session| JoinSession
+    
+    JoinSession --> Decision4
+    Decision4 -->|Contributor| Contribute
+    Decision4 -->|Feedback| Review
+    
+    Contribute --> ManageVersions
+    Review --> TrackCredits
+    ManageVersions --> Finalize
+    TrackCredits --> Finalize
+    
+    Finalize --> HandleLicensing
+    HandleLicensing --> Publish
+    
+    %% Styling
+    classDef startEnd fill:#ffebee,stroke:#c62828,stroke-width:3px
+    classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef path fill:#f1f8e9,stroke:#2e7d32,stroke-width:2px
+    
+    class Start,Publish startEnd
+    class Signup,EmailVerify,FirstLogin,CreateAccount,JoinAccount,AcceptInvite,CreateProject,InviteCollaborators,ScheduleSession,JoinSession,Contribute,Review,ManageVersions,TrackCredits,Finalize,HandleLicensing process
+    class Decision1,Decision2,Decision3,Decision4 decision
+    class NewUserPath,ExistingUserPath,OwnerPath,CollaboratorPath,FeedbackPath path

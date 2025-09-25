@@ -1,0 +1,151 @@
+table accounts {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  org_id uuid
+  parent_org_id uuid
+  owner_user_id uuid
+  name text [not null]
+  description text
+  plan text [not null, default: 'Free']
+  status text [not null, default: 'active']
+  billing_email varchar(255)
+  settings jsonb [not null, default: `{}`]
+  is_default boolean [not null, default: true]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    org_id [name: 'accounts_org_idx']
+    parent_org_id [name: 'accounts_parent_org_idx']
+    billing_email [name: 'accounts_billing_email_idx']
+    parent_org_id [name: 'accounts_active_idx']
+    
+    
+  }
+}
+
+table lyric_versions {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  short_id varchar(50) [not null, unique]
+  song_id uuid [not null]
+  version_name varchar(40) [not null, default: 'draft']
+  content_md text [not null]
+  account_id uuid
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    account_id [name: 'lyric_versions_account_idx']
+    (song_id, created_at) [name: 'lyric_versions_song_created_idx']
+  }
+}
+
+table memberships {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  account_id uuid [not null]
+  user_id uuid [not null]
+  role varchar(50) [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    account_id [name: 'memberships_account_idx']
+    user_id [name: 'memberships_user_idx']
+    (user_id, role) [name: 'memberships_user_role_idx']
+    
+  }
+}
+
+table orgs {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name varchar(255) [not null]
+  billing_email varchar(255)
+  billing_address text
+  billing_phone varchar(50)
+  created_at "timestamp with time zone" [not null, default: `now()`]
+}
+
+table song_account_links {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  song_id uuid [not null]
+  account_id uuid [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+}
+
+table song_authors {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  song_id uuid [not null]
+  user_id uuid [not null]
+  role varchar(50) [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+}
+
+table songs {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  short_id varchar(50) [not null, unique]
+  owner_clerk_id varchar(191) [not null]
+  title varchar(200) [not null]
+  artist varchar(200)
+  bpm integer
+  key varchar(12)
+  tags jsonb [not null, default: `[]`]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+  lyrics text
+  midi_data text
+  collaborators jsonb [not null, default: `[]`]
+  account_id uuid
+
+  indexes {
+    owner_clerk_id [name: 'songs_owner_clerk_id_idx']
+    (account_id, created_at) [name: 'songs_account_created_desc_idx']
+    updated_at [name: 'songs_updated_at_idx']
+  }
+}
+
+table user_context {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  current_account_id uuid [not null]
+  last_switched_at "timestamp with time zone" [not null, default: `now()`]
+  context_data jsonb [not null, default: `{}`]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'user_context_user_id_idx']
+    current_account_id [name: 'user_context_current_account_idx']
+    (user_id, current_account_id) [name: 'user_context_user_account_idx']
+  }
+}
+
+table users {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  clerk_id varchar(191) [not null, unique]
+  email varchar(255) [not null]
+  global_role varchar(50) [not null, default: 'user']
+  account_ids uuid[] [not null, default: `[]`]
+  primary_account_id uuid
+  current_account_id uuid
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  last_login_at "timestamp with time zone"
+
+  indexes {
+    clerk_id [name: 'users_clerk_id_idx']
+    global_role [name: 'users_global_role_idx']
+    account_ids [name: 'users_account_ids_idx']
+    primary_account_id [name: 'users_primary_account_id_idx']
+    
+  }
+}
+// Relationships
+Ref: users.primary_account_id > accounts.id [delete: no action, update: no action]
+Ref: users.current_account_id > accounts.id [delete: no action, update: no action]
+Ref: user_context.user_id > users.id [delete: no action, update: no action]
+Ref: user_context.current_account_id > accounts.id [delete: no action, update: no action]
+Ref: accounts.org_id > orgs.id [delete: no action, update: no action]
+Ref: accounts.parent_org_id > orgs.id [delete: no action, update: no action]
+Ref: memberships.user_id > users.id [delete: no action, update: no action]
+Ref: memberships.account_id > accounts.id [delete: no action, update: no action]
+Ref: songs.account_id > accounts.id [delete: no action, update: no action]
+Ref: lyric_versions.song_id > songs.id [delete: no action, update: no action]
+Ref: lyric_versions.account_id > accounts.id [delete: no action, update: no action]
+Ref: song_authors.song_id > songs.id [delete: no action, update: no action]
+Ref: song_authors.user_id > users.id [delete: no action, update: no action]
+Ref: song_account_links.song_id > songs.id [delete: no action, update: no action]
+Ref: song_account_links.account_id > accounts.id [delete: no action, update: no action]

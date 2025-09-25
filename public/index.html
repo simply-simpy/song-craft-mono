@@ -1,277 +1,1479 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SongScribe — Pro song collaboration</title>
-    <meta
-      name="description"
-      content="SongScribe — Pro song collaboration. Co‑write lyrics, manage versions, comment inline, and share takes securely."
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Songcraft Documentation Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+      rel="stylesheet"
     />
-    <meta name="theme-color" content="#1a1f2e" />
     <style>
-      :root {
-        --bg-0: #0b1020;
-        --bg-1: #121933;
-        --bg-2: #1c2546;
-        --text: #e8ecf8;
-        --muted: #b9c0d9;
-        --accent: #7c5cff;
-        --accent-2: #22d3ee;
-        --card: rgba(255, 255, 255, 0.06);
-        --border: rgba(255, 255, 255, 0.12);
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        --radius: 18px;
-        --maxw: 1200px;
-      }
-      * {
-        box-sizing: border-box;
-      }
       body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
         margin: 0;
-        font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-          Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji",
-          "Segoe UI Emoji";
-        color: var(--text);
-        background: radial-gradient(
-            1200px 600px at 80% -10%,
-            rgba(124, 92, 255, 0.25),
-            transparent 60%
-          ),
-          radial-gradient(
-            900px 500px at 0% 10%,
-            rgba(34, 211, 238, 0.2),
-            transparent 60%
-          ),
-          linear-gradient(180deg, var(--bg-1), var(--bg-0));
-        min-height: 100vh;
+        padding: 20px;
+        background-color: #f5f5f5;
       }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-      img {
-        max-width: 100%;
-        display: block;
+      ul {
+        padding-left: 0;
       }
       .container {
-        max-width: var(--maxw);
+        /* max-width: 1200px; */
         margin: 0 auto;
-        padding: 24px;
-      }
-      .nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .logo {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 20px;
-      }
-      .logo svg {
-        width: 28px;
-        height: 28px;
-      }
-      .cta-btn {
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        border: none;
-        padding: 10px 16px;
-        border-radius: 999px;
-        color: #000;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .headline {
-        font-weight: 900;
-        font-size: clamp(32px, 6vw, 56px);
-      }
-      .tagline {
-        font-size: 18px;
-        color: var(--muted);
-      }
-      .features {
-        display: grid;
-        gap: 20px;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      }
-      .feat {
-        background: var(--card);
-        padding: 20px;
-        border-radius: var(--radius);
-      }
-      .hero {
-        display: grid;
-        gap: 30px;
-        grid-template-columns: 1fr 1fr;
-        align-items: center;
-      }
-      @media (max-width: 768px) {
-        .hero {
-          grid-template-columns: 1fr;
-        }
-      }
-      .hero-photos {
-        border-radius: var(--radius);
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        box-shadow: var(--shadow);
       }
-      .hero-photos img {
+      .header {
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        display: flex;
+        height: calc(100vh - 120px);
+      }
+      .sidebar {
+        width: 360px;
+        background: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        overflow-y: auto;
+        opacity: 0.8;
+      }
+
+      .search-container {
+        position: relative;
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        background: white;
+      }
+
+      .search-input {
         width: 100%;
-        height: auto;
-        object-fit: cover;
+        padding: 8px 35px 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
       }
-      .footer {
-        border-top: 1px solid var(--border);
-        margin-top: 40px;
-        padding-top: 20px;
+
+      .search-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      .clear-search-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 3px;
+        transition: color 0.2s, background-color 0.2s;
+        display: none;
+      }
+
+      .clear-search-btn:hover {
+        color: #dc3545;
+        background-color: #f8f9fa;
+      }
+
+      .clear-search-btn.visible {
+        display: block;
+      }
+
+      .clear-search-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+      .main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        position: relative;
+      }
+      .main.full-width {
+        padding: 0;
+      }
+      .main.full-width .diagram-container {
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        min-height: calc(100vh - 120px);
+      }
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .file-item {
+        padding: 12px 20px 12px 36px;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        list-style-position: inside;
+        list-style-type: none;
+        position: relative;
+      }
+      .file-item:hover {
+        background-color: #e9ecef;
+      }
+      .file-item.active {
+        background-color: #007bff;
+        color: white;
+      }
+      .file-content {
+        display: flex;
+        align-items: center;
+      }
+      .file-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .file-markdown::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDIwOCAxMjgiPjxyZWN0IHdpZHRoPSIxOTgiIGhlaWdodD0iMTE4IiB4PSI1IiB5PSI1IiByeT0iMTAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxMCIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCA5OFYzMGgyMGwyMCAyNSAyMC0yNWgyMHY2OEg5MFY1OUw3MCA4NCA1MCA1OXYzOXptMTI1IDBsLTMwLTMzaDIwVjMwaDIwdjM1aDIweiIvPjwvc3ZnPg==");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-right: 8px;
+        vertical-align: middle;
+        position: absolute;
+        top: calc(50% - 8px);
+        left: 24px;
+      }
+      .file-mermaid::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCA0OTEgNDkxIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnNlcmlmPSJodHRwOi8vc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+PHBhdGggZD0iTTQ5MC4xNiw4NC42MUM0OTAuMTYsMzcuOTEyIDQ1Mi4yNDgsMCA0MDUuNTUsMEw4NC42MSwwQzM3LjkxMiwwIDAsMzcuOTEyIDAsODQuNjFMMCw0MDUuNTVDMCw0NTIuMjQ4IDM3LjkxMiw0OTAuMTYgODQuNjEsNDkwLjE2TDQwNS41NSw0OTAuMTZDNDUyLjI0OCw0OTAuMTYgNDkwLjE2LDQ1Mi4yNDggNDkwLjE2LDQwNS41NUw0OTAuMTYsODQuNjFaIiBzdHlsZT0iZmlsbDpyZ2IoMjU1LDU0LDExMik7Ii8+PHBhdGggZD0iTTQwNy40OCwxMTEuMThDMzM1LjU4NywxMDguMTAzIDI2OS41NzMsMTUyLjMzOCAyNDUuMDgsMjIwQzIyMC41ODcsMTUyLjMzOCAxNTQuNTczLDEwOC4xMDMgODIuNjgsMTExLjE4QzgwLjI4NSwxNjguMjI5IDEwNy41NzcsMjIyLjYzMiAxNTQuNzQsMjU0LjgyQzE3OC45MDgsMjcxLjQxOSAxOTMuMzUsMjk4Ljk1MSAxOTMuMjcsMzI4LjI3TDE5My4yNywzNzkuMTNMOTYuOSwzNzkuMTNMOTYuOSwzMjguMjdDOTYuODE2LDI5OC45NTMgMTExLjI1NSwyNzEuNDIgMTM1LjQyLDI1NC44MkMxODIuNTk2LDIyMi42NDQgMjA5Ljg5MiwxNjguMjMzIDIwNy40OCwxMTEuMThaIiBzdHlsZT0iZmlsbDp3aGl0ZTtmaWxsLXJ1bGU6bm9uemVybzsiLz48L3N2Zz4=");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-right: 8px;
+        vertical-align: middle;
+        position: absolute;
+        top: calc(50% - 8px);
+        left: 24px;
+      }
+      .file-default::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI4IiB5PSIxMiIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KQPC90ZXh0Pjwvc3ZnPg==");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-right: 8px;
+        vertical-align: middle;
+        position: absolute;
+        top: calc(50% - 8px);
+        left: 24px;
+      }
+      .file-item .file-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .file-item .file-path {
+        font-size: 12px;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .file-item.active .file-path {
+        color: #e9ecef;
+      }
+      .folder-item {
+        padding: 8px 20px;
+        background: #e9ecef;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .folder-item:hover {
+        background: #dee2e6;
+      }
+      .folder-item .folder-icon {
+        margin-right: 8px;
+        transition: transform 0.2s;
+      }
+      .folder-item.expanded .folder-icon {
+        transform: rotate(90deg);
+      }
+      .folder-children {
+        display: none;
+      }
+      .folder-children.expanded {
+        display: block;
+      }
+      .folder-children.expanded li {
+        padding-left: 60px;
+      }
+      .controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+      }
+      .control-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background-color 0.2s;
+      }
+      .control-btn:hover {
+        background: #0056b3;
+      }
+      .control-btn.active {
+        background: #28a745;
+      }
+      .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: white;
+        padding: 5px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .zoom-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .zoom-btn:hover {
+        background: #5a6268;
+      }
+      .zoom-level {
+        font-size: 12px;
+        color: #495057;
+        min-width: 40px;
+        text-align: center;
+      }
+      .diagram-container {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .diagram-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+      .mermaid {
+        text-align: center;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mermaid svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      .mermaid:empty::after {
+        content: "Loading diagram...";
+        color: #6c757d;
+        font-style: italic;
+      }
+
+      /* Expand button for Mermaid diagrams */
+      .expand-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+        z-index: 10;
+      }
+
+      .expand-btn:hover {
+        background: #0056b3;
+      }
+
+      .expand-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Fullscreen modal */
+      .fullscreen-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        z-index: 1000;
+        display: none;
+        flex-direction: column;
+      }
+
+      .fullscreen-modal.active {
+        display: flex;
+      }
+
+      .fullscreen-header {
+        background: #333;
+        color: white;
+        padding: 15px 20px;
         display: flex;
         justify-content: space-between;
-        flex-wrap: wrap;
-        color: var(--muted);
+        align-items: center;
+        border-bottom: 1px solid #555;
+      }
+
+      .fullscreen-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .fullscreen-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .control-btn {
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+      }
+
+      .control-btn:hover {
+        background: #666;
+      }
+
+      .control-btn.active {
+        background: #007bff;
+      }
+
+      .control-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .zoom-display {
+        color: #ccc;
+        font-size: 14px;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      .close-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+      }
+
+      .close-btn:hover {
+        background: #c82333;
+      }
+
+      .fullscreen-content {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        background: #f8f9fa;
+      }
+
+      .fullscreen-diagram {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+        cursor: grab;
+      }
+
+      .fullscreen-diagram.grabbing {
+        cursor: grabbing;
+      }
+
+      .fullscreen-diagram svg {
+        max-width: none;
+        height: auto;
+        transform-origin: top left;
+        transition: transform 0.1s ease-out;
+      }
+      .loading {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px;
+      }
+      .error {
+        color: #dc3545;
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+
+      /* Markdown content styles */
+      .markdown-content {
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .markdown-content h1,
+      .markdown-content h2,
+      .markdown-content h3,
+      .markdown-content h4,
+      .markdown-content h5,
+      .markdown-content h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: #2c3e50;
+      }
+
+      .markdown-content h1 {
+        font-size: 2em;
+        border-bottom: 1px solid #eaecef;
+        padding-bottom: 10px;
+      }
+
+      .markdown-content h2 {
+        font-size: 1.5em;
+        border-bottom: 1px solid #eaecef;
+        padding-bottom: 8px;
+      }
+
+      .markdown-content h3 {
+        font-size: 1.25em;
+      }
+
+      .markdown-content p {
+        margin-bottom: 16px;
+      }
+
+      .markdown-content ul,
+      .markdown-content ol {
+        margin-bottom: 16px;
+        padding-left: 30px;
+      }
+
+      .markdown-content li {
+        margin-bottom: 4px;
+      }
+
+      .markdown-content blockquote {
+        margin: 16px 0;
+        padding: 0 16px;
+        color: #6a737d;
+        border-left: 4px solid #dfe2e5;
+        background: #f8f9fa;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .markdown-content code {
+        background: #f6f8fa;
+        border-radius: 3px;
+        font-size: 85%;
+        padding: 2px 4px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+          monospace;
+      }
+
+      .markdown-content pre {
+        background: #f6f8fa;
+        border-radius: 6px;
+        font-size: 85%;
+        line-height: 1.45;
+        overflow: auto;
+        padding: 16px;
+        margin: 16px 0;
+        border: 1px solid #e1e4e8;
+      }
+
+      .markdown-content pre code {
+        background: transparent;
+        border: 0;
+        display: inline;
+        line-height: inherit;
+        margin: 0;
+        max-width: auto;
+        overflow: visible;
+        padding: 0;
+        word-wrap: normal;
+      }
+
+      .markdown-content table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        margin: 16px 0;
+      }
+
+      .markdown-content table th,
+      .markdown-content table td {
+        border: 1px solid #dfe2e5;
+        padding: 6px 13px;
+        text-align: left;
+      }
+
+      .markdown-content table th {
+        background: #f6f8fa;
+        font-weight: 600;
+      }
+
+      .markdown-content table tr:nth-child(2n) {
+        background: #f6f8fa;
+      }
+
+      .markdown-content hr {
+        border: 0;
+        height: 1px;
+        background: #e1e4e8;
+        margin: 24px 0;
+      }
+
+      .markdown-content a {
+        color: #0366d6;
+        text-decoration: none;
+      }
+
+      .markdown-content a:hover {
+        text-decoration: underline;
+      }
+
+      .markdown-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 16px 0;
       }
     </style>
   </head>
   <body>
-    <header class="container">
-      <nav class="nav">
-        <a class="logo" href="#">
-          <svg
-            viewBox="0 0 64 64"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#7c5cff" />
-                <stop offset="1" stop-color="#22d3ee" />
-              </linearGradient>
-            </defs>
-            <circle cx="32" cy="32" r="28" fill="url(#g)" opacity="0.3" />
-            <path
-              d="M44 18c-8.4 2.1-13.3 4.3-14.7 6.6-1.5 2.4-1 5.2 1.5 6.6 2 1.1 5 .8 8.8-.8v4.9c0 5.1-3.3 9.6-8.1 11.2-5.4 1.9-10.2-1.6-8.2-6 1.2-2.6 4.5-4.5 8-4.5 1.7 0 3.4.3 4.7.9"
-              fill="none"
-              stroke="url(#g)"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-            <circle cx="46" cy="19" r="3" fill="url(#g)" />
-          </svg>
-          <span>SongScribe</span>
-        </a>
-        <button class="cta-btn">Get Early Access</button>
-      </nav>
-    </header>
-
-    <main class="container">
-      <section class="hero">
-        <div>
-          <h1 class="headline">
-            Bring ideas to life with
-            <span class="grad">pro song collaboration</span>.
-          </h1>
-          <p class="tagline">
-            Draft lyrics, version changes, comment inline, and share takes — all
-            in a fast, focused space built for singer‑songwriters and teams.
-          </p>
-          <form class="signup" onsubmit="return mockSubmit(event)">
-            <input
-              type="email"
-              id="email"
-              placeholder="you@example.com"
-              required
-              style="
-                padding: 10px;
-                border-radius: 8px;
-                border: 1px solid var(--border);
-              "
-            />
-            <button type="submit" class="cta-btn">Notify Me</button>
-          </form>
-        </div>
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=80"
-            alt="Songwriter in studio"
-          />
-        </figure>
-      </section>
-
-      <section class="features">
-        <article class="feat">
-          <h3>Real‑time co‑writing</h3>
-          <p>
-            Edit lyrics together with presence cursors and conflict‑free
-            versions.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Takes & comments</h3>
-          <p>
-            Attach audio takes, time‑stamp notes, and resolve threads as you go.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Simple sharing</h3>
-          <p>
-            Private links and role‑based access keep your work safe by default.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Versions that make sense</h3>
-          <p>
-            Snapshots for verses, choruses, and alt lines — compare or roll back
-            instantly.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Structured lyric blocks</h3>
-          <p>
-            Verse/Chorus/Bridge blocks keep drafts tidy and performance‑ready.
-          </p>
-        </article>
-        <article class="feat">
-          <h3>Musician‑friendly by design</h3>
-          <p>Fast UI, great defaults, works great on stage or on the couch.</p>
-        </article>
-      </section>
-
-      <section
-        class="gallery"
-        style="display: grid; gap: 20px; grid-template-columns: 2fr 1fr;"
-      >
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=1600&q=80"
-            alt="Songwriter at a piano"
-          />
-        </figure>
-        <figure class="hero-photos">
-          <img
-            src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=80"
-            alt="Vocalist in booth"
-          />
-        </figure>
-      </section>
-    </main>
-
-    <footer class="container footer">
-      <p>© <span id="y"></span> SongScribe</p>
-      <div>
-        <a href="#">Privacy</a> · <a href="#">Terms</a> ·
-        <a href="#">Contact</a>
+    <div class="container">
+      <div class="header">
+        <h1>Songcraft Documentation Viewer</h1>
+        <p>
+          Interactive viewer for Mermaid diagrams and Markdown documentation
+        </p>
       </div>
-    </footer>
+      <div class="content">
+        <div class="sidebar">
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search diagrams..."
+              class="search-input"
+            />
+            <button
+              id="clearSearchBtn"
+              class="clear-search-btn"
+              title="Clear search"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <ul class="file-list" id="fileList">
+            <li class="loading">Loading files...</li>
+          </ul>
+        </div>
+        <div class="main" id="mainContent">
+          <div class="controls">
+            <button class="control-btn" id="fullWidthBtn">Full Width</button>
+            <div class="zoom-controls">
+              <button class="zoom-btn" id="zoomOutBtn">-</button>
+              <span class="zoom-level" id="zoomLevel">100%</span>
+              <button class="zoom-btn" id="zoomInBtn">+</button>
+              <button class="zoom-btn" id="resetZoomBtn">Reset</button>
+            </div>
+          </div>
+          <div class="loading">Select a file to view</div>
+        </div>
+
+        <!-- Fullscreen Modal -->
+        <div class="fullscreen-modal" id="fullscreenModal">
+          <div class="fullscreen-header">
+            <h2 class="fullscreen-title" id="fullscreenTitle">Diagram</h2>
+            <div class="fullscreen-controls">
+              <div class="control-group">
+                <button
+                  class="control-btn"
+                  id="grabBtn"
+                  title="Grab/Pan (Spacebar)"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z"
+                    />
+                  </svg>
+                  Grab
+                </button>
+                <button class="control-btn" id="zoomInFullBtn" title="Zoom In">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M15.5,14H20.5L19.5,15H15.5V14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,7H13V9H15V11H13V13H11V11H9V9H11V7Z"
+                    />
+                  </svg>
+                  +
+                </button>
+                <span class="zoom-display" id="fullscreenZoomLevel">100%</span>
+                <button
+                  class="control-btn"
+                  id="zoomOutFullBtn"
+                  title="Zoom Out"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M15.5,14H20.5L19.5,15H15.5V14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M9,9V11H15V9H9Z"
+                    />
+                  </svg>
+                  -
+                </button>
+                <button
+                  class="control-btn"
+                  id="resetZoomFullBtn"
+                  title="Reset Zoom"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"
+                    />
+                  </svg>
+                  Reset
+                </button>
+              </div>
+              <button
+                class="close-btn"
+                id="closeFullscreenBtn"
+                title="Close (Esc)"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                  />
+                </svg>
+                Close
+              </button>
+            </div>
+          </div>
+          <div class="fullscreen-content">
+            <div class="fullscreen-diagram" id="fullscreenDiagram">
+              <!-- Diagram content will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
-      function mockSubmit(e) {
-        e.preventDefault();
-        alert("Thanks! You're on the early-access list.");
-        e.target.reset();
+      let diagrams = [];
+      let currentDiagram = null;
+      let isFullWidth = false;
+      let zoomLevel = 1;
+      let folderStructure = {};
+      let isLoading = false;
+      let searchTerm = "";
+      let filteredDiagrams = [];
+
+      // Initialize Mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "default",
+        securityLevel: "loose",
+      });
+
+      // Configure marked for markdown parsing
+      marked.setOptions({
+        highlight: function (code, lang) {
+          if (lang && Prism.languages[lang]) {
+            return Prism.highlight(code, Prism.languages[lang], lang);
+          }
+          return code;
+        },
+        breaks: true,
+        gfm: true,
+      });
+
+      // Load diagrams list
+      async function loadDiagrams() {
+        try {
+          const response = await fetch("/api/diagrams");
+          diagrams = await response.json();
+          filteredDiagrams = diagrams;
+          buildFolderStructure();
+          renderFileList();
+          setupControls();
+        } catch (error) {
+          console.error("Error loading diagrams:", error);
+          document.getElementById("fileList").innerHTML =
+            '<li class="error">Error loading diagrams</li>';
+        }
       }
-      document.getElementById("y").textContent = new Date().getFullYear();
+
+      // Build hierarchical folder structure
+      function buildFolderStructure() {
+        folderStructure = {};
+
+        diagrams.forEach((diagram) => {
+          const pathParts = diagram.path.split("/");
+          let current = folderStructure;
+
+          // Build folder structure
+          for (let i = 0; i < pathParts.length - 1; i++) {
+            const part = pathParts[i];
+            if (!current[part]) {
+              current[part] = { _folders: {} };
+            }
+            current = current[part]._folders;
+          }
+
+          // Add file to the correct location
+          const fileName = pathParts[pathParts.length - 1];
+          if (fileName) {
+            current[fileName] = diagram;
+          }
+        });
+
+        console.log("Built folder structure:", folderStructure);
+      }
+
+      // Render file list with folder structure
+      function renderFileList() {
+        const fileList = document.getElementById("fileList");
+        fileList.innerHTML = "";
+
+        if (searchTerm) {
+          // Show filtered results as a flat list
+          if (filteredDiagrams.length === 0) {
+            fileList.innerHTML =
+              '<li class="loading">No diagrams match your search</li>';
+            return;
+          }
+
+          filteredDiagrams.forEach((diagram, index) => {
+            const fileLi = document.createElement("li");
+            fileLi.className = "file-item";
+            fileLi.innerHTML = `
+              <div class="file-name">${diagram.name}</div>
+              <div class="file-path">${diagram.path}</div>
+            `;
+
+            // Add icon class based on file type
+            if (diagram.type === "markdown") {
+              fileLi.classList.add("file-markdown");
+            } else if (diagram.type === "mermaid") {
+              fileLi.classList.add("file-mermaid");
+            } else {
+              fileLi.classList.add("file-default");
+            }
+
+            fileLi.addEventListener("click", () => loadDiagram(diagram, index));
+            fileList.appendChild(fileLi);
+          });
+        } else {
+          // Show normal folder structure
+          if (Object.keys(folderStructure).length === 0) {
+            fileList.innerHTML = '<li class="loading">No diagrams found</li>';
+            return;
+          }
+          renderFolder(folderStructure, fileList, "");
+        }
+      }
+
+      // Render folder recursively
+      function renderFolder(folder, container, path) {
+        Object.keys(folder).forEach((key) => {
+          if (key.startsWith("_")) return;
+
+          const item = folder[key];
+          if (item && typeof item === "object" && item._folders !== undefined) {
+            // It's a folder
+            const folderLi = document.createElement("li");
+            folderLi.className = "folder-item";
+            folderLi.innerHTML = `
+               <span>
+                 <span class="folder-icon">▶</span>
+                 ${key}
+               </span>
+             `;
+
+            const childrenContainer = document.createElement("ul");
+            childrenContainer.className = "folder-children";
+
+            folderLi.addEventListener("click", (e) => {
+              e.stopPropagation();
+              folderLi.classList.toggle("expanded");
+              childrenContainer.classList.toggle("expanded");
+            });
+
+            container.appendChild(folderLi);
+            container.appendChild(childrenContainer);
+
+            // Render subfolders and files
+            renderFolder(item._folders, childrenContainer, path + key + "/");
+          } else if (item && item.name && item.path) {
+            // It's a file
+            const fileLi = document.createElement("li");
+            fileLi.className = "file-item";
+
+            // Add icon class based on file type
+            if (item.type === "markdown") {
+              fileLi.classList.add("file-markdown");
+            } else if (item.type === "mermaid") {
+              fileLi.classList.add("file-mermaid");
+            } else {
+              fileLi.classList.add("file-default");
+            }
+
+            fileLi.innerHTML = `
+               <div class="file-content">
+                 <div class="file-info">
+                   <div class="file-name">${item.name}</div>
+                   <div class="file-path">${item.path}</div>
+                 </div>
+               </div>
+             `;
+            fileLi.addEventListener("click", () =>
+              loadDiagram(item, diagrams.indexOf(item))
+            );
+            container.appendChild(fileLi);
+          }
+        });
+      }
+
+      // Load and render diagram
+      async function loadDiagram(diagram, index) {
+        try {
+          console.log("Loading diagram:", diagram);
+
+          // Prevent multiple simultaneous loads
+          if (isLoading) {
+            console.log("Already loading, skipping...");
+            return;
+          }
+
+          if (currentDiagram && currentDiagram.path === diagram.path) {
+            console.log("Diagram already loaded, skipping...");
+            return;
+          }
+
+          isLoading = true;
+
+          // Update active file - safely handle missing elements
+          const fileItems = document.querySelectorAll(".file-item");
+          fileItems.forEach((item) => item.classList.remove("active"));
+
+          if (fileItems[index]) {
+            fileItems[index].classList.add("active");
+          }
+
+          // Show loading state
+          const mainContent = document.getElementById("mainContent");
+          mainContent.innerHTML = `
+             <div class="diagram-container">
+               <div class="diagram-title">${diagram.name}</div>
+               <div class="loading">Loading diagram...</div>
+             </div>
+           `;
+
+          console.log("DOM cleared, starting fetch...");
+
+          // Load diagram content
+          const response = await fetch(`/api/diagram/${diagram.path}`);
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          console.log(
+            "Diagram content loaded:",
+            data.content.substring(0, 100) + "..."
+          );
+          console.log("Content type:", data.type || "mermaid");
+
+          currentDiagram = diagram;
+          renderDiagram(diagram, data.content, data.type || "mermaid");
+
+          isLoading = false;
+        } catch (error) {
+          console.error("Error loading diagram:", error);
+          isLoading = false;
+          document.getElementById("mainContent").innerHTML = `
+                     <div class="error">
+                         <strong>Error loading diagram:</strong> ${error.message}
+                     </div>
+                 `;
+        }
+      }
+
+      // Setup control event listeners
+      function setupControls() {
+        document
+          .getElementById("fullWidthBtn")
+          .addEventListener("click", toggleFullWidth);
+        document
+          .getElementById("zoomInBtn")
+          .addEventListener("click", () => adjustZoom(0.1));
+        document
+          .getElementById("zoomOutBtn")
+          .addEventListener("click", () => adjustZoom(-0.1));
+        document
+          .getElementById("resetZoomBtn")
+          .addEventListener("click", resetZoom);
+
+        // Fullscreen modal controls
+        setupFullscreenControls();
+
+        // Search functionality
+        setupSearch();
+      }
+
+      function setupSearch() {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        searchInput.addEventListener("input", handleSearch);
+        clearBtn.addEventListener("click", clearSearch);
+      }
+
+      function handleSearch(e) {
+        searchTerm = e.target.value.toLowerCase().trim();
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        if (searchTerm) {
+          clearBtn.classList.add("visible");
+          filterDiagrams();
+        } else {
+          clearBtn.classList.remove("visible");
+          clearSearch();
+        }
+      }
+
+      function filterDiagrams() {
+        if (!searchTerm) {
+          filteredDiagrams = diagrams;
+        } else {
+          filteredDiagrams = diagrams.filter(
+            (diagram) =>
+              diagram.name.toLowerCase().includes(searchTerm) ||
+              diagram.path.toLowerCase().includes(searchTerm) ||
+              (diagram.type && diagram.type.toLowerCase().includes(searchTerm))
+          );
+        }
+        renderFileList();
+      }
+
+      function clearSearch() {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearSearchBtn");
+
+        searchInput.value = "";
+        searchTerm = "";
+        clearBtn.classList.remove("visible");
+        filteredDiagrams = diagrams;
+        renderFileList();
+      }
+
+      // Fullscreen functionality
+      let fullscreenZoom = 1;
+      let fullscreenPanX = 0;
+      let fullscreenPanY = 0;
+      let isGrabbing = false;
+      let isSpacePressed = false;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+
+      function setupFullscreenControls() {
+        const modal = document.getElementById("fullscreenModal");
+        const closeBtn = document.getElementById("closeFullscreenBtn");
+        const grabBtn = document.getElementById("grabBtn");
+        const zoomInBtn = document.getElementById("zoomInFullBtn");
+        const zoomOutBtn = document.getElementById("zoomOutFullBtn");
+        const resetBtn = document.getElementById("resetZoomFullBtn");
+        const diagram = document.getElementById("fullscreenDiagram");
+
+        // Close modal
+        closeBtn.addEventListener("click", closeFullscreen);
+
+        // Grab/pan controls
+        grabBtn.addEventListener("click", toggleGrabMode);
+
+        // Zoom controls
+        zoomInBtn.addEventListener("click", () => adjustFullscreenZoom(0.1));
+        zoomOutBtn.addEventListener("click", () => adjustFullscreenZoom(-0.1));
+        resetBtn.addEventListener("click", resetFullscreenZoom);
+
+        // Mouse events for panning
+        diagram.addEventListener("mousedown", startPan);
+        diagram.addEventListener("mousemove", pan);
+        diagram.addEventListener("mouseup", endPan);
+        diagram.addEventListener("mouseleave", endPan);
+
+        // Wheel zoom
+        diagram.addEventListener("wheel", handleWheelZoom, { passive: false });
+
+        // Keyboard events
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("keyup", handleKeyUp);
+
+        // Prevent context menu on diagram
+        diagram.addEventListener("contextmenu", (e) => e.preventDefault());
+      }
+
+      function openFullscreen(diagram, content, contentType) {
+        const modal = document.getElementById("fullscreenModal");
+        const title = document.getElementById("fullscreenTitle");
+        const diagramContainer = document.getElementById("fullscreenDiagram");
+
+        title.textContent = diagram.name;
+
+        // Reset zoom and pan
+        fullscreenZoom = 1;
+        fullscreenPanX = 0;
+        fullscreenPanY = 0;
+        isGrabbing = false;
+
+        // Copy the diagram content
+        const originalDiagram = document.querySelector(".mermaid svg");
+        if (originalDiagram) {
+          diagramContainer.innerHTML = "";
+          const clonedSvg = originalDiagram.cloneNode(true);
+          diagramContainer.appendChild(clonedSvg);
+        } else {
+          diagramContainer.innerHTML = content;
+        }
+
+        // Show modal
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        // Update display
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function closeFullscreen() {
+        const modal = document.getElementById("fullscreenModal");
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+        isGrabbing = false;
+        isSpacePressed = false;
+        updateGrabButton();
+      }
+
+      function toggleGrabMode() {
+        isGrabbing = !isGrabbing;
+        updateGrabButton();
+      }
+
+      function updateGrabButton() {
+        const grabBtn = document.getElementById("grabBtn");
+        const diagram = document.getElementById("fullscreenDiagram");
+
+        if (isGrabbing || isSpacePressed) {
+          grabBtn.classList.add("active");
+          diagram.classList.add("grabbing");
+        } else {
+          grabBtn.classList.remove("active");
+          diagram.classList.remove("grabbing");
+        }
+      }
+
+      function startPan(e) {
+        if (isGrabbing || isSpacePressed) {
+          e.preventDefault();
+          isGrabbing = true;
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+          updateGrabButton();
+        }
+      }
+
+      function pan(e) {
+        if (isGrabbing) {
+          e.preventDefault();
+          const deltaX = e.clientX - lastMouseX;
+          const deltaY = e.clientY - lastMouseY;
+
+          fullscreenPanX += deltaX;
+          fullscreenPanY += deltaY;
+
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+
+          updateFullscreenTransform();
+        }
+      }
+
+      function endPan(e) {
+        if (isGrabbing) {
+          isGrabbing = false;
+          updateGrabButton();
+        }
+      }
+
+      function handleWheelZoom(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        adjustFullscreenZoom(delta);
+      }
+
+      function adjustFullscreenZoom(delta) {
+        fullscreenZoom = Math.max(0.1, Math.min(5, fullscreenZoom + delta));
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function resetFullscreenZoom() {
+        fullscreenZoom = 1;
+        fullscreenPanX = 0;
+        fullscreenPanY = 0;
+        updateFullscreenDisplay();
+        updateFullscreenTransform();
+      }
+
+      function updateFullscreenDisplay() {
+        const zoomDisplay = document.getElementById("fullscreenZoomLevel");
+        zoomDisplay.textContent = Math.round(fullscreenZoom * 100) + "%";
+      }
+
+      function updateFullscreenTransform() {
+        const diagram = document.getElementById("fullscreenDiagram");
+        const svg = diagram.querySelector("svg");
+        if (svg) {
+          svg.style.transform = `scale(${fullscreenZoom}) translate(${fullscreenPanX}px, ${fullscreenPanY}px)`;
+        }
+      }
+
+      function handleKeyDown(e) {
+        if (e.code === "Space" && !isSpacePressed) {
+          e.preventDefault();
+          isSpacePressed = true;
+          updateGrabButton();
+        } else if (e.code === "Escape") {
+          closeFullscreen();
+        }
+      }
+
+      function handleKeyUp(e) {
+        if (e.code === "Space") {
+          isSpacePressed = false;
+          isGrabbing = false;
+          updateGrabButton();
+        }
+      }
+
+      // Toggle full width mode
+      function toggleFullWidth() {
+        const main = document.getElementById("mainContent");
+        const btn = document.getElementById("fullWidthBtn");
+
+        isFullWidth = !isFullWidth;
+        main.classList.toggle("full-width", isFullWidth);
+        btn.classList.toggle("active", isFullWidth);
+        btn.textContent = isFullWidth ? "Normal Width" : "Full Width";
+      }
+
+      // Adjust zoom level
+      function adjustZoom(delta) {
+        zoomLevel = Math.max(0.1, Math.min(3, zoomLevel + delta));
+        updateZoom();
+      }
+
+      // Reset zoom
+      function resetZoom() {
+        zoomLevel = 1;
+        updateZoom();
+      }
+
+      // Update zoom display and apply transform
+      function updateZoom() {
+        const diagramElement = document.querySelector(".mermaid");
+        if (diagramElement) {
+          diagramElement.style.transform = `scale(${zoomLevel})`;
+        }
+
+        const zoomLevelElement = document.getElementById("zoomLevel");
+        if (zoomLevelElement) {
+          zoomLevelElement.textContent = Math.round(zoomLevel * 100) + "%";
+        }
+      }
+
+      // Render diagram
+      function renderDiagram(diagram, content, contentType = "mermaid") {
+        const mainContent = document.getElementById("mainContent");
+
+        // Clear any existing content first
+        mainContent.innerHTML = "";
+
+        if (diagram.type === "mermaid") {
+          // Create the container structure
+          const container = document.createElement("div");
+          container.className = "diagram-container";
+
+          const title = document.createElement("div");
+          title.className = "diagram-title";
+          title.textContent = diagram.name;
+
+          // Add expand button for Mermaid diagrams
+          const expandBtn = document.createElement("button");
+          expandBtn.className = "expand-btn";
+          expandBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7,14H5V10H7M17,14H19V10H17M5,6H7V2H5M17,6H19V2H17M5,18H7V22H5M17,18H19V22H17M9,4H15V6H9M9,18H15V20H9M4,8H6V16H4M18,8H20V16H18M8,9H16V15H8V9Z" />
+            </svg>
+            Expand
+          `;
+          expandBtn.addEventListener("click", () =>
+            openFullscreen(diagram, content, contentType)
+          );
+
+          const diagramDiv = document.createElement("div");
+          diagramDiv.className = "mermaid";
+          diagramDiv.id = `diagram-${Date.now()}`;
+
+          container.appendChild(title);
+          container.appendChild(expandBtn);
+          container.appendChild(diagramDiv);
+          mainContent.appendChild(container);
+
+          if (contentType === "svg") {
+            // Serve pre-built SVG directly
+            console.log("Rendering pre-built SVG");
+            console.log("SVG length:", content.length);
+            console.log("SVG preview:", content.substring(0, 200) + "...");
+
+            diagramDiv.innerHTML = content;
+            updateZoom();
+
+            console.log("Pre-built SVG rendered successfully");
+          } else {
+            // Render Mermaid diagram on-the-fly (fallback)
+            console.log(
+              "Rendering Mermaid diagram with content:",
+              content.substring(0, 200) + "..."
+            );
+
+            // Store reference to prevent garbage collection
+            const elementRef = diagramDiv;
+            const containerRef = container;
+
+            // Use a timeout to ensure DOM is stable
+            setTimeout(() => {
+              // Double-check element still exists
+              if (!elementRef || !elementRef.parentNode) {
+                console.warn("Element removed before rendering, skipping...");
+                return;
+              }
+
+              mermaid
+                .render(`diagram-${Date.now()}`, content)
+                .then(({ svg }) => {
+                  console.log("Mermaid diagram rendered successfully");
+                  console.log("SVG length:", svg.length);
+                  console.log("SVG preview:", svg.substring(0, 200) + "...");
+
+                  // Check if the element still exists before updating
+                  if (
+                    elementRef &&
+                    elementRef.parentNode &&
+                    containerRef &&
+                    containerRef.parentNode
+                  ) {
+                    elementRef.innerHTML = svg;
+                    elementRef.offsetHeight; // Force reflow
+                    updateZoom();
+
+                    console.log(
+                      "Diagram element after render:",
+                      elementRef.innerHTML.length,
+                      "characters"
+                    );
+                  } else {
+                    console.warn(
+                      "Diagram element was removed during rendering"
+                    );
+                    // Try to re-render by calling loadDiagram again
+                    console.log("Attempting to re-render...");
+                    setTimeout(() => {
+                      const currentIndex = diagrams.findIndex(
+                        (d) => d.path === diagram.path
+                      );
+                      if (currentIndex !== -1) {
+                        loadDiagram(diagram, currentIndex);
+                      }
+                    }, 100);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Mermaid rendering error:", error);
+                  if (elementRef && elementRef.parentNode) {
+                    tryFallbackRender(elementRef, content, error);
+                  }
+                });
+            }, 100); // Increased delay to ensure DOM is stable
+          }
+        } else if (diagram.type === "markdown" || contentType === "markdown") {
+          // For markdown files, render with proper formatting
+          const container = document.createElement("div");
+          container.className = "diagram-container";
+
+          const title = document.createElement("div");
+          title.className = "diagram-title";
+          title.textContent = diagram.name;
+
+          const markdownDiv = document.createElement("div");
+          markdownDiv.className = "markdown-content";
+
+          // Parse and render markdown
+          const htmlContent = marked.parse(content);
+          markdownDiv.innerHTML = htmlContent;
+
+          container.appendChild(title);
+          container.appendChild(markdownDiv);
+          mainContent.appendChild(container);
+
+          // Highlight code blocks
+          if (window.Prism) {
+            Prism.highlightAllUnder(markdownDiv);
+          }
+        } else {
+          // For other text files, display as plain text
+          const container = document.createElement("div");
+          container.className = "diagram-container";
+
+          const title = document.createElement("div");
+          title.className = "diagram-title";
+          title.textContent = diagram.name;
+
+          const pre = document.createElement("pre");
+          pre.style.whiteSpace = "pre-wrap";
+          pre.style.fontFamily = "monospace";
+          pre.textContent = content;
+
+          container.appendChild(title);
+          container.appendChild(pre);
+          mainContent.appendChild(container);
+        }
+      }
+
+      // Fallback render method
+      function tryFallbackRender(
+        diagramElement,
+        content,
+        originalError = null
+      ) {
+        console.log("Using fallback render method");
+
+        // Clear the element
+        diagramElement.innerHTML = "";
+
+        // Create a new element with the content
+        const preElement = document.createElement("pre");
+        preElement.className = "mermaid";
+        preElement.textContent = content;
+        diagramElement.appendChild(preElement);
+
+        // Try to initialize Mermaid on this element
+        try {
+          mermaid.init(undefined, preElement);
+          console.log("Fallback render successful");
+        } catch (error) {
+          console.error("Fallback render failed:", error);
+          diagramElement.innerHTML = `
+             <div class="error">
+               <strong>Mermaid rendering failed:</strong> ${
+                 originalError ? originalError.message : error.message
+               }
+               <br><br>
+               <strong>Content:</strong>
+               <pre style="font-size: 12px; margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto;">${content}</pre>
+             </div>
+           `;
+        }
+      }
+
+      // Initialize
+      loadDiagrams();
     </script>
   </body>
 </html>

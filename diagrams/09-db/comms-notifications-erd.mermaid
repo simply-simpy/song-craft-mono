@@ -1,0 +1,73 @@
+erDiagram
+  COMM_TEMPLATE {
+    uuid id PK
+    string key
+    string channel
+    string locale
+    int version
+    text subject_tmpl
+    text body_tmpl
+    timestamp updated_at
+  }
+
+  NOTIFICATION {
+    uuid id PK
+    uuid user_id
+    uuid org_id
+    uuid account_id
+    string channel
+    string template_key
+    jsonb payload_json
+    string status
+    string priority
+    string dedupe_key
+    int attempts
+    timestamp next_attempt_at
+    string last_error
+    timestamp created_at
+  }
+
+  EMAIL_EVENT {
+    uuid id PK
+    uuid notification_id FK
+    string provider
+    string message_id
+    string type
+    jsonb meta_json
+    timestamp ts
+  }
+
+  USER_NOTIFICATION_PREF {
+    uuid id PK
+    uuid user_id FK
+    string channel
+    string template_key
+    boolean opt_in
+    timestamp updated_at
+  }
+
+  ORG_NOTIFICATION_POLICY {
+    uuid id PK
+    uuid org_id FK
+    string channel
+    string template_key
+    boolean is_enabled
+    text cc_list
+    text bcc_list
+    jsonb silence_hours
+    timestamp updated_at
+  }
+
+  AUDIT_LOG {
+    uuid id PK
+    uuid actor_user_id
+    string action
+    jsonb meta
+    timestamp created_at
+  }
+
+  COMM_TEMPLATE ||--o{ NOTIFICATION : renders
+  NOTIFICATION ||--o{ EMAIL_EVENT : emits
+  USER ||--o{ USER_NOTIFICATION_PREF : sets
+  ORG ||--o{ ORG_NOTIFICATION_POLICY : sets
+  USER ||--o{ AUDIT_LOG : acts

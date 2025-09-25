@@ -1,0 +1,87 @@
+erDiagram
+  USER {
+    uuid id PK
+    string email
+    string display_name
+    string last_context
+    string global_role
+    uuid[] account_ids "array of account IDs"
+    uuid primary_account_id FK "primary account"
+    uuid current_account_id FK "currently active account"
+    timestamp created_at
+    timestamp last_login_at
+  }
+
+  ORG {
+    uuid id PK
+    string name
+    string billing_email
+    text billing_address
+    string billing_phone
+    timestamp created_at
+  }
+
+  ACCOUNT {
+    uuid id PK
+    uuid org_id FK "legacy"
+    uuid parent_org_id FK "primary"
+    uuid owner_user_id FK
+    string name
+    text description
+    string plan
+    string status
+    string billing_email
+    jsonb settings
+    boolean is_default
+    timestamp created_at
+  }
+
+  MEMBERSHIP {
+    uuid id PK
+    uuid user_id FK
+    uuid account_id FK
+    string role
+    timestamp created_at
+  }
+
+  ORG_ROLE {
+    uuid id PK
+    uuid user_id FK
+    uuid org_id FK
+    string role
+    timestamp created_at
+  }
+
+  USER_CONTEXT {
+    uuid id PK
+    uuid user_id FK
+    uuid current_account_id FK
+    timestamp last_switched_at
+    jsonb context_data
+    timestamp created_at
+  }
+
+  AUDIT_LOG {
+    uuid id PK
+    uuid actor_user_id
+    string action
+    uuid org_id
+    uuid account_id
+    uuid subject_id
+    string meta
+    timestamp created_at
+  }
+
+  USER ||--o{ MEMBERSHIP : holds
+  ACCOUNT ||--o{ MEMBERSHIP : includes
+  USER ||--o{ ORG_ROLE : has
+  ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
+  ORG ||--o{ ACCOUNT : "org_id (legacy)"
+  ORG ||--o{ ORG_ROLE : assigns
+  USER ||--o{ USER_CONTEXT : "has context"
+  ACCOUNT ||--o{ USER_CONTEXT : "current context"
+  USER ||--o{ AUDIT_LOG : acts
+  ORG ||--o{ AUDIT_LOG : context
+  ACCOUNT ||--o{ AUDIT_LOG : context
+  USER ||--o{ ACCOUNT : "primary_account_id"
+  USER ||--o{ ACCOUNT : "current_account_id"

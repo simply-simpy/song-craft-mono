@@ -1,0 +1,46 @@
+flowchart TD
+  subgraph Workspace
+    W1["Open Song Editor"]
+    W2["Autosave every 5 min"]
+    W3["Manual Save Version"]
+    W4["Inline: Add Co-Writer, Propose Split, Export Split Sheet"]
+  end
+
+  subgraph SongAdmin
+    SA1["Metadata: genre, tempo, tags"]
+    SA2["Overrides splits autosave invites"]
+    SA3["Session setup: Zoom link, attendance"]
+    SA4["Audit log: per-song changes"]
+  end
+
+  subgraph GlobalAdmin
+    GA1["Default splits: even"]
+    GA2["Publisher/PRO info"]
+    GA3["Domain restrictions for invites"]
+    GA4["Billing, seat assignments"]
+    GA5["Audit log: all songs in account"]
+  end
+
+  subgraph Switcher
+    S1["Select Account A"]
+    S2["Select Account B"]
+    S3["Select Org X or Org Y"]
+  end
+
+  %% Navigation flows
+  W1 -->|Owner/Admin| SA1
+  W1 -->|Owner/Admin| SA2
+  W1 -->|Owner/Admin| SA3
+  W1 -->|Owner/Admin| SA4
+
+  SA1 --> GA1
+  SA2 --> GA2
+  SA3 --> GA3
+  SA4 --> GA5
+
+  S1 -->|Choose account/org| GA1
+  S2 -->|Choose account/org| GA1
+  S3 -->|Choose account/org| GA1
+  S1 -->|Choose account/org| W1
+  S2 -->|Choose account/org| W1
+  S3 -->|Choose account/org| W1

@@ -1,0 +1,5 @@
+flowchart TD
+  A["User opens account switcher<br/>(avatar menu)"] --> B["List accounts user belongs to"]
+  B --> C["Select account"]
+  C --> D["Persist last-selected account<br/>(cookie/localStorage/server)"]
+  D --> E["Reload context:<br/>projects/songs for that account"]

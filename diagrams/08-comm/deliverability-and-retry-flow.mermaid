@@ -1,0 +1,8 @@
+flowchart TD
+  A[Producer enqueues NOTIFICATION] --> B[Worker renders template]
+  B --> C[Send to ESP]
+  C -->|Success| D[EMAIL_EVENT: queued/sent]
+  C -->|Transient fail| E[Backoff + retry]
+  C -->|Hard fail| F[DLQ + mark failed]
+  G[ESP webhooks] --> H[EMAIL_EVENT: delivered/open/click/bounce]
+  H --> I[Update NOTIFICATION status]

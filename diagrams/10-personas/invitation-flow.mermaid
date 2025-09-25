@@ -1,0 +1,81 @@
+flowchart TD
+    Start([User Wants to Collaborate])
+    
+    %% Decision Points
+    Decision1{What level of<br/>collaboration?}
+    Decision2{What project<br/>access level?}
+    Decision3{Session invite<br/>required?}
+    
+    %% Account Level
+    AccountInvite[Invite to Account<br/>(Account Member)]
+    AccountAccept[User accepts<br/>Account invitation]
+    
+    %% Project Level
+    ProjectInvite[Invite to Project<br/>with permission level]
+    ProjectAccept[User accepts<br/>Project invitation]
+    
+    %% Session Level
+    SessionInvite[Invite to Session<br/>(requires project access)]
+    SessionAccept[User accepts<br/>Session invitation]
+    
+    %% Permission Levels
+    subgraph "Project Permission Options"
+        Read[Read Only]
+        ReadNotes[Read + Notes]
+        ReadWrite[Read + Write]
+        FullAccess[Full Access]
+    end
+    
+    %% Session Types
+    subgraph "Session Types"
+        Writing[Writing Session]
+        Recording[Recording Session]
+        Feedback[Feedback Session]
+        Review[Review Session]
+    end
+    
+    %% Access Results
+    AccountAccess[Account Member<br/>• Can be invited to projects<br/>• No default project access]
+    ProjectAccess[Project Access<br/>• Based on permission level<br/>• Can accept session invites]
+    SessionAccess[Session Participation<br/>• Join writing sessions<br/>• Collaborate in real-time]
+    
+    %% Flow
+    Start --> Decision1
+    Decision1 -->|Account-wide| AccountInvite
+    Decision1 -->|Project-specific| Decision2
+    Decision1 -->|Session-specific| Decision3
+    
+    AccountInvite --> AccountAccept
+    AccountAccept --> AccountAccess
+    
+    Decision2 --> ProjectInvite
+    ProjectInvite --> ProjectAccept
+    ProjectAccept --> ProjectAccess
+    
+    Decision3 --> SessionInvite
+    SessionInvite --> SessionAccept
+    SessionAccept --> SessionAccess
+    
+    %% Permission Selection
+    ProjectInvite --> Read
+    ProjectInvite --> ReadNotes
+    ProjectInvite --> ReadWrite
+    ProjectInvite --> FullAccess
+    
+    %% Session Requirements
+    SessionInvite -.->|Requires| ProjectAccess
+    
+    %% Styling
+    classDef startEnd fill:#ffebee,stroke:#c62828,stroke-width:3px
+    classDef decision fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef process fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef permission fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef session fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef result fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    
+    class Start startEnd
+    class Decision1,Decision2,Decision3 decision
+    class AccountInvite,AccountAccept,ProjectInvite,ProjectAccept,SessionInvite,SessionAccept process
+    class Read,ReadNotes,ReadWrite,FullAccess permission
+    class Writing,Recording,Feedback,Review session
+    class AccountAccess,ProjectAccess,SessionAccess result

@@ -11,7 +11,7 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./songcraft-api/drizzle/0000_high_jack_flag.sql:/docker-entrypoint-initdb.d/001_init.sql
+      # Note: Drizzle migrations are now handled by the backend service
 
   # Frontend React App (Development)
   frontend:
@@ -45,7 +45,9 @@ services:
     restart: unless-stopped
     volumes:
       - ./songcraft-api/src:/app/songcraft-api/src
+      - ./songcraft-api/drizzle:/app/songcraft-api/drizzle
       - ./shared:/app/shared
+    command: sh -c "npm run db:migrate:dev && npm run dev"
 
 volumes:
   postgres_data:

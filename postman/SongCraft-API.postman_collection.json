@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "SongCraft API",
+    "description": "Complete API collection for SongCraft with auto-configured auth headers",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-add common headers to all requests",
+          "pm.request.headers.add({",
+          "  key: 'Content-Type',",
+          "  value: 'application/json'",
+          "});",
+          "",
+          "pm.request.headers.add({",
+          "  key: 'x-clerk-user-id',",
+          "  value: pm.environment.get('clerk_user_id')",
+          "});",
+          "",
+          "// Log request details for debugging",
+          "console.log('Making request to:', pm.request.url);",
+          "console.log('With auth header:', pm.request.headers.get('x-clerk-user-id'));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Common test for all requests",
+          "pm.test('Response status is successful', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "pm.test('Response has success field', function () {",
+          "  const jsonData = pm.response.json();",
+          "  pm.expect(jsonData).to.have.property('success');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base_url}}/health",
+          "host": ["{{api_base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/users?page=1&limit=20",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/users/{{user_id}}",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"globalRole\": \"admin\",\n  \"reason\": \"Promoted to admin role\"\n}"
+            },
+            "url": {
+              "raw": "{{api_base_url}}/admin/users/{{user_id}}/role",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "users", "{{user_id}}", "role"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Accounts",
+      "item": [
+        {
+          "name": "Get All Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/accounts?page=1&limit=20",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "accounts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Account by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/accounts/{{account_id}}",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "accounts", "{{account_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Search Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/accounts?search={{search_term}}&plan=Pro&status=active",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "accounts"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search_term}}"
+                },
+                {
+                  "key": "plan",
+                  "value": "Pro"
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Organizations",
+      "item": [
+        {
+          "name": "Get All Organizations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/orgs?page=1&limit=20",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "orgs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Organization by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/orgs/{{org_id}}",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "orgs", "{{org_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Stats",
+      "item": [
+        {
+          "name": "Get System Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base_url}}/admin/stats",
+              "host": ["{{api_base_url}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "api_base_url",
+      "value": "http://localhost:4500"
+    },
+    {
+      "key": "clerk_user_id",
+      "value": "local_admin@localhost.com"
+    }
+  ]
+}

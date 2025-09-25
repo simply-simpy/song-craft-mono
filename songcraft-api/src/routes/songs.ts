@@ -1,184 +1,219 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { db } from "../db";
-import { songs, lyricVersions } from "../schema";
-import { eq } from "drizzle-orm";
-import { generateSongId } from "@songcraft/shared";
+
+import { container } from "../container";
+import {
+	songResponseSchema,
+	songSchema,
+	songsListResponseSchema,
+	versionsResponseSchema,
+} from "../services/songs.service";
+import { requireClerkUser } from "./_utils/auth";
+import {
+	buildPaginationMeta,
+	createPaginationSchema,
+} from "./_utils/pagination";
+import { withErrorHandling } from "./_utils/route-helpers";
+
+const uuidSchema = z.string().uuid();
+const shortIdSchema = z
+	.string()
+	.length(16)
+	.regex(/^[a-f0-9]{16}$/);
+
+const paginationSchema = createPaginationSchema({
+	sortOptions: ["createdAt", "updatedAt", "title", "artist"] as const,
+	defaultSort: "updatedAt",
+}).extend({
+	accountId: z.string().uuid().optional(),
+	ownerClerkId: z.string().optional(),
+});
+
+type PaginationQuery = z.infer<typeof paginationSchema>;
+
+const errorResponseSchema = z.object({
+	error: z.string(),
+	code: z.string().optional(),
+	details: z.any().optional(),
+});
 
 export default async function songRoutes(fastify: FastifyInstance) {
-  // Delete song by short ID
-  fastify.delete("/songs/:shortId", async (request) => {
-    const { shortId } = request.params as { shortId: string };
-    try {
-      const song = await db
-        .select({ id: songs.id })
-        .from(songs)
-        .where(eq(songs.shortId, shortId))
-        .limit(1);
-      if (song.length === 0) {
-        return { success: false, error: "Song not found" };
-      }
-      const songId = song[0].id;
-      // Delete lyric versions first (FK)
-      await db.delete(lyricVersions).where(eq(lyricVersions.songId, songId));
-      // Delete the song
-      await db.delete(songs).where(eq(songs.id, songId));
-      return { success: true };
-    } catch (error) {
-      console.error("Error deleting song:", error);
-      return { success: false, error: "Failed to delete song" };
-    }
-  });
-  // Get all songs
-  fastify.get("/songs", async () => {
-    try {
-      const allSongs = await db.select().from(songs);
-      return { success: true, data: allSongs };
-    } catch (error) {
-      console.error("Error fetching songs:", error);
-      return { success: false, error: "Failed to fetch songs" };
-    }
-  });
+	fastify.get(
+		"/songs",
+		{
+			schema: {
+				querystring: paginationSchema,
+				response: {
+					200: songsListResponseSchema,
+					400: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { page, limit, sort, order, accountId, ownerClerkId } =
+				request.query as PaginationQuery;
 
-  // Get song by short ID
-  fastify.get("/songs/:shortId", async (request) => {
-    const { shortId } = request.params as { shortId: string };
+			const result = await container.songsService.listSongs(
+				{ accountId, ownerClerkId },
+				{ page, limit, sort, order },
+			);
 
-    try {
-      const song = await db
-        .select()
-        .from(songs)
-        .where(eq(songs.shortId, shortId))
-        .limit(1);
+			return reply.status(200).send(result);
+		}),
+	);
 
-      if (song.length === 0) {
-        return { success: false, error: "Song not found" };
-      }
+	fastify.get(
+		"/songs/:id",
+		{
+			schema: {
+				params: z.object({ id: uuidSchema }),
+				response: {
+					200: z.object({ song: songResponseSchema }),
+					400: errorResponseSchema,
+					404: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { id } = request.params as { id: string };
 
-      return { success: true, data: song[0] };
-    } catch (error) {
-      console.error("Error fetching song:", error);
-      return { success: false, error: "Failed to fetch song" };
-    }
-  });
+			const song = await container.songsService.findById(id);
+			if (!song) {
+				throw new Error("Song not found");
+			}
 
-  // Get lyrics for a song by short ID
-  fastify.get("/songs/:shortId/versions", async (request) => {
-    const { shortId } = request.params as { shortId: string };
+			return reply.status(200).send({ song });
+		}),
+	);
 
-    try {
-      // First get the song to get its UUID
-      const song = await db
-        .select()
-        .from(songs)
-        .where(eq(songs.shortId, shortId))
-        .limit(1);
+	fastify.get(
+		"/songs/short/:shortId",
+		{
+			schema: {
+				params: z.object({ shortId: shortIdSchema }),
+				response: {
+					200: z.object({ song: songResponseSchema }),
+					400: errorResponseSchema,
+					404: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { shortId } = request.params as { shortId: string };
 
-      if (song.length === 0) {
-        return { success: false, error: "Song not found" };
-      }
+			const song = await container.songsService.findByShortId(shortId);
+			if (!song) {
+				throw new Error("Song not found");
+			}
 
-      const songId = song[0].id;
+			return reply.status(200).send({ song });
+		}),
+	);
 
-      // Then get lyric versions using the UUID
-      const versions = await db
-        .select()
-        .from(lyricVersions)
-        .where(eq(lyricVersions.songId, songId));
+	fastify.get(
+		"/songs/:id/versions",
+		{
+			schema: {
+				params: z.object({ id: uuidSchema }),
+				response: {
+					200: versionsResponseSchema,
+					400: errorResponseSchema,
+					404: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { id } = request.params as { id: string };
 
-      return { success: true, data: versions };
-    } catch (error) {
-      console.error("Error fetching lyric versions:", error);
-      return { success: false, error: "Failed to fetch lyric versions" };
-    }
-  });
+			const versions = await container.songsService.getSongVersions(id);
 
-  // Create new song
-  fastify.post("/songs", async (request) => {
-    console.log(
-      "🎵 Creating new song with data:",
-      JSON.stringify(request.body, null, 2)
-    );
+			return reply.status(200).send({ versions });
+		}),
+	);
 
-    const songSchema = z.object({
-      ownerClerkId: z.string(),
-      title: z.string(),
-      artist: z.string().optional(),
-      bpm: z.number().optional(),
-      key: z.string().optional(),
-      tags: z.array(z.string()).default([]),
-      lyrics: z.string().optional(),
-      midiData: z.string().optional(),
-      collaborators: z.array(z.string()).default([]),
-    });
+	fastify.post(
+		"/songs",
+		{
+			schema: {
+				body: songSchema,
+				response: {
+					201: z.object({ song: songResponseSchema }),
+					400: errorResponseSchema,
+					401: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const clerkId = requireClerkUser(request);
+			const accountId =
+				(request.headers["x-account-id"] as string | undefined) ?? null;
 
-    const result = songSchema.safeParse(request.body);
-    if (!result.success) {
-      console.log("❌ Validation failed:", result.error);
-      return {
-        success: false,
-        error: "Invalid song data",
-        details: result.error,
-      };
-    }
+			const body = request.body as z.infer<typeof songSchema>;
 
-    try {
-      // Generate a unique short ID
-      let shortId: string;
-      let attempts = 0;
-      const maxAttempts = 10;
+			const song = await container.songsService.createSong(
+				body,
+				clerkId,
+				accountId || undefined,
+			);
 
-      do {
-        shortId = generateSongId();
-        attempts++;
+			return reply.status(201).send({ song });
+		}),
+	);
 
-        // Check if this short ID already exists
-        const existing = await db
-          .select({ shortId: songs.shortId })
-          .from(songs)
-          .where(eq(songs.shortId, shortId))
-          .limit(1);
+	fastify.put(
+		"/songs/:id",
+		{
+			schema: {
+				params: z.object({ id: uuidSchema }),
+				body: songSchema.partial(),
+				response: {
+					200: z.object({ song: songResponseSchema }),
+					400: errorResponseSchema,
+					401: errorResponseSchema,
+					403: errorResponseSchema,
+					404: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { id } = request.params as { id: string };
+			const clerkId = requireClerkUser(request);
 
-        if (existing.length === 0) {
-          break; // Found a unique short ID
-        }
+			const body = request.body as Partial<z.infer<typeof songSchema>>;
 
-        if (attempts >= maxAttempts) {
-          throw new Error(
-            "Failed to generate unique short ID after multiple attempts"
-          );
-        }
-      } while (attempts < maxAttempts);
+			const song = await container.songsService.updateSong(id, body, clerkId);
 
-      // Prepare the song data
-      const songData = {
-        shortId,
-        ownerClerkId: result.data.ownerClerkId,
-        title: result.data.title,
-        artist: result.data.artist,
-        bpm: result.data.bpm,
-        key: result.data.key,
-        tags: result.data.tags,
-        lyrics: result.data.lyrics,
-        midiData: result.data.midiData,
-        collaborators: result.data.collaborators,
-      };
+			return reply.status(200).send({ song });
+		}),
+	);
 
-      console.log("📝 Prepared song data:", JSON.stringify(songData, null, 2));
+	fastify.delete(
+		"/songs/:id",
+		{
+			schema: {
+				params: z.object({ id: uuidSchema }),
+				response: {
+					204: z.null(),
+					401: errorResponseSchema,
+					403: errorResponseSchema,
+					404: errorResponseSchema,
+					500: errorResponseSchema,
+				},
+			},
+		},
+		withErrorHandling(async (request, reply) => {
+			const { id } = request.params as { id: string };
+			const clerkId = requireClerkUser(request);
 
-      const newSong = await db.insert(songs).values(songData).returning();
-      console.log("✅ Song created successfully:", newSong[0]);
+			await container.songsService.deleteSong(id, clerkId);
 
-      return { success: true, data: newSong[0] };
-    } catch (error) {
-      console.error("💥 Database error:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      return {
-        success: false,
-        error: "Failed to create song",
-        details: errorMessage,
-      };
-    }
-  });
+			return reply.status(204).send();
+		}),
+	);
 }

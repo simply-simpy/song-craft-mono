@@ -1,0 +1,6 @@
+flowchart TD
+  A[Create session + invite] --> B[Generate ICS with UID and DTSTART]
+  B --> C[Attach to email + send]
+  C --> D[Recipient adds to calendar]
+  E[Change or cancel session] --> F[Send ICS UPDATE or CANCEL with same UID]
+  D --> E

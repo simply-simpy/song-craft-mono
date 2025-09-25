@@ -1,0 +1,42 @@
+erDiagram
+  User ||--o{ Membership : "sitewide → many accounts"
+  Account ||--o{ Membership : "role: owner/admin/editor/viewer"
+  Account ||--o{ Catalog : "logical bucket for works"
+  Account ||--o{ Project : "collections/playlists/releases"
+  Project ||--o{ ProjectItem : "links Work/Version/Asset"
+
+  %% Catalog (works vs versions/recordings)
+  Catalog ||--o{ Work : "Song (composition)"
+  Work ||--o{ Version : "Arrangement / recording / mix"
+  Version ||--o{ Asset : "stems/mix/midi/ref"
+  Version ||--o{ Lyric : "history"
+  Version ||--o{ Section : "structure/chords"
+  Version ||--o{ TempoMap : ""
+
+  %% Splits / Rights
+  Work ||--o{ Split : "percentages per work"
+  Party ||--o{ Split : "User or External (writer/publisher)"
+  Party }o--|| Account : "owned or referenced by"
+
+  %% AI pipeline
+  Account ||--o{ ProviderAccount : "API creds per provider"
+  Provider ||--o{ ProviderAccount : ""
+  Account ||--o{ AIJob : "queued/running/succeeded/failed"
+  AIJob }o--|| Version : "input context"
+  AIJob }o--|| Asset : "inputAsset (optional)"
+  AIJob ||--o{ JobOutput : "→ Assets created"
+  JobOutput }o--|| Asset : ""
+
+  %% Billing / limits
+  Account ||--o{ Subscription : "plan, renewsAt, spendCap"
+  Subscription ||--o{ MeterReading : "usage counters"
+
+  %% Collab + access
+  Account ||--o{ Invite : "email + role + target scope"
+  ACL }o--|| User : "optional per-object override"
+  ACL }o--|| SecuredObject : "Work/Version/Project"
+
+  %% Integrations / Ops
+  Account ||--o{ WebhookEndpoint : ""
+  WebhookEndpoint ||--o{ WebhookDelivery : "status/retries"
+  Account ||--o{ AuditEvent : "who/what/when"

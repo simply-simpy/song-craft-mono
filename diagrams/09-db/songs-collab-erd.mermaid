@@ -1,0 +1,91 @@
+erDiagram
+  SONG {
+    uuid id PK
+    uuid account_id FK
+    string title
+    string status
+    %% draft active archived
+    timestamp created_at
+  }
+
+  SONG_REVISION {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    boolean autosave
+    uuid based_on_revision_id
+    jsonb snapshot_or_delta
+    string label
+    timestamp created_at
+  }
+
+  SONG_CONTRIBUTION {
+    uuid id PK
+    uuid song_id FK
+    uuid revision_id FK
+    uuid user_id FK
+    jsonb lines_changed
+    jsonb meta
+    timestamp created_at
+  }
+
+  SONG_COMMENT {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    uuid parent_id
+    string text
+    string status
+    %% active edited deleted
+    string anchor
+    %% line reference
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  SONG_NOTE {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    string text
+    timestamp created_at
+  }
+
+  SONG_CREDIT {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    string role
+    %% lyricist composer producer
+    timestamp created_at
+  }
+
+  SONG_ASSET {
+    uuid id PK
+    uuid song_id FK
+    uuid user_id FK
+    string file_url
+    string type
+    %% audio pdf midi
+    string hash
+    timestamp created_at
+  }
+
+  USER {
+    uuid id PK
+    string email
+  }
+
+  USER ||--o{ SONG_REVISION : writes
+  USER ||--o{ SONG_CONTRIBUTION : contributes
+  USER ||--o{ SONG_COMMENT : comments
+  USER ||--o{ SONG_NOTE : notes
+  USER ||--o{ SONG_CREDIT : credited
+  USER ||--o{ SONG_ASSET : uploads
+
+  SONG ||--o{ SONG_REVISION : has
+  SONG ||--o{ SONG_CONTRIBUTION : has
+  SONG ||--o{ SONG_COMMENT : has
+  SONG ||--o{ SONG_NOTE : has
+  SONG ||--o{ SONG_CREDIT : has
+  SONG ||--o{ SONG_ASSET : has

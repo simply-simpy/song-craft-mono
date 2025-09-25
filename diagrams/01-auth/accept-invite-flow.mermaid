@@ -1,0 +1,15 @@
+flowchart TD
+  A[Owner or Admin sends invite by email] --> B[Create pending invite expiring in 90 days]
+  B --> C[Send invite email with accept link]
+  C --> D[Invitee clicks accept link]
+  D --> E{Has account?}
+  E -- No --> F[Sign up via Clerk and verify email]
+  E -- Yes --> G[Authenticate via Clerk]
+  F --> H[Accept invite and join inviter account with assigned role]
+  G --> H
+  H --> I{User belongs to multiple accounts?}
+  I -- Yes --> J[Show account switcher]
+  I -- No --> K[Continue in inviter account]
+  J --> L[User selects account]
+  K --> Z[Route to Create New Song]
+ 

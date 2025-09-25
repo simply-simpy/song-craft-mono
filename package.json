@@ -1,40 +1,51 @@
 {
-  "name": "songcraft-mono",
+  "name": "songcraft-mermaid-server",
   "version": "1.0.0",
-  "description": "Songcraft Monorepo - Full-stack music collaboration platform",
-  "private": true,
+  "description": "Local Mermaid diagram server for Songcraft project",
+  "type": "module",
   "workspaces": [
     "songcraft",
     "songcraft-api",
-    "shared/*"
+    "shared"
   ],
   "scripts": {
-    "setup": "node scripts/setup.js",
-    "dev": "concurrently \"npm run dev:songcraft\" \"npm run dev:api\"",
-    "dev:songcraft": "npm run dev --workspace=songcraft",
-    "dev:api": "npm run dev --workspace=songcraft-api",
-    "build": "npm run build --workspaces",
-    "build:songcraft": "npm run build --workspace=songcraft",
-    "build:api": "npm run build --workspace=songcraft-api",
-    "start": "concurrently \"npm run start:songcraft\" \"npm run start:api\"",
-    "start:songcraft": "npm run start --workspace=songcraft",
-    "start:api": "npm run start --workspace=songcraft-api",
-    "test": "npm run test --workspaces",
-    "lint": "npm run lint --workspaces",
-    "format": "npm run format --workspaces",
-    "clean": "npm run clean --workspaces && rm -rf node_modules",
-    "install:all": "npm install && npm run install:workspaces",
-    "install:workspaces": "npm install --workspaces"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "start": "npm run build && node server.js",
+    "dev": "node dev.js",
+    "build": "node build-diagrams-simple.js",
+    "build-puppeteer": "node build-diagrams.js",
+    "watch": "node watch-diagrams.js",
+    "server": "node server.js",
+    "dev:api": "DATABASE_URL=\"postgresql://songcraft:songcraft_dev_password@localhost:5433/songcraft_dev\" npm run dev --workspace=songcraft-api",
+    "dev:frontend": "VITE_API_URL=\"http://localhost:4500\" npm run dev --workspace=songcraft",
+    "dev:db": "docker compose up -d db",
+    "lint": "npm run lint --workspace=songcraft && npm run lint --workspace=songcraft-api",
+    "lint:frontend": "npm run lint --workspace=songcraft",
+    "lint:api": "npm run lint --workspace=songcraft-api",
+    "format": "npm run format --workspace=songcraft && npm run format --workspace=songcraft-api",
+    "format:frontend": "npm run format --workspace=songcraft",
+    "format:api": "npm run format --workspace=songcraft-api",
+    "test": "npm run test --workspace=songcraft && npm run test:run --workspace=songcraft-api",
+    "test:frontend": "npm run test --workspace=songcraft",
+    "test:api": "npm run test:run --workspace=songcraft-api",
+    "test:watch:api": "npm run test:watch --workspace=songcraft-api",
+    "test:coverage:api": "npm run test:coverage --workspace=songcraft-api",
+    "check": "npm run check --workspace=songcraft && npm run check --workspace=songcraft-api",
+    "check:frontend": "npm run check --workspace=songcraft",
+    "check:api": "npm run check --workspace=songcraft-api",
+    "db:studio": "npm run db:studio --workspace=songcraft-api",
+    "db:push": "npm run db:push --workspace=songcraft-api",
+    "db:migrate": "npm run db:migrate --workspace=songcraft-api",
+    "generate-dbml": "npm run generate-dbml --workspace=songcraft-api",
+    "generate-erd": "npm run generate-erd --workspace=songcraft-api",
+    "compare-schemas": "npm run compare-schemas --workspace=songcraft-api",
+    "generate-dbml-relations": "npm run generate-dbml-relations --workspace=songcraft-api"
   },
   "dependencies": {
-    "@clerk/tanstack-react-start": "^0.23.4",
-    "daisyui": "^5.0.54"
+    "chokidar": "^3.6.0",
+    "express": "^4.19.2",
+    "mermaid": "^10.9.1"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.9.0"
   }
 }

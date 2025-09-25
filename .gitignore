@@ -12,6 +12,7 @@ build/
 .next/
 .output/
 .vite/
+public/generated/
 
 # Environment variables
 .env

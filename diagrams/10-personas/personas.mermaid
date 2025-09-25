@@ -1,0 +1,54 @@
+graph TD
+    %% Personas and their roles
+    Garth["👨‍🎤 Garth<br/>Solo Songwriter<br/>& Account Owner"]
+    Sarah["👩‍💼 Sarah<br/>Publishing Company<br/>Org Admin"]
+    Marcus["👨‍🎵 Marcus<br/>Session Collaborator<br/>& Freelancer"]
+    Elena["👩‍🎨 Elena<br/>Feedback Provider<br/>& Consultant"]
+    Alex["👨‍🎤 Alex<br/>New Songwriter<br/>& Learner"]
+
+    %% System components
+    Org["🏢 Organization<br/>(Publishing Company)"]
+    Account1["📁 Garth's Account<br/>(Personal Workspace)"]
+    Account2["📁 Artist Account<br/>(Managed by Sarah)"]
+    Project1["🎵 Summer 2024 Album<br/>(Garth's Project)"]
+    Project2["🎵 New Artist EP<br/>(Sarah's Project)"]
+    Session1["📝 Writing Session<br/>(Idea Generation)"]
+    Session2["📝 Feedback Session<br/>(Elena's Review)"]
+
+    %% Relationships
+    Org --> Account1
+    Org --> Account2
+    Account1 --> Project1
+    Account2 --> Project2
+    Project1 --> Session1
+    Project1 --> Session2
+
+    %% User connections
+    Garth -.-> Account1
+    Garth -.-> Project1
+    Garth -.-> Session1
+
+    Sarah -.-> Org
+    Sarah -.-> Account1
+    Sarah -.-> Account2
+    Sarah -.-> Project2
+
+    Marcus -.-> Session1
+    Marcus -.-> Project1
+
+    Elena -.-> Session2
+    Elena -.-> Project1
+
+    Alex -.-> Account1
+    Alex -.-> Session1
+
+    %% Styling
+    classDef persona fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef system fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef project fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef session fill:#fff3e0,stroke:#e65100,stroke-width:2px
+
+    class Garth,Sarah,Marcus,Elena,Alex persona
+    class Org,Account1,Account2 system
+    class Project1,Project2 project
+    class Session1,Session2 session

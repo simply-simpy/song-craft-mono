@@ -1,0 +1,6 @@
+flowchart TD
+  A[User opens notification settings] --> B[Toggle channel/template opt-in/out]
+  B --> C[Save USER_NOTIFICATION_PREF]
+  D[Org admin sets policy] --> E[Save ORG_NOTIFICATION_POLICY]
+  C --> F[Delivery uses prefs + policy merge]
+  E --> F

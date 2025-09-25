@@ -1,0 +1,8 @@
+flowchart TD
+  A[Owner opens a Song] --> B[Invite Collaborator by email]
+  B --> C[Create song-level permission + Account membership Collaborator]
+  C --> D[Send email invite]
+  D --> E[Collaborator accepts -> auth]
+  E --> F[Can edit/record on permitted songs]
+  F --> G[Cannot create or delete songs in this Account]
+  G --> H[All contributions tracked + auto co-author credit]

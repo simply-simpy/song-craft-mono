@@ -4,28 +4,35 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-This is a **Songcraft API** - a TypeScript-based REST API built with Fastify. The project is in early development stage with a minimal setup that includes:
+This is a **Songcraft API** - a mature TypeScript-based REST API built with Fastify using clean architecture principles:
 
 - **Backend Framework**: Fastify v5.5.0 with TypeScript support
 - **Schema Validation**: Zod v4.1.3 with `fastify-type-provider-zod` for type-safe API endpoints
 - **Database ORM**: Drizzle ORM v0.44.5 configured for PostgreSQL
 - **API Documentation**: OpenAPI/Swagger integration via `@fastify/swagger` and `@fastify/swagger-ui`
-- **Environment**: Configured for development with PostgreSQL database
+- **Architecture**: Repository pattern with service layers for clean separation of concerns
+- **Environment**: Configured for both development and production deployments
 
 ## Architecture
 
-The project follows a simple, single-file architecture currently:
+The project follows a **clean architecture** with repository pattern:
 
-- **Entry Point**: `src/index.ts` - Contains the entire Fastify server setup, including:
-  - Server initialization with TypeProvider for Zod
-  - Swagger/OpenAPI documentation setup
-  - Basic health check endpoint (`/health`)
-  - Server startup logic with configurable port (default: 3000, env: 4500)
-
-The architecture is set up to be expanded with:
-- Route modules (currently consolidated in main file)
-- Database schemas and migrations (Drizzle ORM ready)
-- Additional middleware and plugins
+- **Entry Point**: `src/index.ts` - Server startup and configuration
+- **Server Setup**: `src/server/createServer.ts` - Fastify instance creation with plugins
+- **Routes**: `src/routes/` - HTTP route handlers organized by feature
+  - `songs.ts` - Song management endpoints
+  - `user.ts` - User profile endpoints (`/me`)
+  - `admin.ts` - Admin management endpoints (prefixed with `/admin`)
+  - `projects.ts` - Project management endpoints
+- **Services**: `src/services/` - Business logic layer
+  - `songs.service.ts` - Song business logic
+  - `admin.service.ts` - Admin operations
+  - `project.service.ts` - Project operations
+- **Repositories**: `src/repositories/` - Data access layer
+  - Repository pattern for all database operations
+  - Type-safe interfaces for all data operations
+- **Middleware**: `src/middleware/` - Authentication and authorization
+- **Configuration**: `src/config/` - Environment and app configuration
 
 ## Development Commands
 
@@ -55,12 +62,30 @@ The project is configured to use PostgreSQL:
 
 ```
 src/
-├── index.ts          # Main application entry point
-├── (future)          # Routes, models, services will be added here
-
-package.json          # Dependencies and scripts
-tsconfig.json         # TypeScript configuration
-.env                  # Environment variables (PORT, DATABASE_URL)
+├── index.ts                    # Application entry point
+├── server/
+│   └── createServer.ts         # Fastify server setup
+├── config/
+│   └── env.ts                  # Environment configuration
+├── routes/                     # HTTP route handlers
+│   ├── _utils/                 # Route utilities
+│   ├── admin.ts               # Admin endpoints (/admin/*)
+│   ├── user.ts                # User profile (/me)
+│   ├── songs.ts               # Song management
+│   └── projects.ts            # Project management
+├── services/                   # Business logic layer
+│   ├── admin.service.ts
+│   ├── project.service.ts
+│   └── songs.service.ts
+├── repositories/               # Data access layer
+│   ├── user.repository.ts
+│   ├── account.repository.ts
+│   ├── project.repository.ts
+│   └── song.repository.ts
+├── middleware/                 # Authentication & middleware
+├── lib/                       # Shared utilities
+├── plugins/                   # Fastify plugins
+└── schema.ts                  # Database schema
 ```
 
 ## Key Dependencies
@@ -87,12 +112,22 @@ Required environment variables:
 - The server is configured to listen on all interfaces (`0.0.0.0`) for containerization readiness
 - Fastify logger is enabled for request/response logging
 
-## Next Development Steps
+## Architecture Features
 
-Based on the current setup, typical next steps would involve:
-1. Adding database schema definitions with Drizzle
-2. Creating route modules for API endpoints  
-3. Implementing authentication/authorization
-4. Adding comprehensive error handling
-5. Setting up testing framework
-6. Adding linting and formatting tools
+**✅ Completed:**
+- Database schema definitions with Drizzle ORM
+- Route modules organized by feature
+- Repository pattern for data access
+- Service layer for business logic
+- Authentication/authorization middleware
+- Comprehensive error handling
+- Type-safe API endpoints with Zod validation
+- Dependency injection container
+- Environment-based configuration
+
+**🚀 Production Ready:**
+- Clean architecture with separation of concerns
+- No direct database queries in route handlers
+- Consistent error handling across all endpoints
+- Type-safe request/response validation
+- OpenAPI/Swagger documentation

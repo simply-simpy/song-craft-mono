@@ -14,18 +14,21 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
+import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SongsNewRouteImport } from './routes/songs/new'
+import { Route as SignInSsoCallbackRouteImport } from './routes/sign-in/sso-callback'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminOrgsRouteImport } from './routes/admin/orgs'
+import { Route as AdminAccountsRouteImport } from './routes/admin/accounts'
 import { Route as SongsSongIdIndexRouteImport } from './routes/songs/$songId/index'
 import { Route as SongsSongIdRecordRouteImport } from './routes/songs/$songId/record'
 import { Route as SongsSongIdPackageRouteImport } from './routes/songs/$songId/package'
 import { Route as SongsSongIdMidiRouteImport } from './routes/songs/$songId/midi'
 import { Route as SongsSongIdLyricsRouteImport } from './routes/songs/$songId/lyrics'
 import { Route as SongsSongIdCollabRouteImport } from './routes/songs/$songId/collab'
-import { ServerRoute as McpServerRouteImport } from './routes/mcp'
-import { ServerRoute as ApiSplatServerRouteImport } from './routes/api.$'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
-import { ServerRoute as ApiRpcSplatServerRouteImport } from './routes/api.rpc.$'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -44,6 +47,16 @@ const SongsIndexRoute = SongsIndexRouteImport.update({
   path: '/songs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsIndexRoute = SessionsIndexRouteImport.update({
+  id: '/sessions/',
+  path: '/sessions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -52,6 +65,26 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const SongsNewRoute = SongsNewRouteImport.update({
   id: '/songs/new',
   path: '/songs/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInSsoCallbackRoute = SignInSsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
+  getParentRoute: () => SignInRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOrgsRoute = AdminOrgsRouteImport.update({
+  id: '/admin/orgs',
+  path: '/admin/orgs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAccountsRoute = AdminAccountsRouteImport.update({
+  id: '/admin/accounts',
+  path: '/admin/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SongsSongIdIndexRoute = SongsSongIdIndexRouteImport.update({
@@ -84,32 +117,23 @@ const SongsSongIdCollabRoute = SongsSongIdCollabRouteImport.update({
   path: '/songs/$songId/collab',
   getParentRoute: () => rootRouteImport,
 } as any)
-const McpServerRoute = McpServerRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiSplatServerRoute = ApiSplatServerRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
   getParentRoute: () => rootServerRouteImport,
 } as any)
-const ApiRpcSplatServerRoute = ApiRpcSplatServerRouteImport.update({
-  id: '/api/rpc/$',
-  path: '/api/rpc/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/orgs': typeof AdminOrgsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -120,9 +144,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/orgs': typeof AdminOrgsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin': typeof AdminIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -134,9 +164,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
+  '/sign-in': typeof SignInRouteWithChildren
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/orgs': typeof AdminOrgsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
   '/songs/new': typeof SongsNewRoute
   '/admin/': typeof AdminIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/sessions/': typeof SessionsIndexRoute
   '/songs/': typeof SongsIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -150,8 +186,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sign-in'
+    | '/admin/accounts'
+    | '/admin/orgs'
+    | '/admin/users'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
+    | '/projects'
+    | '/sessions'
     | '/songs'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -163,8 +205,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
+    | '/admin/accounts'
+    | '/admin/orgs'
+    | '/admin/users'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin'
+    | '/projects'
+    | '/sessions'
     | '/songs'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -176,8 +224,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/sign-in'
+    | '/admin/accounts'
+    | '/admin/orgs'
+    | '/admin/users'
+    | '/sign-in/sso-callback'
     | '/songs/new'
     | '/admin/'
+    | '/projects/'
+    | '/sessions/'
     | '/songs/'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -189,9 +243,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SignInRoute: typeof SignInRoute
+  SignInRoute: typeof SignInRouteWithChildren
+  AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminOrgsRoute: typeof AdminOrgsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   SongsNewRoute: typeof SongsNewRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
+  SessionsIndexRoute: typeof SessionsIndexRoute
   SongsIndexRoute: typeof SongsIndexRoute
   SongsSongIdCollabRoute: typeof SongsSongIdCollabRoute
   SongsSongIdLyricsRoute: typeof SongsSongIdLyricsRoute
@@ -201,36 +260,24 @@ export interface RootRouteChildren {
   SongsSongIdIndexRoute: typeof SongsSongIdIndexRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/mcp': typeof McpServerRoute
-  '/api/$': typeof ApiSplatServerRoute
-  '/api/rpc/$': typeof ApiRpcSplatServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/mcp': typeof McpServerRoute
-  '/api/$': typeof ApiSplatServerRoute
-  '/api/rpc/$': typeof ApiRpcSplatServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/mcp': typeof McpServerRoute
-  '/api/$': typeof ApiSplatServerRoute
-  '/api/rpc/$': typeof ApiRpcSplatServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/mcp' | '/api/$' | '/api/rpc/$' | '/api/trpc/$'
+  fullPaths: '/api/trpc/$'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/mcp' | '/api/$' | '/api/rpc/$' | '/api/trpc/$'
-  id: '__root__' | '/mcp' | '/api/$' | '/api/rpc/$' | '/api/trpc/$'
+  to: '/api/trpc/$'
+  id: '__root__' | '/api/trpc/$'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  McpServerRoute: typeof McpServerRoute
-  ApiSplatServerRoute: typeof ApiSplatServerRoute
-  ApiRpcSplatServerRoute: typeof ApiRpcSplatServerRoute
   ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
 }
 
@@ -257,6 +304,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SongsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions/': {
+      id: '/sessions/'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof SessionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -269,6 +330,34 @@ declare module '@tanstack/react-router' {
       path: '/songs/new'
       fullPath: '/songs/new'
       preLoaderRoute: typeof SongsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in/sso-callback': {
+      id: '/sign-in/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/sign-in/sso-callback'
+      preLoaderRoute: typeof SignInSsoCallbackRouteImport
+      parentRoute: typeof SignInRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/orgs': {
+      id: '/admin/orgs'
+      path: '/admin/orgs'
+      fullPath: '/admin/orgs'
+      preLoaderRoute: typeof AdminOrgsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/accounts': {
+      id: '/admin/accounts'
+      path: '/admin/accounts'
+      fullPath: '/admin/accounts'
+      preLoaderRoute: typeof AdminAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/songs/$songId/': {
@@ -317,20 +406,6 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/$': {
-      id: '/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof ApiSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -338,21 +413,30 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiTrpcSplatServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof ApiRpcSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
   }
 }
 
+interface SignInRouteChildren {
+  SignInSsoCallbackRoute: typeof SignInSsoCallbackRoute
+}
+
+const SignInRouteChildren: SignInRouteChildren = {
+  SignInSsoCallbackRoute: SignInSsoCallbackRoute,
+}
+
+const SignInRouteWithChildren =
+  SignInRoute._addFileChildren(SignInRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SignInRoute: SignInRoute,
+  SignInRoute: SignInRouteWithChildren,
+  AdminAccountsRoute: AdminAccountsRoute,
+  AdminOrgsRoute: AdminOrgsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   SongsNewRoute: SongsNewRoute,
   AdminIndexRoute: AdminIndexRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
+  SessionsIndexRoute: SessionsIndexRoute,
   SongsIndexRoute: SongsIndexRoute,
   SongsSongIdCollabRoute: SongsSongIdCollabRoute,
   SongsSongIdLyricsRoute: SongsSongIdLyricsRoute,
@@ -365,9 +449,6 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  McpServerRoute: McpServerRoute,
-  ApiSplatServerRoute: ApiSplatServerRoute,
-  ApiRpcSplatServerRoute: ApiRpcSplatServerRoute,
   ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport

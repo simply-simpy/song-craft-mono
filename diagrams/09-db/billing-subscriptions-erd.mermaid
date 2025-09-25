@@ -1,0 +1,100 @@
+erDiagram
+  ACCOUNT {
+    uuid id PK
+    uuid org_id FK "legacy"
+    uuid parent_org_id FK "primary"
+    uuid owner_user_id FK
+    string name
+    text description
+    string plan
+    string status
+    string billing_email
+    jsonb settings
+    boolean is_default
+    timestamp created_at
+  }
+
+  ORG {
+    uuid id PK
+    string name
+    string billing_email
+    text billing_address
+    string billing_phone
+    timestamp created_at
+  }
+
+  PLAN_SUBSCRIPTION {
+    uuid id PK
+    string scope_type
+    uuid scope_id
+    string plan
+    string status
+    timestamp current_period_end
+    timestamp created_at
+  }
+
+  CHECKOUT_SESSION {
+    uuid id PK
+    string scope_type
+    uuid scope_id
+    string plan
+    string provider_session_id
+    string status
+    int amount
+    string currency
+    timestamp created_at
+  }
+
+  PAYMENT {
+    uuid id PK
+    string scope_type
+    uuid scope_id
+    string provider_charge_id
+    int amount
+    string currency
+    string status
+    timestamp created_at
+  }
+
+  SEAT_ALLOCATION {
+    uuid id PK
+    uuid org_id FK
+    int seats_total
+    int seats_available
+    timestamp updated_at
+  }
+
+  SEAT_ASSIGNMENT {
+    uuid id PK
+    uuid org_id FK
+    uuid user_id FK
+    string seat_type
+    string status
+    timestamp assigned_at
+  }
+
+  USER {
+    uuid id PK
+    string name
+    string email
+    string global_role
+    uuid[] account_ids "array of account IDs"
+    uuid primary_account_id FK "primary account"
+    uuid current_account_id FK "currently active account"
+    timestamp created_at
+    timestamp last_login_at
+  }
+
+  ACCOUNT ||--o{ PLAN_SUBSCRIPTION : may_have
+  ORG ||--o{ PLAN_SUBSCRIPTION : may_have
+  ACCOUNT ||--o{ CHECKOUT_SESSION : starts
+  ORG ||--o{ CHECKOUT_SESSION : starts
+  ACCOUNT ||--o{ PAYMENT : records
+  ORG ||--o{ PAYMENT : records
+  ORG ||--o{ SEAT_ALLOCATION : manages
+  ORG ||--o{ SEAT_ASSIGNMENT : assigns
+  USER ||--o{ SEAT_ASSIGNMENT : receives
+  ORG ||--o{ ACCOUNT : "parent_org_id (primary)"
+  ORG ||--o{ ACCOUNT : "org_id (legacy)"
+  USER ||--o{ ACCOUNT : "primary_account_id"
+  USER ||--o{ ACCOUNT : "current_account_id"

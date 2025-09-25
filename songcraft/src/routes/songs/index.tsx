@@ -1,45 +1,75 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "react";
+import { z } from "zod";
 import { requireAuth } from "../../lib/requireAuth.server";
-import { extractPrefix } from "@songcraft/shared";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
-import { API_ENDPOINTS } from "../../lib/api";
-
-interface Song {
-  id: string;
-  shortId: string;
-  title: string;
-  artist?: string;
-  bpm?: number;
-  key?: string;
-  createdAt?: string;
-}
+import { SongCard } from "../../components/SongCard";
+import { API_ENDPOINTS, ApiError, apiRequest } from "../../lib/api";
 
 export const Route = createFileRoute("/songs/")({
   beforeLoad: () => requireAuth(),
   component: RouteComponent,
 });
 
+const songResponseSchema = z.object({
+  id: z.string().uuid(),
+  shortId: z.string().min(1),
+  ownerClerkId: z.string(),
+  title: z.string(),
+  artist: z.string().nullable().optional(),
+  bpm: z.number().nullable().optional(),
+  key: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+
+const songsListSchema = z.object({
+  songs: z.array(songResponseSchema),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    pages: z.number(),
+  }),
+});
+
+type Song = z.infer<typeof songResponseSchema>;
+
 function RouteComponent() {
   const queryClient = useQueryClient();
+  const parentRef = useRef<HTMLDivElement>(null);
+
   const handleDelete = async (id: string) => {
     const ok =
       typeof window !== "undefined"
         ? window.confirm("Delete this song?")
         : true;
     if (!ok) return;
-    await fetch(API_ENDPOINTS.song(id), { method: "DELETE" });
+    await apiRequest({ endpoint: API_ENDPOINTS.song(id), method: "DELETE" });
     await queryClient.invalidateQueries({ queryKey: ["songs"] });
   };
+
   const { data: songsData, isLoading, error } = useQuery({
     queryKey: ["songs"],
-    queryFn: async () => {
-      const response = await fetch(API_ENDPOINTS.songs());
-      if (!response.ok) {
-        throw new Error("Failed to fetch songs");
-      }
-      return response.json();
-    },
+    queryFn: async () =>
+      apiRequest({
+        endpoint: API_ENDPOINTS.songs(),
+        schema: songsListSchema,
+      }),
+  });
+
+  const songs: Song[] = songsData?.songs ?? [];
+
+  // Set up virtualization - only virtualize if we have more than 20 songs
+  const shouldVirtualize = songs.length > 20;
+
+  const rowVirtualizer = useVirtualizer({
+    count: songs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72, // Height of each song row (approximate)
+    enabled: shouldVirtualize,
   });
 
   if (isLoading) {
@@ -51,16 +81,20 @@ function RouteComponent() {
   }
 
   if (error) {
+    const message =
+      error instanceof ApiError
+        ? `${error.status} ${error.statusText}`
+        : error instanceof Error
+        ? error.message
+        : "Unknown error";
     return (
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center text-red-600">
-          Error loading songs: {error.message}
+          Error loading songs: {message}
         </div>
       </div>
     );
   }
-
-  const songs = songsData?.data || [];
 
   return (
     <div className="mx-auto p-6">
@@ -89,91 +123,67 @@ function RouteComponent() {
         </div>
       ) : (
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <table className="w-full  divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                  Song ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/6">
-                  Title
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                  Artist
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                  BPM
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                  Key
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {songs.map((s: Song) => {
-                const shortId = s.shortId || s.id;
-                const prefix = extractPrefix(shortId);
+          {/* Header */}
+          <div className="bg-gray-50 border-b border-gray-200">
+            <div className="px-6 py-3 grid grid-cols-12 gap-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="col-span-2">Song ID</div>
+              <div className="col-span-3">Title</div>
+              <div className="col-span-2">Artist</div>
+              <div className="col-span-1">BPM</div>
+              <div className="col-span-1">Key</div>
+              <div className="col-span-2">Created</div>
+              <div className="col-span-1">Actions</div>
+            </div>
+          </div>
 
-                return (
-                  <tr key={s.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {shortId}
-                        </span>
-                        {prefix && (
-                          <span className="ml-2 text-xs text-gray-500">
-                            {prefix}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {s.title}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {s.artist || "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {s.bpm || "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {s.key || "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {s.createdAt
-                        ? new Date(s.createdAt).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-3">
-                        <Link
-                          to="/songs/$songId/lyrics"
-                          params={{ songId: shortId }}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          View
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(s.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {/* Virtualized List or Regular List */}
+          {shouldVirtualize ? (
+            <div
+              ref={parentRef}
+              className="h-150 overflow-auto" // Fixed height for virtualization
+            >
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: "100%",
+                  position: "relative",
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const song = songs[virtualRow.index];
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: `${virtualRow.size}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <SongCard song={song} onDelete={handleDelete} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="max-h-96 overflow-auto">
+              {songs.map((song: Song) => (
+                <SongCard key={song.id} song={song} onDelete={handleDelete} />
+              ))}
+            </div>
+          )}
+
+          {/* Songs count indicator */}
+          <div className="bg-gray-50 px-6 py-2 border-t border-gray-200">
+            <div className="text-sm text-gray-500">
+              {songs.length} song{songs.length !== 1 ? "s" : ""} total
+              {shouldVirtualize && " (virtualized for performance)"}
+            </div>
+          </div>
         </div>
       )}
     </div>
