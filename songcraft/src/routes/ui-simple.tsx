@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Button, ThemeToggle } from '@/components/ui-v2';
+import { Button, Input, ThemeToggle } from '@/components/ui';
 
 export const Route = createFileRoute('/ui-simple')({
   component: UiSimple,
@@ -46,6 +46,17 @@ function UiSimple() {
             <Button intent="destructive">Destructive</Button>
             <Button intent="warning">Warning</Button>
             <Button intent="success">Success</Button>
+          </div>
+        </section>
+        
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Input Components</h2>
+          <div className="space-y-4 max-w-md">
+            <Input placeholder="Standard input with semantic tokens" />
+            <Input type="email" placeholder="Email input" />
+            <Input type="password" placeholder="Password input" />
+            <Input placeholder="Disabled input" disabled />
+            <Input placeholder="Invalid input" aria-invalid="true" />
           </div>
         </section>
         

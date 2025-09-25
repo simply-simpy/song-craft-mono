@@ -16,7 +16,7 @@ import { AccountContextDisplay } from "@/components/layout/navigation/AccountCon
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
 import CurrentUser from "@/components/admin/currentUser";
-import { ThemeProvider } from "@/components/ui-v2";
+import { ThemeProvider } from "@/components/ui";
 export const Route = createRootRoute({
   head: () => ({
     meta: [

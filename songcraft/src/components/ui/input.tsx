@@ -1,21 +1,46 @@
-import type * as React from "react";
+/**
+ * Input Component
+ *
+ * Form input component using semantic design tokens for consistent theming.
+ * Supports all standard input types with proper focus and validation states.
+ */
 
-import { cn } from "@/lib/utils";
+import * as React from "react";
+import { cn, transitions } from "@/lib/ui-utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
-      )}
-      {...props}
-    />
-  );
-}
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        data-slot="input"
+        className={cn(
+          // Base styles using semantic tokens
+          "flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base md:text-sm",
+          "bg-bg-primary border-border-primary text-fg-primary",
+          "placeholder:text-fg-tertiary",
+          "selection:bg-brand-primary selection:text-fg-on-brand",
+          // File input styles
+          "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-fg-primary",
+          // Focus styles using semantic tokens
+          "focus-visible:border-border-focus focus-visible:ring-2 focus-visible:ring-border-focus/20 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary",
+          "outline-none",
+          // Invalid/error states
+          "aria-invalid:border-border-destructive aria-invalid:ring-2 aria-invalid:ring-border-destructive/20",
+          // Disabled states
+          "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-bg-disabled",
+          // Transitions
+          transitions.colors,
+          "shadow-sm",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+
+Input.displayName = "Input";
 
 export { Input };
