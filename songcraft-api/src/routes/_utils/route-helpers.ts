@@ -4,64 +4,64 @@ import { ZodError } from "zod";
 import { AppError } from "../../lib/errors";
 
 const toErrorStatus = (error: unknown) => {
-  if (error instanceof AppError) {
-    return {
-      statusCode: error.statusCode,
-      payload: {
-        error: error.message,
-        code: error.code,
-        details: error.details,
-      },
-    } as const;
-  }
+	if (error instanceof AppError) {
+		return {
+			statusCode: error.statusCode,
+			payload: {
+				error: error.message,
+				code: error.code,
+				details: error.details,
+			},
+		} as const;
+	}
 
-  if (error instanceof ZodError) {
-    return {
-      statusCode: 400,
-      payload: {
-        error: "Validation failed",
-        code: "VALIDATION_ERROR",
-        details: error.flatten(),
-      },
-    } as const;
-  }
+	if (error instanceof ZodError) {
+		return {
+			statusCode: 400,
+			payload: {
+				error: "Validation failed",
+				code: "VALIDATION_ERROR",
+				details: error.flatten(),
+			},
+		} as const;
+	}
 
-  return {
-    statusCode: 500,
-    payload: {
-      error: "Internal server error",
-      code: "INTERNAL_SERVER_ERROR",
-    },
-  } as const;
+	return {
+		statusCode: 500,
+		payload: {
+			error: "Internal server error",
+			code: "INTERNAL_SERVER_ERROR",
+		},
+	} as const;
 };
 
 const handleError = (
-  request: FastifyRequest,
-  reply: FastifyReply,
-  error: unknown
+	request: FastifyRequest,
+	reply: FastifyReply,
+	error: unknown,
 ) => {
-  const { statusCode, payload } = toErrorStatus(error);
-  const routeInfo =
-    (request as FastifyRequest & { routerPath?: string }).routerPath ??
-    request.routeOptions?.url ??
-    request.url;
+	const { statusCode, payload } = toErrorStatus(error);
+	const routeInfo =
+		(request as FastifyRequest & { routerPath?: string }).routerPath ??
+		request.routeOptions?.url ??
+		request.url;
 
-  request.log.error({ err: error, route: routeInfo }, "Route handler failed");
+	request.log.error({ err: error, route: routeInfo }, "Route handler failed");
 
-  return reply.status(statusCode).send(payload);
+	return reply.status(statusCode).send(payload);
 };
 
 export const withErrorHandling = <
-  Request extends FastifyRequest = FastifyRequest,
-  Reply extends FastifyReply = FastifyReply,
+	Request extends FastifyRequest = FastifyRequest,
+	Reply extends FastifyReply = FastifyReply,
 >(
-  handler: (request: Request, reply: Reply) => Promise<unknown>
+	handler: (request: Request, reply: Reply) => Promise<unknown>,
 ) => {
-  return async (request: Request, reply: Reply) => {
-    try {
-      return await handler(request, reply);
-    } catch (error) {
-      return handleError(request, reply, error);
-    }
-  };
+	return async (request: Request, reply: Reply) => {
+		try {
+			return await handler(request, reply);
+		} catch (error) {
+			return handleError(request, reply, error);
+		}
+	};
 };

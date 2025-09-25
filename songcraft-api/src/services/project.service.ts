@@ -1,69 +1,87 @@
-import type { IProjectRepository, CreateProjectData, UpdateProjectData, ProjectQueryOptions, ProjectPaginationOptions } from "../repositories/project.repository";
-import type { IProjectPermissionsRepository, CreateProjectPermissionData, PermissionLevel } from "../repositories/project-permissions.repository";
-import type { ISessionRepository, SessionPaginationOptions } from "../repositories/session.repository";
+import {
+	AppError,
+	ForbiddenError,
+	NotFoundError,
+	UnauthorizedError,
+} from "../lib/errors";
+import type {
+	CreateProjectPermissionData,
+	IProjectPermissionsRepository,
+	PermissionLevel,
+} from "../repositories/project-permissions.repository";
+import type {
+	CreateProjectData,
+	IProjectRepository,
+	ProjectPaginationOptions,
+	ProjectQueryOptions,
+	UpdateProjectData,
+} from "../repositories/project.repository";
+import type {
+	ISessionRepository,
+	SessionPaginationOptions,
+} from "../repositories/session.repository";
 import type { IUserRepository } from "../repositories/user.repository";
-import { AppError, ForbiddenError, NotFoundError, UnauthorizedError } from "../lib/errors";
 
 // Service types
 export interface ProjectWithFullDetails {
-  id: string;
-  accountId: string;
-  name: string;
-  description: string | null;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  creatorName: string | null;
-  accountName: string | null;
-  permissions: Array<{
-    userId: string;
-    permissionLevel: PermissionLevel;
-    grantedAt: string;
-    expiresAt: string | null;
-    userEmail: string | null;
-  }>;
-  sessionsCount: number;
+	id: string;
+	accountId: string;
+	name: string;
+	description: string | null;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
+	createdBy: string;
+	creatorName: string | null;
+	accountName: string | null;
+	permissions: Array<{
+		userId: string;
+		permissionLevel: PermissionLevel;
+		grantedAt: string;
+		expiresAt: string | null;
+		userEmail: string | null;
+	}>;
+	sessionsCount: number;
 }
 
 export interface ProjectListParams {
-  page: number;
-  limit: number;
-  sort: "createdAt" | "updatedAt" | "name" | "status";
-  order: "asc" | "desc";
-  accountId?: string;
-  createdBy?: string;
+	page: number;
+	limit: number;
+	sort: "createdAt" | "updatedAt" | "name" | "status";
+	order: "asc" | "desc";
+	accountId?: string;
+	createdBy?: string;
 }
 
 export interface CreateProjectParams {
-  accountId: string;
-  name: string;
-  description?: string;
-  status?: string;
-  creatorClerkId: string;
+	accountId: string;
+	name: string;
+	description?: string;
+	status?: string;
+	creatorClerkId: string;
 }
 
 export interface UpdateProjectParams {
-  id: string;
-  name?: string;
-  description?: string;
-  status?: string;
-  editorClerkId: string;
+	id: string;
+	name?: string;
+	description?: string;
+	status?: string;
+	editorClerkId: string;
 }
 
 export interface AddPermissionParams {
-  projectId: string;
-  userId: string;
-  permissionLevel: PermissionLevel;
-  expiresAt?: string;
-  granterClerkId: string;
+	projectId: string;
+	userId: string;
+	permissionLevel: PermissionLevel;
+	expiresAt?: string;
+	granterClerkId: string;
 }
 
 export interface SessionListParams {
-  page: number;
-  limit: number;
-  sort: "createdAt" | "updatedAt" | "name" | "status" | "scheduledStart";
-  order: "asc" | "desc";
+	page: number;
+	limit: number;
+	sort: "createdAt" | "updatedAt" | "name" | "status" | "scheduledStart";
+	order: "asc" | "desc";
 }
 
 // Permission level constants
@@ -71,358 +89,388 @@ const WRITABLE_PERMISSIONS: PermissionLevel[] = ["read_write", "full_access"];
 const FULL_ACCESS_ONLY: PermissionLevel[] = ["full_access"];
 
 export class ProjectService {
-  constructor(
-    private projects: IProjectRepository,
-    private permissions: IProjectPermissionsRepository,
-    private sessions: ISessionRepository,
-    private users: IUserRepository
-  ) {}
+	constructor(
+		private projects: IProjectRepository,
+		private permissions: IProjectPermissionsRepository,
+		private sessions: ISessionRepository,
+		private users: IUserRepository,
+	) {}
 
-  /**
-   * Helper to find user ID by Clerk ID
-   */
-  private async findUserIdByClerkId(clerkId: string): Promise<string | null> {
-    const user = await this.users.findByClerkId(clerkId);
-    return user?.id || null;
-  }
+	/**
+	 * Helper to find user ID by Clerk ID
+	 */
+	private async findUserIdByClerkId(clerkId: string): Promise<string | null> {
+		const user = await this.users.findByClerkId(clerkId);
+		return user?.id || null;
+	}
 
-  /**
-   * Helper to require user ID by Clerk ID
-   */
-  private async requireUserIdByClerkId(clerkId: string): Promise<string> {
-    const userId = await this.findUserIdByClerkId(clerkId);
-    if (!userId) {
-      throw new UnauthorizedError("User not found");
-    }
-    return userId;
-  }
+	/**
+	 * Helper to require user ID by Clerk ID
+	 */
+	private async requireUserIdByClerkId(clerkId: string): Promise<string> {
+		const userId = await this.findUserIdByClerkId(clerkId);
+		if (!userId) {
+			throw new UnauthorizedError("User not found");
+		}
+		return userId;
+	}
 
-  /**
-   * Helper to require project permission
-   */
-  private async requireProjectPermission(
-    projectId: string,
-    userId: string,
-    allowedLevels: PermissionLevel[]
-  ): Promise<void> {
-    const hasPermission = await this.permissions.hasPermission(
-      projectId,
-      userId,
-      allowedLevels
-    );
-    
-    if (!hasPermission) {
-      throw new ForbiddenError();
-    }
-  }
+	/**
+	 * Helper to require project permission
+	 */
+	private async requireProjectPermission(
+		projectId: string,
+		userId: string,
+		allowedLevels: PermissionLevel[],
+	): Promise<void> {
+		const hasPermission = await this.permissions.hasPermission(
+			projectId,
+			userId,
+			allowedLevels,
+		);
 
-  /**
-   * Helper to build project with full details
-   */
-  private async buildProjectWithDetails(projectId: string): Promise<ProjectWithFullDetails | null> {
-    const project = await this.projects.findByIdWithDetails(projectId);
-    if (!project) return null;
+		if (!hasPermission) {
+			throw new ForbiddenError();
+		}
+	}
 
-    const [projectPermissions, sessionsCount] = await Promise.all([
-      this.permissions.findByProject(projectId),
-      this.projects.getSessionsCount(projectId),
-    ]);
+	/**
+	 * Helper to build project with full details
+	 */
+	private async buildProjectWithDetails(
+		projectId: string,
+	): Promise<ProjectWithFullDetails | null> {
+		const project = await this.projects.findByIdWithDetails(projectId);
+		if (!project) return null;
 
-    return {
-      id: project.id,
-      accountId: project.accountId,
-      name: project.name,
-      description: project.description,
-      status: project.status,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString(),
-      createdBy: project.createdBy,
-      creatorName: project.creatorName,
-      accountName: project.accountName,
-      permissions: projectPermissions.map((perm) => ({
-        userId: perm.userId,
-        permissionLevel: perm.permissionLevel,
-        grantedAt: perm.grantedAt.toISOString(),
-        expiresAt: perm.expiresAt ? perm.expiresAt.toISOString() : null,
-        userEmail: perm.userEmail,
-      })),
-      sessionsCount,
-    };
-  }
+		const [projectPermissions, sessionsCount] = await Promise.all([
+			this.permissions.findByProject(projectId),
+			this.projects.getSessionsCount(projectId),
+		]);
 
-  /**
-   * List projects with pagination and filtering
-   */
-  async listProjects(params: ProjectListParams) {
-    const conditions: ProjectQueryOptions = {
-      accountId: params.accountId,
-      createdBy: params.createdBy,
-    };
+		return {
+			id: project.id,
+			accountId: project.accountId,
+			name: project.name,
+			description: project.description,
+			status: project.status,
+			createdAt: project.createdAt.toISOString(),
+			updatedAt: project.updatedAt.toISOString(),
+			createdBy: project.createdBy,
+			creatorName: project.creatorName,
+			accountName: project.accountName,
+			permissions: projectPermissions.map((perm) => ({
+				userId: perm.userId,
+				permissionLevel: perm.permissionLevel,
+				grantedAt: perm.grantedAt.toISOString(),
+				expiresAt: perm.expiresAt ? perm.expiresAt.toISOString() : null,
+				userEmail: perm.userEmail,
+			})),
+			sessionsCount,
+		};
+	}
 
-    const pagination: ProjectPaginationOptions = {
-      limit: params.limit,
-      offset: (params.page - 1) * params.limit,
-      sort: params.sort,
-      order: params.order,
-    };
+	/**
+	 * List projects with pagination and filtering
+	 */
+	async listProjects(params: ProjectListParams) {
+		const conditions: ProjectQueryOptions = {
+			accountId: params.accountId,
+			createdBy: params.createdBy,
+		};
 
-    const [total, projectRows] = await Promise.all([
-      this.projects.count(conditions),
-      this.projects.findMany(conditions, pagination),
-    ]);
+		const pagination: ProjectPaginationOptions = {
+			limit: params.limit,
+			offset: (params.page - 1) * params.limit,
+			sort: params.sort,
+			order: params.order,
+		};
 
-    // Add permissions and sessions count to each project
-    const projectsWithDetails = await Promise.all(
-      projectRows.map(async (project) => {
-        const [projectPermissions, sessionsCount] = await Promise.all([
-          this.permissions.findByProject(project.id),
-          this.projects.getSessionsCount(project.id),
-        ]);
+		const [total, projectRows] = await Promise.all([
+			this.projects.count(conditions),
+			this.projects.findMany(conditions, pagination),
+		]);
 
-        return {
-          id: project.id,
-          accountId: project.accountId,
-          name: project.name,
-          description: project.description,
-          status: project.status,
-          createdAt: project.createdAt.toISOString(),
-          updatedAt: project.updatedAt.toISOString(),
-          createdBy: project.createdBy,
-          creatorName: project.creatorName,
-          accountName: project.accountName,
-          permissions: projectPermissions.map((perm) => ({
-            userId: perm.userId,
-            permissionLevel: perm.permissionLevel,
-            grantedAt: perm.grantedAt.toISOString(),
-            expiresAt: perm.expiresAt ? perm.expiresAt.toISOString() : null,
-            userEmail: perm.userEmail,
-          })),
-          sessionsCount,
-        };
-      })
-    );
+		// Add permissions and sessions count to each project
+		const projectsWithDetails = await Promise.all(
+			projectRows.map(async (project) => {
+				const [projectPermissions, sessionsCount] = await Promise.all([
+					this.permissions.findByProject(project.id),
+					this.projects.getSessionsCount(project.id),
+				]);
 
-    return {
-      projects: projectsWithDetails,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        pages: Math.ceil(total / params.limit),
-      },
-    };
-  }
+				return {
+					id: project.id,
+					accountId: project.accountId,
+					name: project.name,
+					description: project.description,
+					status: project.status,
+					createdAt: project.createdAt.toISOString(),
+					updatedAt: project.updatedAt.toISOString(),
+					createdBy: project.createdBy,
+					creatorName: project.creatorName,
+					accountName: project.accountName,
+					permissions: projectPermissions.map((perm) => ({
+						userId: perm.userId,
+						permissionLevel: perm.permissionLevel,
+						grantedAt: perm.grantedAt.toISOString(),
+						expiresAt: perm.expiresAt ? perm.expiresAt.toISOString() : null,
+						userEmail: perm.userEmail,
+					})),
+					sessionsCount,
+				};
+			}),
+		);
 
-  /**
-   * Get project by ID with full details
-   */
-  async getProject(id: string): Promise<ProjectWithFullDetails | null> {
-    return await this.buildProjectWithDetails(id);
-  }
+		return {
+			projects: projectsWithDetails,
+			pagination: {
+				page: params.page,
+				limit: params.limit,
+				total,
+				pages: Math.ceil(total / params.limit),
+			},
+		};
+	}
 
-  /**
-   * Create a new project
-   */
-  async createProject(params: CreateProjectParams): Promise<ProjectWithFullDetails> {
-    const userId = await this.requireUserIdByClerkId(params.creatorClerkId);
+	/**
+	 * Get project by ID with full details
+	 */
+	async getProject(id: string): Promise<ProjectWithFullDetails | null> {
+		return await this.buildProjectWithDetails(id);
+	}
 
-    const createData: CreateProjectData = {
-      accountId: params.accountId,
-      name: params.name,
-      description: params.description,
-      status: params.status || "active",
-      createdBy: userId,
-    };
+	/**
+	 * Create a new project
+	 */
+	async createProject(
+		params: CreateProjectParams,
+	): Promise<ProjectWithFullDetails> {
+		const userId = await this.requireUserIdByClerkId(params.creatorClerkId);
 
-    // Create project and grant creator full access in a transaction-like manner
-    const project = await this.projects.create(createData);
+		const createData: CreateProjectData = {
+			accountId: params.accountId,
+			name: params.name,
+			description: params.description,
+			status: params.status || "active",
+			createdBy: userId,
+		};
 
-    // Grant the creator full access to the project
-    await this.permissions.create({
-      projectId: project.id,
-      userId,
-      permissionLevel: "full_access",
-      grantedBy: userId,
-    });
+		// Create project and grant creator full access in a transaction-like manner
+		const project = await this.projects.create(createData);
 
-    const projectWithDetails = await this.buildProjectWithDetails(project.id);
-    if (!projectWithDetails) {
-      throw new AppError("Project created but details could not be loaded");
-    }
+		// Grant the creator full access to the project
+		await this.permissions.create({
+			projectId: project.id,
+			userId,
+			permissionLevel: "full_access",
+			grantedBy: userId,
+		});
 
-    return projectWithDetails;
-  }
+		const projectWithDetails = await this.buildProjectWithDetails(project.id);
+		if (!projectWithDetails) {
+			throw new AppError("Project created but details could not be loaded");
+		}
 
-  /**
-   * Update a project
-   */
-  async updateProject(params: UpdateProjectParams): Promise<ProjectWithFullDetails> {
-    const userId = await this.requireUserIdByClerkId(params.editorClerkId);
-    await this.requireProjectPermission(params.id, userId, WRITABLE_PERMISSIONS);
+		return projectWithDetails;
+	}
 
-    const updateData: UpdateProjectData = {
-      name: params.name,
-      description: params.description,
-      status: params.status,
-      updatedAt: new Date(),
-    };
+	/**
+	 * Update a project
+	 */
+	async updateProject(
+		params: UpdateProjectParams,
+	): Promise<ProjectWithFullDetails> {
+		const userId = await this.requireUserIdByClerkId(params.editorClerkId);
+		await this.requireProjectPermission(
+			params.id,
+			userId,
+			WRITABLE_PERMISSIONS,
+		);
 
-    const updatedProject = await this.projects.update(params.id, updateData);
-    if (!updatedProject) {
-      throw new NotFoundError("Project not found");
-    }
+		const updateData: UpdateProjectData = {
+			name: params.name,
+			description: params.description,
+			status: params.status,
+			updatedAt: new Date(),
+		};
 
-    const projectWithDetails = await this.buildProjectWithDetails(updatedProject.id);
-    if (!projectWithDetails) {
-      throw new AppError("Updated project could not be loaded");
-    }
+		const updatedProject = await this.projects.update(params.id, updateData);
+		if (!updatedProject) {
+			throw new NotFoundError("Project not found");
+		}
 
-    return projectWithDetails;
-  }
+		const projectWithDetails = await this.buildProjectWithDetails(
+			updatedProject.id,
+		);
+		if (!projectWithDetails) {
+			throw new AppError("Updated project could not be loaded");
+		}
 
-  /**
-   * Delete a project
-   */
-  async deleteProject(id: string, deleterClerkId: string): Promise<void> {
-    const userId = await this.requireUserIdByClerkId(deleterClerkId);
-    await this.requireProjectPermission(id, userId, FULL_ACCESS_ONLY);
+		return projectWithDetails;
+	}
 
-    // Verify project exists before deletion
-    const project = await this.projects.findById(id);
-    if (!project) {
-      throw new NotFoundError("Project not found");
-    }
+	/**
+	 * Delete a project
+	 */
+	async deleteProject(id: string, deleterClerkId: string): Promise<void> {
+		const userId = await this.requireUserIdByClerkId(deleterClerkId);
+		await this.requireProjectPermission(id, userId, FULL_ACCESS_ONLY);
 
-    // Delete project permissions first, then sessions, then project
-    await this.permissions.deleteByProject(id);
-    await this.projects.deleteWithRelatedData(id);
-  }
+		// Verify project exists before deletion
+		const project = await this.projects.findById(id);
+		if (!project) {
+			throw new NotFoundError("Project not found");
+		}
 
-  /**
-   * Add permission to a project
-   */
-  async addProjectPermission(params: AddPermissionParams) {
-    const granterId = await this.requireUserIdByClerkId(params.granterClerkId);
-    await this.requireProjectPermission(params.projectId, granterId, FULL_ACCESS_ONLY);
+		// Delete project permissions first, then sessions, then project
+		await this.permissions.deleteByProject(id);
+		await this.projects.deleteWithRelatedData(id);
+	}
 
-    const expiresAt = params.expiresAt ? new Date(params.expiresAt) : null;
+	/**
+	 * Add permission to a project
+	 */
+	async addProjectPermission(params: AddPermissionParams) {
+		const granterId = await this.requireUserIdByClerkId(params.granterClerkId);
+		await this.requireProjectPermission(
+			params.projectId,
+			granterId,
+			FULL_ACCESS_ONLY,
+		);
 
-    const permissionData: CreateProjectPermissionData = {
-      projectId: params.projectId,
-      userId: params.userId,
-      permissionLevel: params.permissionLevel,
-      grantedBy: granterId,
-      expiresAt,
-    };
+		const expiresAt = params.expiresAt ? new Date(params.expiresAt) : null;
 
-    await this.permissions.upsert(permissionData);
+		const permissionData: CreateProjectPermissionData = {
+			projectId: params.projectId,
+			userId: params.userId,
+			permissionLevel: params.permissionLevel,
+			grantedBy: granterId,
+			expiresAt,
+		};
 
-    const permission = await this.permissions.findByProjectAndUserWithDetails(
-      params.projectId,
-      params.userId
-    );
+		await this.permissions.upsert(permissionData);
 
-    if (!permission) {
-      throw new AppError("Failed to load updated permission");
-    }
+		const permission = await this.permissions.findByProjectAndUserWithDetails(
+			params.projectId,
+			params.userId,
+		);
 
-    return {
-      userId: permission.userId,
-      permissionLevel: permission.permissionLevel,
-      grantedAt: permission.grantedAt.toISOString(),
-      expiresAt: permission.expiresAt ? permission.expiresAt.toISOString() : null,
-    };
-  }
+		if (!permission) {
+			throw new AppError("Failed to load updated permission");
+		}
 
-  /**
-   * Remove permission from a project
-   */
-  async removeProjectPermission(
-    projectId: string,
-    userId: string,
-    removerClerkId: string
-  ): Promise<void> {
-    const removerId = await this.requireUserIdByClerkId(removerClerkId);
-    await this.requireProjectPermission(projectId, removerId, FULL_ACCESS_ONLY);
+		return {
+			userId: permission.userId,
+			permissionLevel: permission.permissionLevel,
+			grantedAt: permission.grantedAt.toISOString(),
+			expiresAt: permission.expiresAt
+				? permission.expiresAt.toISOString()
+				: null,
+		};
+	}
 
-    await this.permissions.delete(projectId, userId);
-  }
+	/**
+	 * Remove permission from a project
+	 */
+	async removeProjectPermission(
+		projectId: string,
+		userId: string,
+		removerClerkId: string,
+	): Promise<void> {
+		const removerId = await this.requireUserIdByClerkId(removerClerkId);
+		await this.requireProjectPermission(projectId, removerId, FULL_ACCESS_ONLY);
 
-  /**
-   * List sessions with pagination
-   */
-  async listSessions(params: SessionListParams) {
-    const pagination: SessionPaginationOptions = {
-      limit: params.limit,
-      offset: (params.page - 1) * params.limit,
-      sort: params.sort,
-      order: params.order,
-    };
+		await this.permissions.delete(projectId, userId);
+	}
 
-    const [total, sessionsList] = await Promise.all([
-      this.sessions.count(),
-      this.sessions.findMany(pagination),
-    ]);
+	/**
+	 * List sessions with pagination
+	 */
+	async listSessions(params: SessionListParams) {
+		const pagination: SessionPaginationOptions = {
+			limit: params.limit,
+			offset: (params.page - 1) * params.limit,
+			sort: params.sort,
+			order: params.order,
+		};
 
-    return {
-      data: sessionsList.map((session) => ({
-        id: session.id,
-        projectId: session.projectId,
-        name: session.name,
-        description: session.description,
-        sessionType: session.sessionType,
-        status: session.status,
-        scheduledStart: session.scheduledStart ? session.scheduledStart.toISOString() : null,
-        scheduledEnd: session.scheduledEnd ? session.scheduledEnd.toISOString() : null,
-        actualStart: session.actualStart ? session.actualStart.toISOString() : null,
-        actualEnd: session.actualEnd ? session.actualEnd.toISOString() : null,
-        createdAt: session.createdAt.toISOString(),
-        updatedAt: session.updatedAt.toISOString(),
-        createdBy: session.createdBy,
-        creatorName: session.creatorName,
-        projectName: session.projectName,
-        accountName: session.accountName,
-      })),
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        pages: Math.ceil(total / params.limit),
-      },
-    };
-  }
+		const [total, sessionsList] = await Promise.all([
+			this.sessions.count(),
+			this.sessions.findMany(pagination),
+		]);
 
-  /**
-   * Get project sessions
-   */
-  async getProjectSessions(projectId: string) {
-    // Verify project exists
-    const project = await this.projects.findById(projectId);
-    if (!project) {
-      throw new NotFoundError("Project not found");
-    }
+		return {
+			data: sessionsList.map((session) => ({
+				id: session.id,
+				projectId: session.projectId,
+				name: session.name,
+				description: session.description,
+				sessionType: session.sessionType,
+				status: session.status,
+				scheduledStart: session.scheduledStart
+					? session.scheduledStart.toISOString()
+					: null,
+				scheduledEnd: session.scheduledEnd
+					? session.scheduledEnd.toISOString()
+					: null,
+				actualStart: session.actualStart
+					? session.actualStart.toISOString()
+					: null,
+				actualEnd: session.actualEnd ? session.actualEnd.toISOString() : null,
+				createdAt: session.createdAt.toISOString(),
+				updatedAt: session.updatedAt.toISOString(),
+				createdBy: session.createdBy,
+				creatorName: session.creatorName,
+				projectName: session.projectName,
+				accountName: session.accountName,
+			})),
+			pagination: {
+				page: params.page,
+				limit: params.limit,
+				total,
+				pages: Math.ceil(total / params.limit),
+			},
+		};
+	}
 
-    const projectSessions = await this.sessions.findByProject(projectId);
+	/**
+	 * Get project sessions
+	 */
+	async getProjectSessions(projectId: string) {
+		// Verify project exists
+		const project = await this.projects.findById(projectId);
+		if (!project) {
+			throw new NotFoundError("Project not found");
+		}
 
-    return {
-      data: projectSessions.map((session) => ({
-        id: session.id,
-        projectId: session.projectId,
-        name: session.name,
-        description: session.description,
-        sessionType: session.sessionType,
-        status: session.status,
-        scheduledStart: session.scheduledStart ? session.scheduledStart.toISOString() : null,
-        scheduledEnd: session.scheduledEnd ? session.scheduledEnd.toISOString() : null,
-        actualStart: session.actualStart ? session.actualStart.toISOString() : null,
-        actualEnd: session.actualEnd ? session.actualEnd.toISOString() : null,
-        createdAt: session.createdAt.toISOString(),
-        updatedAt: session.updatedAt.toISOString(),
-        createdBy: session.createdBy,
-        creatorName: session.creatorName,
-        projectName: session.projectName,
-        accountName: session.accountName,
-      })),
-    };
-  }
+		const projectSessions = await this.sessions.findByProject(projectId);
+
+		return {
+			data: projectSessions.map((session) => ({
+				id: session.id,
+				projectId: session.projectId,
+				name: session.name,
+				description: session.description,
+				sessionType: session.sessionType,
+				status: session.status,
+				scheduledStart: session.scheduledStart
+					? session.scheduledStart.toISOString()
+					: null,
+				scheduledEnd: session.scheduledEnd
+					? session.scheduledEnd.toISOString()
+					: null,
+				actualStart: session.actualStart
+					? session.actualStart.toISOString()
+					: null,
+				actualEnd: session.actualEnd ? session.actualEnd.toISOString() : null,
+				createdAt: session.createdAt.toISOString(),
+				updatedAt: session.updatedAt.toISOString(),
+				createdBy: session.createdBy,
+				creatorName: session.creatorName,
+				projectName: session.projectName,
+				accountName: session.accountName,
+			})),
+		};
+	}
 }
