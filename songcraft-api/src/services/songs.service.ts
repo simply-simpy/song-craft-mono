@@ -1,15 +1,17 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
-import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 
-import { db } from "../db";
-import { lyricVersions, songs } from "../schema";
 import { AppError, ForbiddenError, NotFoundError } from "../lib/errors";
+import type {
+  ISongRepository,
+  DbSong,
+  CreateSongData,
+  UpdateSongData,
+  SongQueryOptions as RepositorySongQueryOptions,
+  SongPaginationOptions as RepositorySongPaginationOptions,
+} from "../repositories/song.repository";
 
 // Types and Schemas
-
-type DbSong = typeof songs.$inferSelect;
 
 export const songSchema = z.object({
   title: z.string().min(1).max(200),
@@ -80,17 +82,8 @@ export interface SongListResult {
   };
 }
 
-// Order columns mapping
-const songOrderColumns = {
-  createdAt: songs.createdAt,
-  updatedAt: songs.updatedAt,
-  title: songs.title,
-  artist: songs.artist,
-} as const;
-
-type SongOrderColumnKey = keyof typeof songOrderColumns;
-
 export class SongsService {
+  constructor(private songRepository: ISongRepository) {}
   /**
    * Converts various input types to a clean string array
    * Handles arrays, JSON strings, objects, and single strings
@@ -155,77 +148,6 @@ export class SongsService {
     };
   }
 
-  /**
-   * Builds order by clause for song queries
-   */
-  private buildOrderBy(sort: SongOrderColumnKey, order: "asc" | "desc") {
-    const column = songOrderColumns[sort];
-    return order === "asc" ? asc(column) : desc(column);
-  }
-
-  /**
-   * Builds query conditions for filtering songs
-   */
-  private buildQueryConditions(conditions: SongQueryConditions): SQL[] {
-    const sqlConditions: SQL[] = [];
-
-    if (conditions.accountId) {
-      sqlConditions.push(eq(songs.accountId, conditions.accountId));
-    }
-
-    if (conditions.ownerClerkId) {
-      sqlConditions.push(eq(songs.ownerClerkId, conditions.ownerClerkId));
-    }
-
-    return sqlConditions;
-  }
-
-  /**
-   * Merges multiple SQL conditions into a single condition
-   */
-  private mergeConditions(conditions: SQL[]): SQL | undefined {
-    if (conditions.length === 0) return undefined;
-    if (conditions.length === 1) return conditions[0];
-    return and(...conditions);
-  }
-
-  /**
-   * Counts total songs matching the given conditions
-   */
-  private async countSongs(conditions: SQL[]): Promise<number> {
-    let query = db
-      .select({ count: sql<number>`count(*)` })
-      .from(songs)
-      .$dynamic();
-
-    const mergedConditions = this.mergeConditions(conditions);
-    if (mergedConditions) {
-      query = query.where(mergedConditions);
-    }
-
-    const [result] = await query;
-    return Number(result?.count ?? 0);
-  }
-
-  /**
-   * Fetches songs with pagination and sorting
-   */
-  private async fetchSongs(
-    conditions: SQL[],
-    orderBy: ReturnType<typeof this.buildOrderBy>,
-    limit: number,
-    offset: number
-  ): Promise<Song[]> {
-    let baseQuery = db.select().from(songs).$dynamic();
-
-    const mergedConditions = this.mergeConditions(conditions);
-    if (mergedConditions) {
-      baseQuery = baseQuery.where(mergedConditions);
-    }
-
-    const rows = await baseQuery.orderBy(orderBy).limit(limit).offset(offset);
-    return rows.map((song: DbSong) => this.serializeSong(song));
-  }
 
   /**
    * Generates a unique short ID for songs with collision detection
@@ -236,13 +158,8 @@ export class SongsService {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const shortId = crypto.randomBytes(8).toString("hex").toLowerCase();
 
-      const existing = await db
-        .select({ id: songs.id })
-        .from(songs)
-        .where(eq(songs.shortId, shortId))
-        .limit(1);
-
-      if (existing.length === 0) {
+      const exists = await this.songRepository.existsByShortId(shortId);
+      if (!exists) {
         return shortId;
       }
     }
@@ -281,35 +198,29 @@ export class SongsService {
   ): Promise<Song> {
     const shortId = await this.generateUniqueShortId();
 
-    const newSong = await db
-      .insert(songs)
-      .values({
-        shortId,
-        ownerClerkId,
-        title: input.title,
-        artist: input.artist,
-        bpm: input.bpm,
-        key: input.key,
-        tags: input.tags,
-        lyrics: input.lyrics,
-        midiData: input.midiData,
-        collaborators: input.collaborators,
-        accountId: accountId ?? null,
-      })
-      .returning();
+    const createData: CreateSongData = {
+      shortId,
+      ownerClerkId,
+      title: input.title,
+      artist: input.artist,
+      bpm: input.bpm,
+      key: input.key,
+      tags: input.tags,
+      lyrics: input.lyrics,
+      midiData: input.midiData,
+      collaborators: input.collaborators,
+      accountId: accountId ?? null,
+    };
 
-    return this.serializeSong(newSong[0]);
+    const newSong = await this.songRepository.create(createData);
+    return this.serializeSong(newSong);
   }
 
   /**
    * Finds a song by its UUID
    */
   async findById(id: string): Promise<Song | null> {
-    const [song] = await db
-      .select()
-      .from(songs)
-      .where(eq(songs.id, id))
-      .limit(1);
+    const song = await this.songRepository.findById(id);
     return song ? this.serializeSong(song) : null;
   }
 
@@ -317,11 +228,7 @@ export class SongsService {
    * Finds a song by its short ID
    */
   async findByShortId(shortId: string): Promise<Song | null> {
-    const [song] = await db
-      .select()
-      .from(songs)
-      .where(eq(songs.shortId, shortId))
-      .limit(1);
+    const song = await this.songRepository.findByShortId(shortId);
     return song ? this.serializeSong(song) : null;
   }
 
@@ -332,17 +239,25 @@ export class SongsService {
     conditions: SongQueryConditions,
     options: SongPaginationOptions
   ): Promise<SongListResult> {
-    const sqlConditions = this.buildQueryConditions(conditions);
-    const orderBy = this.buildOrderBy(options.sort, options.order);
-    const offset = (options.page - 1) * options.limit;
+    const queryOptions: RepositorySongQueryOptions = {
+      accountId: conditions.accountId,
+      ownerClerkId: conditions.ownerClerkId,
+    };
 
-    const [total, songsList] = await Promise.all([
-      this.countSongs(sqlConditions),
-      this.fetchSongs(sqlConditions, orderBy, options.limit, offset),
+    const paginationOptions: RepositorySongPaginationOptions = {
+      limit: options.limit,
+      offset: (options.page - 1) * options.limit,
+      sort: options.sort,
+      order: options.order,
+    };
+
+    const [total, dbSongs] = await Promise.all([
+      this.songRepository.count(queryOptions),
+      this.songRepository.findMany(queryOptions, paginationOptions),
     ]);
 
     return {
-      songs: songsList,
+      songs: dbSongs.map((song) => this.serializeSong(song)),
       pagination: {
         page: options.page,
         limit: options.limit,
@@ -362,20 +277,18 @@ export class SongsService {
   ): Promise<Song> {
     await this.assertSongOwner(id, clerkId);
 
-    const updatedSong = await db
-      .update(songs)
-      .set({
-        ...input,
-        updatedAt: new Date(),
-      })
-      .where(eq(songs.id, id))
-      .returning();
+    const updateData: UpdateSongData = {
+      ...input,
+      updatedAt: new Date(),
+    };
 
-    if (updatedSong.length === 0) {
+    const updatedSong = await this.songRepository.update(id, updateData);
+
+    if (!updatedSong) {
       throw new NotFoundError("Song not found");
     }
 
-    return this.serializeSong(updatedSong[0]);
+    return this.serializeSong(updatedSong);
   }
 
   /**
@@ -383,11 +296,7 @@ export class SongsService {
    */
   async deleteSong(id: string, clerkId: string): Promise<void> {
     await this.assertSongOwner(id, clerkId);
-
-    await db.transaction(async (tx) => {
-      await tx.delete(lyricVersions).where(eq(lyricVersions.songId, id));
-      await tx.delete(songs).where(eq(songs.id, id));
-    });
+    await this.songRepository.deleteWithVersions(id);
   }
 
   /**
@@ -395,29 +304,17 @@ export class SongsService {
    */
   async getSongVersions(id: string): Promise<unknown[]> {
     // First verify the song exists
-    const song = await db
-      .select({
-        id: songs.id,
-        ownerClerkId: songs.ownerClerkId,
-        accountId: songs.accountId,
-      })
-      .from(songs)
-      .where(eq(songs.id, id))
-      .limit(1);
-
-    if (song.length === 0) {
+    const song = await this.songRepository.findById(id);
+    if (!song) {
       throw new NotFoundError("Song not found");
     }
 
-    const versions = await db
-      .select()
-      .from(lyricVersions)
-      .where(eq(lyricVersions.songId, id))
-      .orderBy(desc(lyricVersions.createdAt));
-
+    const versions = await this.songRepository.findSongVersions(id);
     return versions;
   }
 }
 
-// Export a singleton instance
-export const songsService = new SongsService();
+// Service factory function for dependency injection
+export const createSongsService = (songRepository: ISongRepository): SongsService => {
+  return new SongsService(songRepository);
+};
