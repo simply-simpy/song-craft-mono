@@ -11,6 +11,7 @@ import { superUserPlugin } from "../middleware/super-user";
 import adminRoutes from "../routes/admin";
 import projectRoutes from "../routes/projects";
 import songRoutes from "../routes/songs";
+import userRoutes from "../routes/user";
 import { corsPlugin } from "../plugins/cors";
 import { documentationPlugin } from "../plugins/documentation";
 import { securityHeadersPlugin } from "../plugins/security";
@@ -31,7 +32,8 @@ export const createServer = (): FastifyInstance => {
   server.register(superUserPlugin);
 
   server.register(songRoutes);
-  server.register(adminRoutes);
+  server.register(userRoutes);
+  server.register(adminRoutes, { prefix: "/admin" });
   server.register(projectRoutes);
 
   server.get("/health", async () => ({

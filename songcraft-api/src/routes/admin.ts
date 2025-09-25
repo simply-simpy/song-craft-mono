@@ -5,43 +5,11 @@ import { container } from "../container";
 import { withErrorHandling } from "./_utils/route-helpers";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
-  // General User APIs
-
-  // Get current user's complete context
-  fastify.get(
-    "/me",
-    {
-      preHandler: fastify.requireSuperUser(GlobalRole.USER), // Any authenticated user
-    },
-    withErrorHandling(async (request) => {
-      const clerkId = request.user?.clerkId;
-      if (!clerkId) {
-        return { success: false, error: "User not authenticated" };
-      }
-
-      const result = await container.adminService.getMe(clerkId);
-      if (!result) {
-        return { success: false, error: "User not found" };
-      }
-
-      // Get user permissions based on global role
-      const permissions = getUserPermissions(result.data.user.globalRole);
-
-      return {
-        ...result,
-        data: {
-          ...result.data,
-          permissions,
-        },
-      };
-    })
-  );
-
   // User Management APIs
 
   // Get all users with pagination and filtering
   fastify.get(
-    "/admin/users",
+    "/users",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -67,7 +35,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get specific user details
   fastify.get(
-    "/admin/users/:userId",
+    "/users/:userId",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -88,7 +56,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Update user global role
   fastify.put(
-    "/admin/users/:userId/role",
+    "/users/:userId/role",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.ADMIN),
       schema: {
@@ -134,7 +102,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get all accounts with pagination and filtering
   fastify.get(
-    "/admin/accounts",
+    "/accounts",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -164,7 +132,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get specific account details
   fastify.get(
-    "/admin/accounts/:accountId",
+    "/accounts/:accountId",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -187,7 +155,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get all organizations
   fastify.get(
-    "/admin/orgs",
+    "/orgs",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -205,7 +173,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get organization details with accounts and members
   fastify.get(
-    "/admin/orgs/:orgId",
+    "/orgs/:orgId",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -228,7 +196,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Get user's current account context
   fastify.get(
-    "/admin/users/:userId/context",
+    "/users/:userId/context",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -249,7 +217,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // Switch user's account context
   fastify.post(
-    "/admin/users/:userId/context/switch",
+    "/users/:userId/context/switch",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPPORT),
       schema: {
@@ -277,7 +245,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // System Stats (Super Admin only)
   fastify.get(
-    "/admin/stats",
+    "/stats",
     {
       preHandler: fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
     },
@@ -285,51 +253,4 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       return await container.adminService.getSystemStats();
     })
   );
-}
-
-// Helper function to get user permissions based on global role
-function getUserPermissions(globalRole: string): string[] {
-  const permissions: string[] = [];
-
-  // Base permissions for all users
-  permissions.push("user:profile:read");
-  permissions.push("user:profile:update");
-
-  // Role-based permissions
-  switch (globalRole) {
-    case "super_admin":
-      permissions.push(
-        "admin:users:read",
-        "admin:users:write",
-        "admin:accounts:read",
-        "admin:accounts:write",
-        "admin:orgs:read",
-        "admin:orgs:write",
-        "admin:stats:read",
-        "admin:system:manage"
-      );
-      break;
-    case "admin":
-      permissions.push(
-        "admin:users:read",
-        "admin:users:write",
-        "admin:accounts:read",
-        "admin:accounts:write",
-        "admin:orgs:read",
-        "admin:orgs:write"
-      );
-      break;
-    case "support":
-      permissions.push(
-        "admin:users:read",
-        "admin:accounts:read",
-        "admin:orgs:read"
-      );
-      break;
-    default:
-      // Only base permissions
-      break;
-  }
-
-  return permissions;
 }
