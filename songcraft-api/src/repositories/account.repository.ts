@@ -87,7 +87,7 @@ export interface IAccountRepository {
   ): Promise<AccountWithDetails[]>;
   count(conditions: AccountQueryOptions): Promise<number>;
 
-  // Complex queries
+  // Complex queriesgit
   findAccountWithMembers(accountId: string): Promise<AccountWithMembers | null>;
 
   // Statistics
