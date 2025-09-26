@@ -1,51 +1,51 @@
 /**
  * CSS Generator for Design Tokens
- * 
+ *
  * Converts our semantic design tokens into CSS custom properties
  * that can be consumed by Tailwind CSS and our components.
  */
 
-import { tokens } from './tokens';
+import { tokens } from "./tokens";
 
 // Helper function to convert nested objects to CSS custom properties
-function objectToCssVars(obj: Record<string, any>, prefix = ''): string {
-  let css = '';
-  
-  for (const [key, value] of Object.entries(obj)) {
-    const cssKey = `--${prefix}${prefix ? '-' : ''}${key}`;
-    
-    if (typeof value === 'object' && value !== null) {
-      // Recursive for nested objects
-      css += objectToCssVars(value, `${prefix}${prefix ? '-' : ''}${key}`);
-    } else {
-      // Convert the value to CSS
-      css += `  ${cssKey}: ${value};\n`;
-    }
-  }
-  
-  return css;
+function objectToCssVars(obj: Record<string, unknown>, prefix = ""): string {
+	let css = "";
+
+	for (const [key, value] of Object.entries(obj)) {
+		const cssKey = `--${prefix}${prefix ? "-" : ""}${key}`;
+
+		if (typeof value === "object" && value !== null) {
+			// Recursive for nested objects
+			css += objectToCssVars(value, `${prefix}${prefix ? "-" : ""}${key}`);
+		} else {
+			// Convert the value to CSS
+			css += `  ${cssKey}: ${value};\n`;
+		}
+	}
+
+	return css;
 }
 
 // Generate light theme CSS variables
 export function generateLightThemeCss(): string {
-  const { semantic, typography, spacing, shadows, radius, animation } = tokens;
-  
-  return `/* Light Theme CSS Variables */
+	const { semantic, typography, spacing, shadows, radius, animation } = tokens;
+
+	return `/* Light Theme CSS Variables */
 :root {
 ${objectToCssVars(semantic)}
-${objectToCssVars(typography, 'font')}
-${objectToCssVars(spacing, 'space')}
-${objectToCssVars(shadows, 'shadow')}
-${objectToCssVars(radius, 'radius')}
-${objectToCssVars(animation, 'animate')}
+${objectToCssVars(typography, "font")}
+${objectToCssVars(spacing, "space")}
+${objectToCssVars(shadows, "shadow")}
+${objectToCssVars(radius, "radius")}
+${objectToCssVars(animation, "animate")}
 }`;
 }
 
 // Generate dark theme CSS variables
 export function generateDarkThemeCss(): string {
-  const { dark } = tokens;
-  
-  return `/* Dark Theme CSS Variables */
+	const { dark } = tokens;
+
+	return `/* Dark Theme CSS Variables */
 [data-theme="dark"] {
 ${objectToCssVars(dark)}
 }`;
@@ -53,7 +53,7 @@ ${objectToCssVars(dark)}
 
 // Generate complete CSS file content
 export function generateCompleteCss(): string {
-  return `${generateLightThemeCss()}
+	return `${generateLightThemeCss()}
 
 ${generateDarkThemeCss()}
 
@@ -213,20 +213,20 @@ ${generateDarkThemeCss()}
 
 // For build-time generation, we can write this to a file
 export function writeCssFile(filePath: string): void {
-  if (typeof window === 'undefined') {
-    // Node.js environment (build time)
-    const fs = require('fs');
-    const path = require('path');
-    
-    const cssContent = generateCompleteCss();
-    const directory = path.dirname(filePath);
-    
-    // Ensure directory exists
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, { recursive: true });
-    }
-    
-    fs.writeFileSync(filePath, cssContent, 'utf8');
-    console.log(`✅ Generated CSS tokens at ${filePath}`);
-  }
+	if (typeof window === "undefined") {
+		// Node.js environment (build time)
+		const fs = require("node:fs");
+		const path = require("node:path");
+
+		const cssContent = generateCompleteCss();
+		const directory = path.dirname(filePath);
+
+		// Ensure directory exists
+		if (!fs.existsSync(directory)) {
+			fs.mkdirSync(directory, { recursive: true });
+		}
+
+		fs.writeFileSync(filePath, cssContent, "utf8");
+		console.log(`✅ Generated CSS tokens at ${filePath}`);
+	}
 }

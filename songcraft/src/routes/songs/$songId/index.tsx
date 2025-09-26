@@ -1,5 +1,5 @@
 // app/routes/songs/$songId/index.page.tsx
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { Link, createFileRoute, useParams } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/songs/$songId/")({ component: Page });
 
