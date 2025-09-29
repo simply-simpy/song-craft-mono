@@ -7,7 +7,7 @@ interface NavItemProps extends Omit<LinkProps, "children"> {
 
 function NavItem({ to, children, ...props }: NavItemProps) {
 	return (
-		<Link to={to} className="px-3 py-2 rounded-md hover:bg-gray-50" {...props}>
+		<Link to={to} className="nav-item" {...props}>
 			{children}
 		</Link>
 	);
