@@ -1,0 +1,56 @@
+@theme {
+  /* Custom colors using CSS variables */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+  --color-bg-selected: var(--bg-selected);
+  --color-bg-brand: var(--bg-brand);
+  --color-bg-accent: var(--bg-accent);
+  --color-bg-destructive: var(--bg-destructive);
+  --color-bg-warning: var(--bg-warning);
+  --color-bg-success: var(--bg-success);
+  --color-bg-overlay: var(--bg-overlay);
+  --color-bg-disabled: var(--bg-disabled);
+
+  --color-fg-primary: var(--fg-primary);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-fg-hover: var(--fg-hover);
+  --color-fg-active: var(--fg-active);
+  --color-fg-brand: var(--fg-brand);
+  --color-fg-accent: var(--fg-accent);
+  --color-fg-destructive: var(--fg-destructive);
+  --color-fg-warning: var(--fg-warning);
+  --color-fg-success: var(--fg-success);
+  --color-fg-on-brand: var(--fg-on-brand);
+  --color-fg-on-accent: var(--fg-on-accent);
+  --color-fg-on-destructive: var(--fg-on-destructive);
+
+  --color-surface-base: var(--surface-base);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-surface-brand: var(--surface-brand);
+  --color-surface-accent: var(--surface-accent);
+  --color-surface-destructive: var(--surface-destructive);
+  --color-surface-warning: var(--surface-warning);
+  --color-surface-success: var(--surface-success);
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-hover: var(--border-hover);
+  --color-border-focus: var(--border-focus);
+  --color-border-destructive: var(--border-destructive);
+  --color-border-warning: var(--border-warning);
+  --color-border-success: var(--border-success);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-tertiary: var(--brand-tertiary);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+}

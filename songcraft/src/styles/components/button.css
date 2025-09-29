@@ -1,0 +1,3 @@
+.btn {
+  @apply px-4 py-2 rounded  text-red-500 font-semibold;
+}
