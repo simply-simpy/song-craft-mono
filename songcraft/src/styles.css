@@ -5,8 +5,8 @@
 @import "./styles/tokens.css" layer(theme);
 @import "./styles/theme.css" layer(theme);
 
-/* Pull in Tailwind’s reset (normalize/remedy) */
-@import "tailwindcss/preflight";
+/* Pull in Tailwind's reset (normalize/remedy) */
+@import "tailwindcss/preflight" layer(base);
 
 /* Your custom components */
 @import "./styles/components/button.css" layer(components);
