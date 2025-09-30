@@ -1,4 +1,63 @@
 @theme {
+  /* ============================================================================
+     OPTION 1: Radix CSS Variables → Tailwind Tokens (RECOMMENDED)
+     ============================================================================ */
+
+  /* Map Radix CSS variables to your design tokens */
+  --color-radix-accent-1: var(--surface-brand);
+  --color-radix-accent-2: var(--surface-brand);
+  --color-radix-accent-3: var(--brand-tertiary);
+  --color-radix-accent-4: var(--brand-secondary);
+  --color-radix-accent-5: var(--brand-secondary);
+  --color-radix-accent-6: var(--brand-primary);
+  --color-radix-accent-7: var(--brand-primary);
+  --color-radix-accent-8: var(--brand-hover);
+  --color-radix-accent-9: var(--brand-primary);
+  --color-radix-accent-10: var(--brand-hover);
+  --color-radix-accent-11: var(--brand-active);
+  --color-radix-accent-12: var(--brand-active);
+
+  /* Gray Colors - Map Radix gray to your neutral colors */
+  --color-radix-gray-1: var(--surface-base);
+  --color-radix-gray-2: var(--surface-elevated);
+  --color-radix-gray-3: var(--surface-hover);
+  --color-radix-gray-4: var(--surface-active);
+  --color-radix-gray-5: var(--border-secondary);
+  --color-radix-gray-6: var(--border-primary);
+  --color-radix-gray-7: var(--border-hover);
+  --color-radix-gray-8: var(--fg-tertiary);
+  --color-radix-gray-9: var(--fg-secondary);
+  --color-radix-gray-10: var(--fg-primary);
+  --color-radix-gray-11: var(--fg-primary);
+  --color-radix-gray-12: var(--fg-primary);
+
+  /* Semantic Colors - Map to your semantic tokens */
+  --color-radix-red-9: var(--bg-destructive);
+  --color-radix-red-10: var(--bg-destructive);
+  --color-radix-red-11: var(--fg-destructive);
+  --color-radix-red-12: var(--fg-destructive);
+
+  --color-radix-green-9: var(--bg-success);
+  --color-radix-green-10: var(--bg-success);
+  --color-radix-green-11: var(--fg-success);
+  --color-radix-green-12: var(--fg-success);
+
+  --color-radix-orange-9: var(--bg-warning);
+  --color-radix-orange-10: var(--bg-warning);
+  --color-radix-orange-11: var(--fg-warning);
+  --color-radix-orange-12: var(--fg-warning);
+
+  /* Contrast Colors */
+  --color-radix-accent-contrast: var(--fg-on-brand);
+  --color-radix-gray-contrast: var(--fg-primary);
+  --color-radix-red-contrast: var(--fg-on-destructive);
+  --color-radix-green-contrast: var(--fg-on-brand);
+  --color-radix-orange-contrast: var(--fg-on-brand);
+
+  /* ============================================================================
+     Your Existing Design Tokens (Preserved)
+     ============================================================================ */
+
   /* Custom colors using CSS variables */
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);

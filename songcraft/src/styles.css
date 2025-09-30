@@ -1,23 +1,55 @@
-/* Only pull in Tailwind's theme variables */
+/* ---------------------------
+   1) Tailwind theme variables
+   --------------------------- */
 @import "tailwindcss/theme";
 
-/* Add your own design tokens */
+/* ---------------------------
+   2) Color sources (Radix ramps)
+      Import BEFORE tokens so aliases can see them
+   --------------------------- */
+@import "./styles/radix-colors.css" layer(theme);
+/* radix-colors.css should import:
+   @radix-ui/colors/blue.css;
+   @radix-ui/colors/blue-dark.css;
+   @radix-ui/colors/slate.css;
+   @radix-ui/colors/slate-dark.css;
+   @radix-ui/colors/red.css;
+   @radix-ui/colors/red-dark.css;
+   @radix-ui/colors/jade.css;
+   @radix-ui/colors/jade-dark.css;
+   @radix-ui/colors/amber.css;
+   @radix-ui/colors/amber-dark.css;
+*/
+
+/* ---------------------------
+   3) Your semantic tokens (aliases that upstream code uses)
+   --------------------------- */
 @import "./styles/tokens.css" layer(theme);
+
+/* If you still have extra theme overrides, keep them after tokens */
 @import "./styles/theme.css" layer(theme);
 
-/* Pull in Tailwind's reset (normalize/remedy) */
+/* ---------------------------
+   4) Tailwind reset
+   --------------------------- */
 @import "tailwindcss/preflight" layer(base);
 
-/* Your custom components */
+/* ---------------------------
+   5) Your component styles
+   --------------------------- */
 @import "./styles/components/button.css" layer(components);
 @import "./styles/components/nav-item.css" layer(components);
 @import "./styles/components/radix-ui.css" layer(components);
 @import "./styles/components/radix-themed-components.css" layer(components);
 
-/* Tailwind's utility classes */
+/* ---------------------------
+   6) Tailwind utilities
+   --------------------------- */
 @import "tailwindcss/utilities";
 
-/* App-specific base styles */
+/* ---------------------------
+   7) App-specific base styles
+   --------------------------- */
 body {
   font-family: var(--font-font-sans);
   font-weight: var(--font-weight-normal);

@@ -1,0 +1,60 @@
+flowchart TD
+  %% ============ Theme Inputs ============
+  subgraph A["Theme Inputs"]
+    A1["Brand Themes<br/>(.theme-blue | .theme-green | ...)<br/>→ sets --brand-* HSL channels"]
+    A2["Dark Mode<br/>&lt;html class='dark' | data-theme='dark'&gt;<br/>→ overrides --gray-* & --brand-*"]
+    A3["Design Tokens<br/>(tokens.css)<br/>--brand-*, --gray-*, --success-*, ...<br/>(HSL channels, no hsl())"]
+  end
+
+  %% ============ Mapping Layer ============
+  subgraph B["Radix ↔ Tokens Bridge"]
+    B1["radix-bridge.css<br/>Wrap tokens with hsl()<br/>→ --radix-accent-1..12<br/>→ --radix-gray-1..12<br/>→ --radix-red/green/orange-9/11<br/>→ --radix-accent-contrast"]
+  end
+
+  %% ============ Tailwind Config ============
+  subgraph C["Tailwind Theme"]
+    C1["tailwind.config.ts<br/>colors.background = hsl(var(--radix-gray-1))<br/>colors.foreground = hsl(var(--radix-gray-12))<br/>colors.accent = hsl(var(--radix-accent-9))<br/>colors['accent-foreground'] = hsl(var(--radix-accent-11))<br/>... ring, border, input, success/warning/danger"]
+    C2["tailwindcss-animate + keyframes<br/>accordion-down/up, scale-in/out"]
+  end
+
+  %% ============ UI Layer ============
+  subgraph D["UI Layer (Components)"]
+    D1["Base Styles (base.css)<br/>Body = bg-background text-foreground<br/>*:focus-visible → shared ring styles"]
+    D2["Button (cva variants)<br/>Uses bg-accent, text-accent-foreground<br/>hover → --radix-accent-10<br/>focus ring → --radix-accent-9"]
+    D3["Other UI Primitives<br/>Badge, Input, Card...<br/>All consume Tailwind semantic tokens"]
+  end
+
+  %% ============ Radix Primitives ============
+  subgraph E["Radix Primitives (Behavior/A11y)"]
+    E1["Tooltip.Content<br/>class uses bg-background border-border text-foreground<br/>animates via data-[state=*]"]
+    E2["AlertDialog.Content<br/>Portal to &lt;body&gt;, layered with z-modal"]
+    E3["Popover.Content<br/>data-[side=*] for offsets; z-popover"]
+    E4["asChild pattern<br/>&lt;Trigger asChild&gt;&lt;Button/&gt;&lt;/Trigger&gt; → avoids nested buttons"]
+  end
+
+  %% ============ Cross-Cutting ============
+  subgraph F["Cross-Cutting Concerns"]
+    F1["Data Attributes<br/>[data-state], [data-side], [data-disabled]<br/>→ style with Tailwind arbitrary variants"]
+    F2["Portals & Layers<br/>z-tooltip 70, z-popover 80, z-modal 90, z-toast 60"]
+    F3["Contrast<br/>accent vs accent-foreground<br/>WCAG in light/dark"]
+    F4["Reduced Motion<br/>@media (prefers-reduced-motion)<br/>→ disable animations"]
+  end
+
+  %% Flow
+  A1 --> A3
+  A2 --> A3
+  A3 --> B1
+  B1 --> C1
+  C1 --> D1
+  C1 --> D2
+  C1 --> D3
+  D2 -->|"asChild / triggers"| E2
+  D3 -->|"consume tokens"| E1
+  D3 --> E3
+
+  %% Cross links
+  E1 -.->|"uses"| F1
+  E2 -.->|"stacking"| F2
+  E3 -.->|"stacking"| F2
+  D2 -.->|"focus ring tokens"| F3
+  D1 -.->|"global reset"| F4
