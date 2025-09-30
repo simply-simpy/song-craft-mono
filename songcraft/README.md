@@ -42,6 +42,7 @@ npm run check
 ## Storybook
 
 - npm run storybook
+- npm run build-storybook
 
 ## Setting up Clerk
 

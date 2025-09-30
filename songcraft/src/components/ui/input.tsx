@@ -6,33 +6,36 @@
  */
 
 import { cn } from "../../lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+const inputVariants = cva(
+  // Base styles using semantic tokens
+  "flex w-full min-w-0 rounded-md border text-base transition-colors shadow-sm outline-none bg-surface-base border-border-primary text-fg-primary placeholder:text-fg-tertiary selection:bg-brand-primary selection:text-fg-on-brand file:inline-flex file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-fg-primary focus-visible:border-border-focus focus-visible:ring-2 focus-visible:ring-border-focus/20 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary aria-invalid:border-border-destructive aria-invalid:ring-2 aria-invalid:ring-border-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-bg-disabled",
+  {
+    variants: {
+      size: {
+        sm: "h-8 px-2 py-1 text-sm",
+        default: "h-9 px-3 py-1 md:text-sm",
+        lg: "h-11 px-4 py-2 text-lg",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  }
+);
+
+export interface InputProps
+  extends Omit<React.ComponentProps<"input">, "size">,
+    VariantProps<typeof inputVariants> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, size, ...props }, ref) => {
     return (
       <input
         type={type}
-        className={cn(
-          // Base styles using semantic tokens
-          "flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base md:text-sm",
-          "bg-surface-base border-border-primary text-fg-primary",
-          "placeholder:text-fg-tertiary",
-          "selection:bg-brand-primary selection:text-fg-on-brand",
-          // File input styles
-          "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-fg-primary",
-          // Focus styles using semantic tokens
-          "focus-visible:border-border-focus focus-visible:ring-2 focus-visible:ring-border-focus/20 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary",
-          "outline-none",
-          // Invalid/error states
-          "aria-invalid:border-border-destructive aria-invalid:ring-2 aria-invalid:ring-border-destructive/20",
-          // Disabled states
-          "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-bg-disabled",
-          // Transitions
-          "transition-colors",
-          "shadow-sm",
-          className
-        )}
+        className={cn(inputVariants({ size, className }))}
         ref={ref}
         {...props}
       />
@@ -42,4 +45,4 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 
 Input.displayName = "Input";
 
-export { Input };
+export { Input, inputVariants };
