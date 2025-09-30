@@ -10,6 +10,8 @@ import {
 import * as React from "react";
 import ClerkProvider from "../integrations/clerk/provider";
 import { RadixThemeProvider } from "@/components/ui/radix-theme-provider";
+import { ThemeProvider } from "../components/ThemeProvider";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
 
 // Import styles
 import "../styles.css";
@@ -78,9 +80,10 @@ function Root() {
       <head>
         <HeadContent />
       </head>
-      <ClerkProvider>
-        <body>
-          <RadixThemeProvider accentColor="crimson" radius="small">
+      <ThemeProvider defaultTheme={{ colorScheme: 'light', brandSkin: 'blue' }}>
+        <ClerkProvider>
+          <body>
+            <RadixThemeProvider accentColor="crimson" radius="small">
             {isAuthPage ? (
               <main className="p-6 min-h-screen grid place-items-center">
                 <Outlet />
@@ -109,22 +112,22 @@ function Root() {
                       >
                         UI Demo
                       </Link>
+                      <Link
+                        to="/theme-test"
+                        className="text-sm text-green-600 hover:underline"
+                      >
+                        Theme Test
+                      </Link>
                       <Input
                         placeholder="Search (⌘K)"
                         onFocus={() => setCmdOpen(true)}
                       />
 
                       <SignedIn>
+                        <ThemeSwitcher />
                         <Button variant="default">Sign out</Button>
                         <AccountContextDisplay />
                       </SignedIn>
-                      <button
-                        type="button"
-                        onClick={() => setRightOpen((v) => !v)}
-                        className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-                      >
-                        {rightOpen ? "Hide" : "Show"} Panel
-                      </button>
                     </div>
 
                     {/* 3-column layout */}
@@ -186,6 +189,7 @@ function Root() {
           </RadixThemeProvider>
         </body>
       </ClerkProvider>
+    </ThemeProvider>
     </html>
   );
 }
