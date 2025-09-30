@@ -11,6 +11,7 @@
 /* Your custom components */
 @import "./styles/components/button.css" layer(components);
 @import "./styles/components/nav-item.css" layer(components);
+@import "./styles/components/radix-ui.css" layer(components);
 
 /* Tailwind’s utility classes */
 @import "tailwindcss/utilities";

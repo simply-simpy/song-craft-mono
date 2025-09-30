@@ -14,9 +14,10 @@ import "../styles.css";
 import CurrentUser from "@/components/admin/currentUser";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
-import { ThemeProvider } from "@/components/ui";
+import { Button, ThemeProvider, Input } from "@/components/ui";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
+import { ColorPreview } from "@/components/ColorPreview";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -106,15 +107,13 @@ function Root() {
                       >
                         UI Demo
                       </Link>
-                      <input
+                      <Input
                         placeholder="Search (⌘K)"
                         onFocus={() => setCmdOpen(true)}
-                        className="flex-1 h-8 border border-gray-300 rounded-md px-2"
                       />
+
                       <SignedIn>
-                        <button type="button" className="btn">
-                          Sign out
-                        </button>
+                        <Button variant="default">Sign out</Button>
                         <AccountContextDisplay />
                       </SignedIn>
                       <button
@@ -132,6 +131,7 @@ function Root() {
                       <aside className="border-r border-gray-200 p-3">
                         <Navigation />
                         <CurrentUser />
+                        <ColorPreview />
                       </aside>
 
                       {/* Main content */}
@@ -167,10 +167,7 @@ function Root() {
                           className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
                         >
                           <div className="p-3 border-b border-gray-200">
-                            <input
-                              placeholder="Search songs, commands…"
-                              className="w-full h-9 border border-gray-300 rounded-md px-2"
-                            />
+                            <Input placeholder="Search songs, commands…" />
                           </div>
                           <div className="p-3">
                             <p className="text-gray-600">
