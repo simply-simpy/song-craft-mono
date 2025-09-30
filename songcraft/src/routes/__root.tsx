@@ -130,7 +130,7 @@ function Root() {
                     {/* 3-column layout */}
                     <div className="grid grid-cols-[260px_1fr]   h-full">
                       {/* Left nav */}
-                      <aside className="border-r border-gray-200 p-3">
+                      <aside className="border-r bg-surface-elevated border-gray-200 p-3">
                         <Navigation />
                         <CurrentUser />
                       </aside>
