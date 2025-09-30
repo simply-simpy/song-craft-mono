@@ -19,7 +19,6 @@ import Navigation from "@/components/layout/navigation/navigation";
 import { Button, Input } from "@/components/ui";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
-import { ColorPreview } from "@/components/ColorPreview";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -134,7 +133,6 @@ function Root() {
                       <aside className="border-r border-gray-200 p-3">
                         <Navigation />
                         <CurrentUser />
-                        <ColorPreview />
                       </aside>
 
                       {/* Main content */}

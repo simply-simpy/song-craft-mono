@@ -19,13 +19,20 @@ const meta: Meta<typeof Button> = {
         "ghost",
         "link",
       ],
+      description: "Button variant style",
     },
     size: {
       control: { type: "select" },
       options: ["default", "sm", "lg", "icon"],
+      description: "Button size",
     },
     disabled: {
       control: { type: "boolean" },
+      description: "Disabled state",
+    },
+    children: {
+      control: { type: "text" },
+      description: "Button content",
     },
   },
 };
@@ -117,4 +124,56 @@ export const AllSizes: Story = {
       <Button size="icon">🚀</Button>
     </div>
   ),
+};
+
+export const ThemeDemo: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-3">
+          Primary Buttons (adapt to theme)
+        </h3>
+        <div className="flex gap-2 flex-wrap">
+          <Button>Primary</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="link">Link</Button>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-3">
+          Semantic Buttons (fixed colors)
+        </h3>
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="destructive">Destructive</Button>
+          <Button variant="secondary">Secondary</Button>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-3">All Sizes</h3>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button size="sm">Small</Button>
+          <Button size="default">Default</Button>
+          <Button size="lg">Large</Button>
+          <Button size="icon">⚙️</Button>
+        </div>
+      </div>
+
+      <div className="text-sm text-gray-600">
+        <p>
+          <strong>Note:</strong> Primary buttons use CSS custom properties that
+          adapt to the current Radix theme.
+        </p>
+        <p>
+          Change the theme in the Controls panel to see colors update in
+          real-time!
+        </p>
+      </div>
+    </div>
+  ),
+  parameters: {
+    layout: "padded",
+  },
 };

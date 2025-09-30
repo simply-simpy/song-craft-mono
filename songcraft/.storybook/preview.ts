@@ -1,4 +1,5 @@
 import type { Preview } from "@storybook/react-vite";
+import { withRadixTheme } from "./decorators";
 import "../src/styles.css";
 
 const preview: Preview = {
@@ -15,6 +16,20 @@ const preview: Preview = {
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
       test: "todo",
+    },
+  },
+  decorators: [withRadixTheme],
+  argTypes: {
+    theme: {
+      control: "object",
+      description: "Radix theme configuration",
+      defaultValue: {
+        accentColor: "blue",
+        grayColor: "gray",
+        radius: "medium",
+        scaling: "100%",
+        appearance: "inherit",
+      },
     },
   },
 };
