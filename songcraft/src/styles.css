@@ -1,4 +1,4 @@
-/* Only pull in Tailwind’s theme variables */
+/* Only pull in Tailwind's theme variables */
 @import "tailwindcss/theme";
 
 /* Add your own design tokens */
@@ -13,7 +13,7 @@
 @import "./styles/components/nav-item.css" layer(components);
 @import "./styles/components/radix-ui.css" layer(components);
 
-/* Tailwind’s utility classes */
+/* Tailwind's utility classes */
 @import "tailwindcss/utilities";
 
 /* App-specific base styles */

@@ -9,15 +9,18 @@ import {
 // app/routes/__root.tsx
 import * as React from "react";
 import ClerkProvider from "../integrations/clerk/provider";
+import { RadixThemeProvider } from "@/components/ui/radix-theme-provider";
+
 // Import styles
 import "../styles.css";
 import CurrentUser from "@/components/admin/currentUser";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
-import { Button, ThemeProvider, Input } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
 import { ColorPreview } from "@/components/ColorPreview";
+import { RadixThemeDemo } from "@/components/RadixThemeDemo";
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -77,8 +80,8 @@ function Root() {
         <HeadContent />
       </head>
       <ClerkProvider>
-        <ThemeProvider>
-          <body>
+        <body>
+          <RadixThemeProvider accentColor="crimson" radius="small">
             {isAuthPage ? (
               <main className="p-6 min-h-screen grid place-items-center">
                 <Outlet />
@@ -132,6 +135,9 @@ function Root() {
                         <Navigation />
                         <CurrentUser />
                         <ColorPreview />
+                        <div className="mt-4">
+                          <RadixThemeDemo />
+                        </div>
                       </aside>
 
                       {/* Main content */}
@@ -182,8 +188,8 @@ function Root() {
               </>
             )}
             <Scripts />
-          </body>
-        </ThemeProvider>
+          </RadixThemeProvider>
+        </body>
       </ClerkProvider>
     </html>
   );
