@@ -21,7 +21,7 @@ export function RadixThemeIntegrationDemo() {
         </h3>
         <div className="flex gap-2 flex-wrap">
           <button className={cn(radixButtonVariants({ variant: "default" }))}>
-            Default
+            Primary
           </button>
           <button
             className={cn(radixButtonVariants({ variant: "destructive" }))}

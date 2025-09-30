@@ -117,17 +117,15 @@ function ThemePage() {
                   Solid
                 </Text>
                 <Flex gap="2" wrap="wrap">
-                  <Button variant="solid" color="crimson">
-                    Crimson
-                  </Button>
-                  <Button variant="solid" color="blue">
-                    Blue
+                  <Button variant="solid">Primary</Button>
+                  <Button variant="solid" color="red">
+                    Destructive
                   </Button>
                   <Button variant="solid" color="green">
-                    Green
+                    Success
                   </Button>
                   <Button variant="solid" color="orange">
-                    Orange
+                    Warning
                   </Button>
                 </Flex>
               </Flex>
@@ -136,17 +134,15 @@ function ThemePage() {
                   Soft
                 </Text>
                 <Flex gap="2" wrap="wrap">
-                  <Button variant="soft" color="crimson">
-                    Crimson
-                  </Button>
-                  <Button variant="soft" color="blue">
-                    Blue
+                  <Button variant="soft">Primary</Button>
+                  <Button variant="soft" color="red">
+                    Destructive
                   </Button>
                   <Button variant="soft" color="green">
-                    Green
+                    Success
                   </Button>
                   <Button variant="soft" color="orange">
-                    Orange
+                    Warning
                   </Button>
                 </Flex>
               </Flex>
@@ -155,17 +151,15 @@ function ThemePage() {
                   Outline
                 </Text>
                 <Flex gap="2" wrap="wrap">
-                  <Button variant="outline" color="crimson">
-                    Crimson
-                  </Button>
-                  <Button variant="outline" color="blue">
-                    Blue
+                  <Button variant="outline">Primary</Button>
+                  <Button variant="outline" color="red">
+                    Destructive
                   </Button>
                   <Button variant="outline" color="green">
-                    Green
+                    Success
                   </Button>
                   <Button variant="outline" color="orange">
-                    Orange
+                    Warning
                   </Button>
                 </Flex>
               </Flex>
@@ -176,17 +170,15 @@ function ThemePage() {
                   Ghost
                 </Text>
                 <Flex gap="2" wrap="wrap">
-                  <Button variant="ghost" color="crimson">
-                    Crimson
-                  </Button>
-                  <Button variant="ghost" color="blue">
-                    Blue
+                  <Button variant="ghost">Primary</Button>
+                  <Button variant="ghost" color="red">
+                    Destructive
                   </Button>
                   <Button variant="ghost" color="green">
-                    Green
+                    Success
                   </Button>
                   <Button variant="ghost" color="orange">
-                    Orange
+                    Warning
                   </Button>
                 </Flex>
               </Flex>
