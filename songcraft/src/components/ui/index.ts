@@ -6,12 +6,12 @@
  */
 
 // Core components
-export { Button, buttonVariants } from "./button";
-export type { ButtonProps } from "./button";
+export { Button, buttonVariants } from "./Button";
+export type { ButtonProps } from "./Button";
 
 export { Input } from "./Input";
-export { Label } from "./label";
-export { Textarea } from "./textarea";
+export { Label } from "./Label";
+export { Textarea } from "./Textarea";
 
 // Form components
 export {
