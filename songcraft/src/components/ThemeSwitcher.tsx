@@ -1,57 +1,47 @@
-import { useEffect, useState } from "react";
+/**
+ * Theme Switcher - Unified Design System
+ * 
+ * Provides theme switching for both color scheme (light/dark)
+ * and brand skin (blue/green/red/purple) using semantic tokens.
+ */
+
+import { useState } from "react";
+import { useTheme, THEME_OPTIONS, type ColorScheme, type BrandSkin } from "./ThemeProvider";
+import { cn } from "../lib/ui-utils";
 
 export function ThemeSwitcher() {
-	const [currentTheme, setCurrentTheme] = useState("brand");
+	const { colorScheme, brandSkin, setColorScheme, setBrandSkin } = useTheme();
+	const [isOpen, setIsOpen] = useState(false);
 
-	useEffect(() => {
-		// Get theme from localStorage or default to brand
-		const savedTheme = localStorage.getItem("theme") || "brand";
-		setCurrentTheme(savedTheme);
-		document.documentElement.setAttribute("data-theme", savedTheme);
-	}, []);
+	const toggleDropdown = () => setIsOpen(!isOpen);
+	const closeDropdown = () => setIsOpen(false);
 
-	const changeTheme = (theme: string) => {
-		setCurrentTheme(theme);
-		document.documentElement.setAttribute("data-theme", theme);
-		localStorage.setItem("theme", theme);
+	const handleColorSchemeChange = (scheme: ColorScheme) => {
+		setColorScheme(scheme);
+		closeDropdown();
 	};
 
-	const themes = [
-		{ name: "Brand", value: "brand" },
-		{ name: "Light", value: "light" },
-		{ name: "Dark", value: "dark" },
-		{ name: "Lo-Fi", value: "lofi" },
-		{ name: "Cupcake", value: "cupcake" },
-		{ name: "Bumblebee", value: "bumblebee" },
-		{ name: "Emerald", value: "emerald" },
-		{ name: "Corporate", value: "corporate" },
-		{ name: "Synthwave", value: "synthwave" },
-		{ name: "Retro", value: "retro" },
-		{ name: "Cyberpunk", value: "cyberpunk" },
-		{ name: "Valentine", value: "valentine" },
-		{ name: "Halloween", value: "halloween" },
-		{ name: "Garden", value: "garden" },
-		{ name: "Forest", value: "forest" },
-		{ name: "Aqua", value: "aqua" },
-		{ name: "Pastel", value: "pastel" },
-		{ name: "Fantasy", value: "fantasy" },
-		{ name: "Wireframe", value: "wireframe" },
-		{ name: "Black", value: "black" },
-		{ name: "Luxury", value: "luxury" },
-		{ name: "Dracula", value: "dracula" },
-		{ name: "Cmyk", value: "cmyk" },
-		{ name: "Autumn", value: "autumn" },
-		{ name: "Business", value: "business" },
-		{ name: "Acid", value: "acid" },
-		{ name: "Lemonade", value: "lemonade" },
-		{ name: "Night", value: "night" },
-		{ name: "Coffee", value: "coffee" },
-		{ name: "Winter", value: "winter" },
-	];
+	const handleBrandSkinChange = (skin: BrandSkin) => {
+		setBrandSkin(skin);
+		closeDropdown();
+	};
 
 	return (
-		<div className="dropdown dropdown-end">
-			<button type="button" tabIndex={0} className="btn btn-ghost btn-sm">
+		<div className="relative">
+			{/* Theme Toggle Button */}
+			<button
+				type="button"
+				onClick={toggleDropdown}
+				className={cn(
+					"inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md",
+					"bg-surface-elevated hover:bg-surface-hover border border-border-secondary",
+					"text-fg-secondary hover:text-fg-primary transition-colors",
+					"focus:outline-none focus:ring-2 focus:ring-border-focus focus:ring-offset-2"
+				)}
+				aria-expanded={isOpen}
+				aria-haspopup="true"
+			>
+				{/* Theme Icon */}
 				<svg
 					className="w-4 h-4"
 					fill="none"
@@ -63,40 +53,133 @@ export function ThemeSwitcher() {
 						strokeLinecap="round"
 						strokeLinejoin="round"
 						strokeWidth={2}
-						d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+						d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
 					/>
 				</svg>
 				Theme
+				{/* Dropdown Arrow */}
+				<svg
+					className={cn(
+						"w-4 h-4 transition-transform",
+						isOpen && "rotate-180"
+					)}
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M19 9l-7 7-7-7"
+					/>
+				</svg>
 			</button>
-			<ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-				<div className="max-h-96 overflow-y-auto">
-					{themes.map((theme) => (
-						<li key={theme.value}>
-							<button
-								type="button"
-								onClick={() => changeTheme(theme.value)}
-								className={`${currentTheme === theme.value ? "active" : ""}`}
-							>
-								{theme.name}
-								{currentTheme === theme.value && (
-									<svg
-										className="w-4 h-4"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										aria-hidden="true"
-									>
-										<path
-											fillRule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clipRule="evenodd"
-										/>
-									</svg>
-								)}
-							</button>
-						</li>
-					))}
-				</div>
-			</ul>
+
+			{/* Dropdown Menu */}
+			{isOpen && (
+				<>
+					{/* Backdrop */}
+					<button
+						type="button"
+						className="fixed inset-0 z-10"
+						onClick={closeDropdown}
+						aria-hidden="true"
+					/>
+
+					{/* Dropdown Content */}
+					<div className={cn(
+						"absolute right-0 top-full mt-2 w-64 z-20",
+						"bg-surface-elevated border border-border-secondary rounded-lg shadow-lg",
+						"animate-in fade-in scale-in"
+					)}>
+						<div className="p-2">
+							{/* Color Scheme Section */}
+							<div className="mb-4">
+								<div className="px-2 py-1 text-xs font-semibold text-fg-tertiary uppercase tracking-wider mb-2">
+									Color Scheme
+								</div>
+								<div className="space-y-1">
+									{THEME_OPTIONS.colorSchemes.map((scheme) => (
+										<button
+											key={scheme.value}
+											type="button"
+											onClick={() => handleColorSchemeChange(scheme.value)}
+											className={cn(
+												"flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition-colors",
+												colorScheme === scheme.value
+													? "bg-surface-brand text-fg-brand font-medium"
+													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary"
+											)}
+										>
+											<span className="text-base">{scheme.icon}</span>
+											<span className="flex-1 text-left">{scheme.label}</span>
+											{colorScheme === scheme.value && (
+												<svg
+													className="w-4 h-4 text-fg-brand"
+													fill="currentColor"
+													viewBox="0 0 20 20"
+												>
+													<path
+														fillRule="evenodd"
+														d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+														clipRule="evenodd"
+													/>
+												</svg>
+											)}
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Separator */}
+							<div className="border-t border-border-secondary mb-4" />
+
+							{/* Brand Colors Section */}
+							<div>
+								<div className="px-2 py-1 text-xs font-semibold text-fg-tertiary uppercase tracking-wider mb-2">
+									Brand Color
+								</div>
+								<div className="space-y-1">
+									{THEME_OPTIONS.brandSkins.map((skin) => (
+										<button
+											key={skin.value}
+											type="button"
+											onClick={() => handleBrandSkinChange(skin.value)}
+											className={cn(
+												"flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition-colors",
+												brandSkin === skin.value
+													? "bg-surface-brand text-fg-brand font-medium"
+													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary"
+											)}
+										>
+											{/* Color Swatch */}
+											<div
+												className="w-4 h-4 rounded-full border border-border-secondary flex-shrink-0"
+												style={{ backgroundColor: skin.color }}
+											/>
+											<span className="flex-1 text-left">{skin.label}</span>
+											{brandSkin === skin.value && (
+												<svg
+													className="w-4 h-4 text-fg-brand"
+													fill="currentColor"
+													viewBox="0 0 20 20"
+												>
+													<path
+														fillRule="evenodd"
+														d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+														clipRule="evenodd"
+													/>
+												</svg>
+											)}
+										</button>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

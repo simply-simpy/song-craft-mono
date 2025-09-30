@@ -26,6 +26,11 @@
    --------------------------- */
 @import "./styles/tokens.css" layer(theme);
 
+/* ---------------------------
+   4) Theme variants (brand color overrides)
+   --------------------------- */
+@import "./styles/theme-variants.css" layer(theme);
+
 /* If you still have extra theme overrides, keep them after tokens */
 @import "./styles/theme.css" layer(theme);
 

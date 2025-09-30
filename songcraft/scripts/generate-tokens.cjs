@@ -13,227 +13,115 @@
 const path = require('path');
 const fs = require('fs');
 
-// Token definitions with HSL fallbacks and OKLCH values
+// Token definitions using proper Radix color references
 const tokens = {
-  // HSL fallback values (broad browser support)
-  hsl: {
-    light: {
-      bg: {
-        primary: 'hsl(210 20% 98%)',
-        secondary: 'hsl(210 20% 95%)',
-        tertiary: 'hsl(210 16% 93%)',
-        hover: 'hsl(210 20% 95%)',
-        active: 'hsl(210 16% 93%)',
-        selected: 'hsl(213 100% 96%)',
-        brand: 'hsl(217 91% 60%)',
-        accent: 'hsl(142 76% 36%)',
-        destructive: 'hsl(0 84% 60%)',
-        warning: 'hsl(38 92% 50%)',
-        success: 'hsl(142 76% 36%)',
-        overlay: 'hsl(0 0% 0% / 0.5)',
-        disabled: 'hsl(210 20% 95%)',
-      },
-      fg: {
-        primary: 'hsl(210 11% 15%)',
-        secondary: 'hsl(210 7% 56%)',
-        tertiary: 'hsl(210 11% 71%)',
-        disabled: 'hsl(210 14% 83%)',
-        hover: 'hsl(210 12% 8%)',
-        active: 'hsl(210 12% 8%)',
-        brand: 'hsl(221 83% 53%)',
-        accent: 'hsl(142 72% 29%)',
-        destructive: 'hsl(0 72% 51%)',
-        warning: 'hsl(32 95% 44%)',
-        success: 'hsl(142 72% 29%)',
-        'on-brand': 'hsl(210 20% 98%)',
-        'on-accent': 'hsl(210 20% 98%)',
-        'on-destructive': 'hsl(210 20% 98%)',
-      },
-      surface: {
-        base: 'hsl(210 20% 98%)',
-        elevated: '#ffffff',
-        sunken: 'hsl(210 20% 95%)',
-        hover: 'hsl(210 20% 95%)',
-        active: 'hsl(210 16% 93%)',
-        brand: 'hsl(213 100% 96%)',
-        accent: 'hsl(138 76% 97%)',
-        destructive: 'hsl(0 86% 97%)',
-        warning: 'hsl(48 100% 96%)',
-        success: 'hsl(138 76% 97%)',
-      },
-      border: {
-        primary: 'hsl(210 14% 89%)',
-        secondary: 'hsl(210 16% 93%)',
-        hover: 'hsl(210 14% 83%)',
-        focus: 'hsl(217 91% 60%)',
-        destructive: 'hsl(0 94% 82%)',
-        warning: 'hsl(46 87% 65%)',
-        success: 'hsl(142 77% 73%)',
-      },
-      brand: {
-        primary: 'hsl(217 91% 60%)',
-        secondary: 'hsl(213 94% 68%)',
-        tertiary: 'hsl(212 96% 78%)',
-        hover: 'hsl(221 83% 53%)',
-        active: 'hsl(224 76% 48%)',
-      },
+  // Light theme using Radix color variables
+  light: {
+    bg: {
+      // Map to Radix color variables (these will be resolved at runtime)
+      primary: 'var(--slate-1)',
+      secondary: 'var(--slate-2)',
+      tertiary: 'var(--slate-3)',
+      hover: 'var(--slate-2)',
+      active: 'var(--slate-3)',
+      selected: 'var(--blue-3)',
+      brand: 'var(--blue-9)',
+      accent: 'var(--jade-9)',
+      destructive: 'var(--red-9)',
+      warning: 'var(--amber-9)',
+      success: 'var(--jade-9)',
+      overlay: 'rgba(0, 0, 0, 0.5)',
+      disabled: 'var(--slate-2)',
     },
-    dark: {
-      bg: {
-        primary: 'hsl(210 12% 8%)',
-        secondary: 'hsl(210 11% 15%)',
-        tertiary: 'hsl(210 10% 23%)',
-        hover: 'hsl(210 10% 23%)',
-        active: 'hsl(210 9% 31%)',
-        selected: 'hsl(226 55% 21%)',
-        overlay: 'hsl(0 0% 0% / 0.8)',
-        disabled: 'hsl(210 10% 23%)',
-      },
-      fg: {
-        primary: 'hsl(210 20% 98%)',
-        secondary: 'hsl(210 14% 83%)',
-        tertiary: 'hsl(210 11% 71%)',
-        disabled: 'hsl(210 7% 56%)',
-        hover: 'hsl(210 20% 98%)',
-        active: 'hsl(210 20% 98%)',
-        brand: 'hsl(213 94% 68%)',
-        accent: 'hsl(142 69% 58%)',
-        destructive: 'hsl(0 91% 71%)',
-        warning: 'hsl(43 74% 66%)',
-        success: 'hsl(142 69% 58%)',
-      },
-      surface: {
-        base: 'hsl(210 12% 8%)',
-        elevated: 'hsl(210 11% 15%)',
-        sunken: 'hsl(210 12% 8%)',
-        hover: 'hsl(210 10% 23%)',
-        active: 'hsl(210 9% 31%)',
-        brand: 'hsl(226 55% 21%)',
-        accent: 'hsl(145 80% 9%)',
-        destructive: 'hsl(0 75% 15%)',
-        warning: 'hsl(21 92% 14%)',
-        success: 'hsl(145 80% 9%)',
-      },
-      border: {
-        primary: 'hsl(210 9% 31%)',
-        secondary: 'hsl(210 10% 23%)',
-        hover: 'hsl(210 7% 56%)',
-        focus: 'hsl(217 91% 60%)',
-        destructive: 'hsl(0 74% 42%)',
-        warning: 'hsl(26 90% 37%)',
-        success: 'hsl(142 69% 24%)',
-      },
+    fg: {
+      primary: 'var(--slate-12)',
+      secondary: 'var(--slate-11)',
+      tertiary: 'var(--slate-10)',
+      disabled: 'var(--slate-8)',
+      hover: 'var(--slate-12)',
+      active: 'var(--slate-12)',
+      brand: 'var(--blue-11)',
+      accent: 'var(--jade-11)',
+      destructive: 'var(--red-11)',
+      warning: 'var(--amber-11)',
+      success: 'var(--jade-11)',
+      'on-brand': '#fff',
+      'on-accent': '#fff',
+      'on-destructive': '#fff',
+    },
+    surface: {
+      base: 'var(--slate-1)',
+      elevated: '#ffffff',
+      sunken: 'var(--slate-2)',
+      hover: 'var(--slate-2)',
+      active: 'var(--slate-3)',
+      brand: 'var(--blue-3)',
+      accent: 'var(--jade-3)',
+      destructive: 'var(--red-3)',
+      warning: 'var(--amber-3)',
+      success: 'var(--jade-3)',
+    },
+    border: {
+      primary: 'var(--slate-4)',
+      secondary: 'var(--slate-3)',
+      hover: 'var(--slate-6)',
+      focus: 'var(--blue-9)',
+      destructive: 'var(--red-6)',
+      warning: 'var(--amber-6)',
+      success: 'var(--jade-6)',
+    },
+    brand: {
+      primary: 'var(--blue-9)',
+      secondary: 'var(--blue-10)',
+      tertiary: 'var(--blue-11)',
+      hover: 'var(--blue-10)',
+      active: 'var(--blue-9)',
     },
   },
-
-  // OKLCH values for progressive enhancement
-  oklch: {
-    light: {
-      bg: {
-        primary: 'oklch(98.43% 0.0017 247.84)',
-        secondary: 'oklch(96.07% 0.0044 247.87)',
-        tertiary: 'oklch(94.52% 0.0049 247.88)',
-        hover: 'oklch(96.07% 0.0044 247.87)',
-        active: 'oklch(94.52% 0.0049 247.88)',
-        selected: 'oklch(96.29% 0.0180 253.34)',
-        brand: 'oklch(62.61% 0.1859 259.60)',
-        accent: 'oklch(62.30% 0.1688 149.18)',
-        destructive: 'oklch(63.56% 0.2082 25.38)',
-        warning: 'oklch(76.97% 0.1645 70.61)',
-        success: 'oklch(62.30% 0.1688 149.18)',
-        overlay: 'oklch(0% 0 0 / 0.5)',
-        disabled: 'oklch(96.07% 0.0044 247.87)',
-      },
-      fg: {
-        primary: 'oklch(26.72% 0.0099 248.20)',
-        secondary: 'oklch(64.55% 0.0149 248.06)',
-        tertiary: 'oklch(76.93% 0.0148 248.02)',
-        disabled: 'oklch(86.60% 0.0107 247.95)',
-        hover: 'oklch(19.14% 0.0063 248.16)',
-        active: 'oklch(19.14% 0.0063 248.16)',
-        brand: 'oklch(54.49% 0.2154 262.74)',
-        accent: 'oklch(52.48% 0.1373 149.83)',
-        destructive: 'oklch(57.86% 0.2137 27.17)',
-        warning: 'oklch(66.88% 0.1588 57.96)',
-        success: 'oklch(52.48% 0.1373 149.83)',
-        'on-brand': 'oklch(98.43% 0.0017 247.84)',
-        'on-accent': 'oklch(98.43% 0.0017 247.84)',
-        'on-destructive': 'oklch(98.43% 0.0017 247.84)',
-      },
-      surface: {
-        base: 'oklch(98.43% 0.0017 247.84)',
-        elevated: 'oklch(100% 0 0)',
-        sunken: 'oklch(96.07% 0.0044 247.87)',
-        hover: 'oklch(96.07% 0.0044 247.87)',
-        active: 'oklch(94.52% 0.0049 247.88)',
-        brand: 'oklch(96.29% 0.0180 253.34)',
-        accent: 'oklch(98.36% 0.0162 155.55)',
-        destructive: 'oklch(96.78% 0.0142 17.40)',
-        warning: 'oklch(98.66% 0.0218 95.28)',
-        success: 'oklch(98.36% 0.0162 155.55)',
-      },
-      border: {
-        primary: 'oklch(91.38% 0.0068 247.90)',
-        secondary: 'oklch(94.52% 0.0049 247.88)',
-        hover: 'oklch(86.60% 0.0107 247.95)',
-        focus: 'oklch(62.61% 0.1859 259.60)',
-        destructive: 'oklch(80.98% 0.1025 19.54)',
-        warning: 'oklch(86.42% 0.1416 92.19)',
-        success: 'oklch(87.12% 0.1370 154.59)',
-      },
-      brand: {
-        primary: 'oklch(62.61% 0.1859 259.60)',
-        secondary: 'oklch(71.57% 0.1425 254.45)',
-        tertiary: 'oklch(80.43% 0.0976 252.31)',
-        hover: 'oklch(54.49% 0.2154 262.74)',
-        active: 'oklch(48.96% 0.2153 264.27)',
-      },
+  dark: {
+    bg: {
+      primary: 'var(--slate-1)',
+      secondary: 'var(--slate-2)',
+      tertiary: 'var(--slate-3)',
+      hover: 'var(--slate-3)',
+      active: 'var(--slate-4)',
+      selected: 'var(--blue-4)',
+      overlay: 'rgba(0, 0, 0, 0.8)',
+      disabled: 'var(--slate-3)',
     },
-    dark: {
-      bg: {
-        primary: 'oklch(19.14% 0.0063 248.16)',
-        secondary: 'oklch(26.72% 0.0099 248.20)',
-        tertiary: 'oklch(34.77% 0.0130 248.20)',
-        hover: 'oklch(34.77% 0.0130 248.20)',
-        active: 'oklch(42.40% 0.0150 248.18)',
-        selected: 'oklch(35.05% 0.0659 258.68)',
-        overlay: 'oklch(0% 0 0 / 0.8)',
-        disabled: 'oklch(34.77% 0.0130 248.20)',
-      },
-      fg: {
-        primary: 'oklch(98.43% 0.0017 247.84)',
-        secondary: 'oklch(86.60% 0.0107 247.95)',
-        tertiary: 'oklch(76.93% 0.0148 248.02)',
-        disabled: 'oklch(64.55% 0.0149 248.06)',
-        hover: 'oklch(98.43% 0.0017 247.84)',
-        active: 'oklch(98.43% 0.0017 247.84)',
-        brand: 'oklch(71.57% 0.1425 254.45)',
-        accent: 'oklch(73.41% 0.1819 149.33)',
-        destructive: 'oklch(78.63% 0.1861 23.24)',
-        warning: 'oklch(82.88% 0.1591 74.22)',
-        success: 'oklch(73.41% 0.1819 149.33)',
-      },
-      surface: {
-        base: 'oklch(19.14% 0.0063 248.16)',
-        elevated: 'oklch(26.72% 0.0099 248.20)',
-        sunken: 'oklch(19.14% 0.0063 248.16)',
-        hover: 'oklch(34.77% 0.0130 248.20)',
-        active: 'oklch(42.40% 0.0150 248.18)',
-        brand: 'oklch(35.05% 0.0659 258.68)',
-        accent: 'oklch(24.21% 0.1215 152.06)',
-        destructive: 'oklch(27.31% 0.0991 21.32)',
-        warning: 'oklch(29.15% 0.0979 70.33)',
-        success: 'oklch(24.21% 0.1215 152.06)',
-      },
-      border: {
-        primary: 'oklch(42.40% 0.0150 248.18)',
-        secondary: 'oklch(34.77% 0.0130 248.20)',
-        hover: 'oklch(64.55% 0.0149 248.06)',
-        focus: 'oklch(62.61% 0.1859 259.60)',
-        destructive: 'oklch(55.76% 0.1280 19.06)',
-        warning: 'oklch(58.86% 0.1477 78.69)',
-        success: 'oklch(43.86% 0.1299 155.16)',
-      },
+    fg: {
+      primary: 'var(--slate-12)',
+      secondary: 'var(--slate-11)',
+      tertiary: 'var(--slate-10)',
+      disabled: 'var(--slate-8)',
+      hover: 'var(--slate-12)',
+      active: 'var(--slate-12)',
+      brand: 'var(--blue-11)',
+      accent: 'var(--jade-11)',
+      destructive: 'var(--red-11)',
+      warning: 'var(--amber-11)',
+      success: 'var(--jade-11)',
+    },
+    surface: {
+      base: 'var(--slate-1)',
+      elevated: 'var(--slate-2)',
+      sunken: 'var(--slate-1)',
+      hover: 'var(--slate-3)',
+      active: 'var(--slate-4)',
+      brand: 'var(--blue-4)',
+      accent: 'var(--jade-4)',
+      destructive: 'var(--red-4)',
+      warning: 'var(--amber-4)',
+      success: 'var(--jade-4)',
+    },
+    border: {
+      primary: 'var(--slate-6)',
+      secondary: 'var(--slate-4)',
+      hover: 'var(--slate-8)',
+      focus: 'var(--blue-9)',
+      destructive: 'var(--red-7)',
+      warning: 'var(--amber-7)',
+      success: 'var(--jade-7)',
     },
   },
 
@@ -270,13 +158,13 @@ const tokens = {
   spacing: {
     0: '0',
     px: '1px',
-    '0_5': '0.125rem',  // Use underscore instead of dot
+    '0_5': '0.125rem',   
     1: '0.25rem',
-    '1_5': '0.375rem',  // Use underscore instead of dot
+    '1_5': '0.375rem',   
     2: '0.5rem',
-    '2_5': '0.625rem',  // Use underscore instead of dot
+    '2_5': '0.625rem', 
     3: '0.75rem',
-    '3_5': '0.875rem',  // Use underscore instead of dot
+    '3_5': '0.875rem',
     4: '1rem',
     5: '1.25rem',
     6: '1.5rem',
@@ -346,14 +234,14 @@ const tokens = {
 function generateColorVars(colors, prefix = '') {
   let css = '';
   
-  Object.entries(colors).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(colors)) {
     const cssVar = `--${prefix}${prefix ? '-' : ''}${key}`;
     if (typeof value === 'object' && value !== null) {
       css += generateColorVars(value, `${prefix}${prefix ? '-' : ''}${key}`);
     } else {
       css += `  ${cssVar}: ${value};\n`;
     }
-  });
+  }
   
   return css;
 }
@@ -361,29 +249,33 @@ function generateColorVars(colors, prefix = '') {
 function generateTokenVars(tokenObj, prefix = '') {
   let css = '';
   
-  Object.entries(tokenObj).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(tokenObj)) {
     const cssVar = `--${prefix}${prefix ? '-' : ''}${key}`;
     if (typeof value === 'object' && value !== null) {
       css += generateTokenVars(value, `${prefix}${prefix ? '-' : ''}${key}`);
     } else {
       css += `  ${cssVar}: ${value};\n`;
     }
-  });
+  }
   
   return css;
 }
 
-// Generate the enhanced CSS file with OKLCH support
+// Generate the CSS file using Radix colors
 function generateCss() {
-  return `/* Generated Design Tokens - Do not edit manually */
-/* This file is auto-generated from design tokens */
+  return `/* Generated Design Tokens - Radix-backed colors (Blue theme)
+   NOTE: Requires @radix-ui/colors imports in radix-colors.css:
+   - blue.css, blue-dark.css (accent)
+   - slate.css, slate-dark.css (neutral)
+   - red.css/red-dark.css (destructive), jade.css/jade-dark.css (success), amber.css/amber-dark.css (warning)
+*/
 
 /* =======================
-   Light Theme (fallbacks)
+   Light Theme (Radix aliases)
    ======================= */
 :root {
-  /* Colors (HSL fallbacks) */
-${generateColorVars(tokens.hsl.light)}
+  /* Colors (Radix ramps) */
+${generateColorVars(tokens.light)}
 
   /* Typography / space / radii / shadows (unchanged) */
 ${generateTokenVars(tokens.typography, 'font')}
@@ -394,10 +286,10 @@ ${generateTokenVars(tokens.animation, 'animate')}
 }
 
 /* =======================
-   Dark Theme (fallbacks)
+   Dark Theme (Radix aliases)
    ======================= */
 [data-theme="dark"] {
-${generateColorVars(tokens.hsl.dark)}
+${generateColorVars(tokens.dark)}
 }
 
 /* =======================
@@ -426,30 +318,74 @@ ${generateColorVars(tokens.hsl.dark)}
 }
 
 /* Utilities */
-.focus-ring { outline: none; box-shadow: var(--focus-ring); }
-.focus-ring-offset { outline: none; box-shadow: var(--focus-ring-offset); }
+.focus-ring {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.focus-ring-offset {
+  outline: none;
+  box-shadow: var(--focus-ring-offset);
+}
 
-.animate-in { animation-duration: var(--animate-duration-normal); animation-timing-function: var(--animate-easing-ease-out); animation-fill-mode: both; }
-.animate-out { animation-duration: var(--animate-duration-fast);   animation-timing-function: var(--animate-easing-ease-in);  animation-fill-mode: both; }
+.animate-in {
+  animation-duration: var(--animate-duration-normal);
+  animation-timing-function: var(--animate-easing-ease-out);
+  animation-fill-mode: both;
+}
+.animate-out {
+  animation-duration: var(--animate-duration-fast);
+  animation-timing-function: var(--animate-easing-ease-in);
+  animation-fill-mode: both;
+}
 
-@keyframes fade-in { from{opacity:0} to{opacity:1} }
-@keyframes fade-out { from{opacity:1} to{opacity:0} }
-@keyframes scale-in { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
-@keyframes scale-out { from{transform:scale(1);opacity:1} to{transform:scale(.95);opacity:0} }
-.fade-in{ animation-name: fade-in } .fade-out{ animation-name: fade-out }
-.scale-in{ animation-name: scale-in } .scale-out{ animation-name: scale-out }
-
-/* ======================================
-   Progressive enhancement: OKLCH overrides
-   ====================================== */
-@supports (color: oklch(0% 0 0)) {
-  :root {
-${generateColorVars(tokens.oklch.light)}
+@keyframes fade-in {
+  from {
+    opacity: 0;
   }
-
-  [data-theme="dark"] {
-${generateColorVars(tokens.oklch.dark)}
+  to {
+    opacity: 1;
   }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+.fade-out {
+  animation-name: fade-out;
+}
+.scale-in {
+  animation-name: scale-in;
+}
+.scale-out {
+  animation-name: scale-out;
 }
 `;
 }

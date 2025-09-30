@@ -5,7 +5,15 @@
  * that can be consumed by Tailwind CSS and our components.
  */
 
-import { tokens } from "./tokens";
+import { 
+  semanticTokens, 
+  darkTokens, 
+  typography, 
+  spacing, 
+  shadows, 
+  radius, 
+  animation 
+} from "./tokens";
 
 // Helper function to convert nested objects to CSS custom properties
 function objectToCssVars(obj: Record<string, unknown>, prefix = ""): string {
@@ -28,11 +36,9 @@ function objectToCssVars(obj: Record<string, unknown>, prefix = ""): string {
 
 // Generate light theme CSS variables
 export function generateLightThemeCss(): string {
-	const { semantic, typography, spacing, shadows, radius, animation } = tokens;
-
 	return `/* Light Theme CSS Variables */
 :root {
-${objectToCssVars(semantic)}
+${objectToCssVars(semanticTokens)}
 ${objectToCssVars(typography, "font")}
 ${objectToCssVars(spacing, "space")}
 ${objectToCssVars(shadows, "shadow")}
@@ -43,11 +49,9 @@ ${objectToCssVars(animation, "animate")}
 
 // Generate dark theme CSS variables
 export function generateDarkThemeCss(): string {
-	const { dark } = tokens;
-
 	return `/* Dark Theme CSS Variables */
 [data-theme="dark"] {
-${objectToCssVars(dark)}
+${objectToCssVars(darkTokens)}
 }`;
 }
 
