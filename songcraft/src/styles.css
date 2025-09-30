@@ -12,6 +12,7 @@
 @import "./styles/components/button.css" layer(components);
 @import "./styles/components/nav-item.css" layer(components);
 @import "./styles/components/radix-ui.css" layer(components);
+@import "./styles/components/radix-themed-components.css" layer(components);
 
 /* Tailwind's utility classes */
 @import "tailwindcss/utilities";

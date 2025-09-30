@@ -43,6 +43,7 @@ npm run check
 
 - npm run storybook
 - npm run build-storybook
+- http://localhost:6006/
 
 ## Setting up Clerk
 

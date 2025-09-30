@@ -21,6 +21,8 @@ import {
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Label from "@radix-ui/react-label";
 import { useState } from "react";
+import { RadixThemeIntegrationDemo } from "@/components/RadixThemeIntegrationDemo";
+import { ThemeInfo } from "@/components/ThemeInfo";
 
 export const Route = createFileRoute("/theme/")({
   component: ThemePage,
@@ -55,9 +57,12 @@ function ThemePage() {
           <Flex direction="column" gap="3">
             <Heading size="5">Theme Customization</Heading>
             <Text size="3" color="gray">
-              Use the panel below to customize the theme in real-time
+              Use the panel below to customize the theme in real-time. All
+              buttons should change color when you select different accent
+              colors.
             </Text>
             <ThemePanel />
+            <ThemeInfo />
           </Flex>
         </Card>
 
@@ -417,6 +422,11 @@ function ThemePage() {
               </Box>
             </Grid>
           </Flex>
+        </Card>
+
+        {/* Radix Theme Integration Examples */}
+        <Card size="3">
+          <RadixThemeIntegrationDemo />
         </Card>
       </Flex>
     </Container>

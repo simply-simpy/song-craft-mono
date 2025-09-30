@@ -45,3 +45,6 @@ export {
   zIndex,
 } from "../../lib/ui-utils";
 export type { Size, Variant, Intent } from "../../lib/ui-utils";
+
+// Re-export Radix theme utilities
+export { useRadixTheme } from "../../lib/use-radix-theme";

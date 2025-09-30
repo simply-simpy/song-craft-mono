@@ -4,19 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-brand-primary text-fg-on-brand hover:bg-brand-hover",
-        destructive:
-          "bg-bg-destructive text-fg-on-destructive hover:bg-bg-destructive/90",
-        outline:
-          "border border-border-primary bg-transparent hover:bg-surface-hover text-fg-primary",
-        secondary:
-          "bg-surface-elevated text-fg-secondary hover:bg-surface-hover",
-        ghost: "hover:bg-surface-hover text-fg-primary",
-        link: "text-brand-primary underline-offset-4 hover:underline",
+        // Using CSS custom properties that map to Radix theme variables
+        default: "bg-[var(--accent-9)] text-[var(--accent-contrast)] hover:bg-[var(--accent-10)]",
+        destructive: "bg-[var(--red-9)] text-[var(--red-contrast)] hover:bg-[var(--red-10)]",
+        outline: "border border-[var(--gray-6)] bg-transparent hover:bg-[var(--gray-4)] text-[var(--gray-12)]",
+        secondary: "bg-[var(--gray-4)] text-[var(--gray-11)] hover:bg-[var(--gray-5)]",
+        ghost: "hover:bg-[var(--gray-4)] text-[var(--gray-11)]",
+        link: "text-[var(--accent-11)] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",
