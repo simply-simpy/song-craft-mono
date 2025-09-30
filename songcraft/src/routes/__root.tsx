@@ -20,7 +20,7 @@ import { Button, Input } from "@/components/ui";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Navigate } from "@tanstack/react-router";
 import { ColorPreview } from "@/components/ColorPreview";
-import { RadixThemeDemo } from "@/components/RadixThemeDemo";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -135,9 +135,6 @@ function Root() {
                         <Navigation />
                         <CurrentUser />
                         <ColorPreview />
-                        <div className="mt-4">
-                          <RadixThemeDemo />
-                        </div>
                       </aside>
 
                       {/* Main content */}
