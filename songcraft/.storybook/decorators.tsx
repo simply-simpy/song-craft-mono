@@ -4,6 +4,7 @@ import { ThemePanel } from "@radix-ui/themes";
 
 // Theme decorator for Storybook
 export const withRadixTheme = (Story: any, context: any) => {
+  // Get theme args from context, with fallbacks
   const themeArgs = context.args?.theme || {};
 
   return (
@@ -13,6 +14,30 @@ export const withRadixTheme = (Story: any, context: any) => {
       radius={themeArgs.radius || "medium"}
       scaling={themeArgs.scaling || "100%"}
       appearance={themeArgs.appearance || "inherit"}
+    >
+      <div style={{ padding: "1rem" }}>
+        <Story />
+      </div>
+    </RadixThemeProvider>
+  );
+};
+
+// Enhanced theme decorator with individual controls
+export const withRadixThemeControls = (Story: any, context: any) => {
+  // Get individual theme properties from context args
+  const accentColor = context.args?.accentColor || "blue";
+  const grayColor = context.args?.grayColor || "gray";
+  const radius = context.args?.radius || "medium";
+  const scaling = context.args?.scaling || "100%";
+  const appearance = context.args?.appearance || "inherit";
+
+  return (
+    <RadixThemeProvider
+      accentColor={accentColor}
+      grayColor={grayColor}
+      radius={radius}
+      scaling={scaling}
+      appearance={appearance}
     >
       <div style={{ padding: "1rem" }}>
         <Story />

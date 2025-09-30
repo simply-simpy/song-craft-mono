@@ -161,14 +161,28 @@ export const ThemeDemo: Story = {
         </div>
       </div>
 
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 p-4 bg-gray-50 rounded-lg">
         <p>
-          <strong>Note:</strong> Primary buttons use CSS custom properties that
-          adapt to the current Radix theme.
+          <strong>🎨 Theme Controls:</strong>
         </p>
         <p>
-          Change the theme in the Controls panel to see colors update in
-          real-time!
+          • <strong>Accent Color:</strong> Changes primary button colors
+        </p>
+        <p>
+          • <strong>Gray Color:</strong> Changes neutral elements
+        </p>
+        <p>
+          • <strong>Radius:</strong> Changes border radius
+        </p>
+        <p>
+          • <strong>Scaling:</strong> Changes component size
+        </p>
+        <p>
+          • <strong>Appearance:</strong> Changes light/dark mode
+        </p>
+        <p className="mt-2">
+          <strong>Note:</strong> Primary buttons adapt to theme changes,
+          semantic buttons stay consistent!
         </p>
       </div>
     </div>

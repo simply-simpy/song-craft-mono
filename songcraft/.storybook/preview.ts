@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/react-vite";
-import { withRadixTheme } from "./decorators";
+import { withRadixThemeControls } from "./decorators";
 import "../src/styles.css";
 
 const preview: Preview = {
@@ -18,18 +18,65 @@ const preview: Preview = {
       test: "todo",
     },
   },
-  decorators: [withRadixTheme],
+  decorators: [withRadixThemeControls],
   argTypes: {
-    theme: {
-      control: "object",
-      description: "Radix theme configuration",
-      defaultValue: {
-        accentColor: "blue",
-        grayColor: "gray",
-        radius: "medium",
-        scaling: "100%",
-        appearance: "inherit",
-      },
+    // Individual theme controls for better UX
+    accentColor: {
+      control: { type: "select" },
+      options: [
+        "ruby",
+        "gray",
+        "gold",
+        "bronze",
+        "brown",
+        "yellow",
+        "amber",
+        "orange",
+        "tomato",
+        "red",
+        "crimson",
+        "pink",
+        "plum",
+        "purple",
+        "violet",
+        "iris",
+        "indigo",
+        "blue",
+        "cyan",
+        "teal",
+        "jade",
+        "green",
+        "grass",
+        "lime",
+        "mint",
+        "sky",
+      ],
+      description: "Accent color for primary elements",
+      defaultValue: "blue",
+    },
+    grayColor: {
+      control: { type: "select" },
+      options: ["gray", "mauve", "slate", "sage", "olive", "sand"],
+      description: "Gray color palette",
+      defaultValue: "gray",
+    },
+    radius: {
+      control: { type: "select" },
+      options: ["none", "small", "medium", "large", "full"],
+      description: "Border radius for components",
+      defaultValue: "medium",
+    },
+    scaling: {
+      control: { type: "select" },
+      options: ["90%", "95%", "100%", "105%", "110%"],
+      description: "Component scaling",
+      defaultValue: "100%",
+    },
+    appearance: {
+      control: { type: "select" },
+      options: ["light", "dark", "inherit"],
+      description: "Theme appearance",
+      defaultValue: "inherit",
     },
   },
 };
