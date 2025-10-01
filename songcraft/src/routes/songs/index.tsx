@@ -3,10 +3,10 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import { z } from "zod";
-import { requireAuth } from "../../lib/requireAuth.server";
-import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { SongCard } from "../../components/SongCard";
+import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { API_ENDPOINTS, ApiError, apiRequest } from "../../lib/api";
+import { requireAuth } from "../../lib/requireAuth.server";
 
 export const Route = createFileRoute("/songs/")({
   beforeLoad: () => requireAuth(),
@@ -101,7 +101,6 @@ function RouteComponent() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Songs</h1>
         <div className="flex items-center gap-4">
-          <ThemeSwitcher />
           <Link
             to="/songs/new"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -1,35 +1,64 @@
-@import "tailwindcss";
+/* ---------------------------
+   1) Tailwind theme variables
+   --------------------------- */
+@import "tailwindcss/theme";
 
-/* DaisyUI */
-@plugin "daisyui";
+/* ---------------------------
+   2) Color sources (Radix ramps)
+      Import BEFORE tokens so aliases can see them
+   --------------------------- */
+@import "./styles/radix-colors.css" layer(theme);
+/* radix-colors.css should import:
+   @radix-ui/colors/blue.css;
+   @radix-ui/colors/blue-dark.css;
+   @radix-ui/colors/slate.css;
+   @radix-ui/colors/slate-dark.css;
+   @radix-ui/colors/red.css;
+   @radix-ui/colors/red-dark.css;
+   @radix-ui/colors/jade.css;
+   @radix-ui/colors/jade-dark.css;
+   @radix-ui/colors/amber.css;
+   @radix-ui/colors/amber-dark.css;
+*/
 
+/* ---------------------------
+   3) Your semantic tokens (aliases that upstream code uses)
+   --------------------------- */
+@import "./styles/tokens.css" layer(theme);
+
+/* ---------------------------
+   4) Theme variants (brand color overrides)
+   --------------------------- */
+@import "./styles/theme-variants.css" layer(theme);
+
+/* If you still have extra theme overrides, keep them after tokens */
+@import "./styles/theme.css" layer(theme);
+
+/* ---------------------------
+   4) Tailwind reset
+   --------------------------- */
+@import "tailwindcss/preflight" layer(base);
+
+/* ---------------------------
+   5) Your component styles
+   --------------------------- */
+@import "./styles/components/button.css" layer(components);
+@import "./styles/components/nav-item.css" layer(components);
+@import "./styles/components/radix-ui.css" layer(components);
+@import "./styles/components/radix-themed-components.css" layer(components);
+
+/* ---------------------------
+   6) Tailwind utilities
+   --------------------------- */
+@import "tailwindcss/utilities";
+
+/* ---------------------------
+   7) App-specific base styles
+   --------------------------- */
 body {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-/* Typography */
-.lato-light {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.lato-regular {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.lato-bold {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.lato-light-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
-  font-style: italic;
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-normal);
+  color: var(--fg-primary);
+  background-color: var(--bg-primary);
+  line-height: var(--font-leading-normal);
 }

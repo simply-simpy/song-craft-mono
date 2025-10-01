@@ -1,11 +1,11 @@
-import { NavItem } from "./nav-item";
 import {
+  SignInButton,
   SignedIn,
   SignedOut,
   UserButton,
-  SignInButton,
 } from "@clerk/clerk-react";
 import { SiSuperuser } from "react-icons/si";
+import { NavItem } from "./nav-item";
 
 function Navigation() {
   return (
@@ -29,6 +29,9 @@ function Navigation() {
           </li>
           <li>
             <NavItem to="/sessions">Sessions</NavItem>
+          </li>
+          <li>
+            <NavItem to="/theme">Theme Showcase</NavItem>
           </li>
           <li>
             <details open>

@@ -1,0 +1,327 @@
+/* Generated Design Tokens - Radix-backed colors (Blue theme)
+   NOTE: Requires @radix-ui/colors imports in radix-colors.css:
+   - blue.css, blue-dark.css (accent)
+   - slate.css, slate-dark.css (neutral)
+   - red.css/red-dark.css (destructive), jade.css/jade-dark.css (success), amber.css/amber-dark.css (warning)
+*/
+
+/* =======================
+   Light Theme (Radix aliases)
+   ======================= */
+:root {
+  /* Colors (Radix ramps) */
+  /* Surfaces / backgrounds (Slate 1–3) */
+  --bg-primary: var(--slate-1);
+  --bg-secondary: var(--slate-2);
+  --bg-tertiary: var(--slate-3);
+  --bg-hover: var(--slate-2);
+  --bg-active: var(--slate-3);
+  --bg-selected: var(--blue-3);
+
+  /* Solids */
+  --bg-brand: var(--blue-9);
+  --bg-accent: var(--blue-9);
+  --bg-destructive: var(--red-9);
+  --bg-warning: var(--amber-9);
+  --bg-success: var(--jade-9);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-disabled: var(--slate-2);
+
+  /* Foreground (text) */
+  --fg-primary: var(--slate-12);
+  --fg-secondary: var(--slate-11);
+  --fg-tertiary: var(--slate-10);
+  --fg-disabled: var(--slate-8);
+  --fg-hover: var(--slate-12);
+  --fg-active: var(--slate-12);
+
+  /* Foreground on colored backgrounds (Radix convention: 11 works on 9) */
+  --fg-brand: var(--blue-11);
+  --fg-accent: var(--blue-11);
+  --fg-destructive: var(--red-11);
+  --fg-warning: var(--amber-11);
+  --fg-success: var(--jade-11);
+
+  /* High-contrast text on strong fills */
+  --fg-on-brand: #fff;
+  --fg-on-accent: #fff;
+  --fg-on-destructive: #fff;
+
+  /* Surfaces (cards, panels) */
+  --surface-base: var(--slate-1);
+  --surface-elevated: #ffffff;
+  --surface-sunken: var(--slate-2);
+  --surface-hover: var(--slate-2);
+  --surface-active: var(--slate-3);
+  --surface-brand: var(--blue-3);
+  --surface-accent: var(--blue-3);
+  --surface-destructive: var(--red-3);
+  --surface-warning: var(--amber-3);
+  --surface-success: var(--jade-3);
+
+  /* Borders (3–6 range) */
+  --border-primary: var(--slate-4);
+  --border-secondary: var(--slate-3);
+  --border-hover: var(--slate-6);
+  --border-focus: var(--blue-9);
+  --border-destructive: var(--red-6);
+  --border-warning: var(--amber-6);
+  --border-success: var(--jade-6);
+
+  /* Brand tokens (kept for backward compat) */
+  --brand-primary: var(--blue-9);
+  --brand-secondary: var(--blue-10);
+  --brand-tertiary: var(--blue-11);
+  --brand-hover: var(--blue-10);
+  --brand-active: var(--blue-9);
+
+  /* Typography / space / radii / shadows (unchanged) */
+  --font-font-sans: Lato, system-ui, sans-serif;
+  --font-font-mono: ui-monospace, SFMono-Regular, monospace;
+  --font-text-xs: 0.75rem;
+  --font-text-sm: 0.875rem;
+  --font-text-base: 1rem;
+  --font-text-lg: 1.125rem;
+  --font-text-xl: 1.25rem;
+  --font-text-2xl: 1.5rem;
+  --font-text-3xl: 1.875rem;
+  --font-text-4xl: 2.25rem;
+  --font-text-5xl: 3rem;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-leading-tight: 1.25;
+  --font-leading-normal: 1.5;
+  --font-leading-relaxed: 1.75;
+
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-9: 2.25rem;
+  --space-10: 2.5rem;
+  --space-11: 2.75rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-28: 7rem;
+  --space-32: 8rem;
+  --space-36: 9rem;
+  --space-40: 10rem;
+  --space-44: 11rem;
+  --space-48: 12rem;
+  --space-52: 13rem;
+  --space-56: 14rem;
+  --space-60: 15rem;
+  --space-64: 16rem;
+  --space-72: 18rem;
+  --space-80: 20rem;
+  --space-96: 24rem;
+  --space-px: 1px;
+  --space-0_5: 0.125rem;
+  --space-1_5: 0.375rem;
+  --space-2_5: 0.625rem;
+  --space-3_5: 0.875rem;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-base:
+    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  --radius-none: 0;
+  --radius-sm: 0.125rem;
+  --radius-base: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --animate-duration-fast: 150ms;
+  --animate-duration-normal: 250ms;
+  --animate-duration-slow: 350ms;
+  --animate-easing-linear: linear;
+  --animate-easing-ease: ease;
+  --animate-easing-ease-in: ease-in;
+  --animate-easing-ease-out: ease-out;
+  --animate-easing-ease-in-out: ease-in-out;
+  --animate-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* =======================
+   Dark Theme (Radix aliases)
+   ======================= */
+[data-theme="dark"] {
+  /* Surfaces */
+  --bg-primary: var(--slate-1);
+  --bg-secondary: var(--slate-2);
+  --bg-tertiary: var(--slate-3);
+  --bg-hover: var(--slate-3);
+  --bg-active: var(--slate-4);
+  --bg-selected: var(--blue-4);
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-disabled: var(--slate-3);
+
+  /* Solids */
+  --bg-brand: var(--blue-9);
+  --bg-accent: var(--blue-9);
+  --bg-destructive: var(--red-9);
+  --bg-warning: var(--amber-9);
+  --bg-success: var(--jade-9);
+
+  /* Text */
+  --fg-primary: var(--slate-12);
+  --fg-secondary: var(--slate-11);
+  --fg-tertiary: var(--slate-10);
+  --fg-disabled: var(--slate-8);
+  --fg-hover: var(--slate-12);
+  --fg-active: var(--slate-12);
+  --fg-brand: var(--blue-11);
+  --fg-accent: var(--blue-11);
+  --fg-destructive: var(--red-11);
+  --fg-warning: var(--amber-11);
+  --fg-success: var(--jade-11);
+
+  /* Surfaces */
+  --surface-base: var(--slate-1);
+  --surface-elevated: var(--slate-2);
+  --surface-sunken: var(--slate-1);
+  --surface-hover: var(--slate-3);
+  --surface-active: var(--slate-4);
+  --surface-brand: var(--blue-4);
+  --surface-accent: var(--blue-4);
+  --surface-destructive: var(--red-4);
+  --surface-warning: var(--amber-4);
+  --surface-success: var(--jade-4);
+
+  /* Borders */
+  --border-primary: var(--slate-6);
+  --border-secondary: var(--slate-4);
+  --border-hover: var(--slate-8);
+  --border-focus: var(--blue-9);
+  --border-destructive: var(--red-7);
+  --border-warning: var(--amber-7);
+  --border-success: var(--jade-7);
+}
+
+/* =======================
+   Component-specific
+   ======================= */
+:root {
+  --focus-ring: 0 0 0 2px var(--border-focus);
+  --focus-ring-offset:
+    0 0 0 2px var(--bg-primary), 0 0 0 4px var(--border-focus);
+
+  --button-height-sm: 2rem;
+  --button-height-base: 2.25rem;
+  --button-height-lg: 2.5rem;
+
+  --input-height-sm: 2rem;
+  --input-height-base: 2.25rem;
+  --input-height-lg: 2.5rem;
+
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* Utilities */
+.focus-ring {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.focus-ring-offset {
+  outline: none;
+  box-shadow: var(--focus-ring-offset);
+}
+
+.animate-in {
+  animation-duration: var(--animate-duration-normal);
+  animation-timing-function: var(--animate-easing-ease-out);
+  animation-fill-mode: both;
+}
+.animate-out {
+  animation-duration: var(--animate-duration-fast);
+  animation-timing-function: var(--animate-easing-ease-in);
+  animation-fill-mode: both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+.fade-out {
+  animation-name: fade-out;
+}
+.scale-in {
+  animation-name: scale-in;
+}
+.scale-out {
+  animation-name: scale-out;
+}
+
+/* ======================================
+   Progressive enhancement
+   ======================================
+   If you want wide-gamut/OKLCH, prefer generating a Radix custom palette
+   and aliasing that instead. Otherwise, keep this section removed so
+   Radix remains the single source of truth for color.
+*/

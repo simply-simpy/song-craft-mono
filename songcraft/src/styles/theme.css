@@ -1,0 +1,115 @@
+@theme {
+  /* ============================================================================
+     OPTION 1: Radix CSS Variables → Tailwind Tokens (RECOMMENDED)
+     ============================================================================ */
+
+  /* Map Radix CSS variables to your design tokens */
+  --color-radix-accent-1: var(--surface-brand);
+  --color-radix-accent-2: var(--surface-brand);
+  --color-radix-accent-3: var(--brand-tertiary);
+  --color-radix-accent-4: var(--brand-secondary);
+  --color-radix-accent-5: var(--brand-secondary);
+  --color-radix-accent-6: var(--brand-primary);
+  --color-radix-accent-7: var(--brand-primary);
+  --color-radix-accent-8: var(--brand-hover);
+  --color-radix-accent-9: var(--brand-primary);
+  --color-radix-accent-10: var(--brand-hover);
+  --color-radix-accent-11: var(--brand-active);
+  --color-radix-accent-12: var(--brand-active);
+
+  /* Gray Colors - Map Radix gray to your neutral colors */
+  --color-radix-gray-1: var(--surface-base);
+  --color-radix-gray-2: var(--surface-elevated);
+  --color-radix-gray-3: var(--surface-hover);
+  --color-radix-gray-4: var(--surface-active);
+  --color-radix-gray-5: var(--border-secondary);
+  --color-radix-gray-6: var(--border-primary);
+  --color-radix-gray-7: var(--border-hover);
+  --color-radix-gray-8: var(--fg-tertiary);
+  --color-radix-gray-9: var(--fg-secondary);
+  --color-radix-gray-10: var(--fg-primary);
+  --color-radix-gray-11: var(--fg-primary);
+  --color-radix-gray-12: var(--fg-primary);
+
+  /* Semantic Colors - Map to your semantic tokens */
+  --color-radix-red-9: var(--bg-destructive);
+  --color-radix-red-10: var(--bg-destructive);
+  --color-radix-red-11: var(--fg-destructive);
+  --color-radix-red-12: var(--fg-destructive);
+
+  --color-radix-green-9: var(--bg-success);
+  --color-radix-green-10: var(--bg-success);
+  --color-radix-green-11: var(--fg-success);
+  --color-radix-green-12: var(--fg-success);
+
+  --color-radix-orange-9: var(--bg-warning);
+  --color-radix-orange-10: var(--bg-warning);
+  --color-radix-orange-11: var(--fg-warning);
+  --color-radix-orange-12: var(--fg-warning);
+
+  /* Contrast Colors */
+  --color-radix-accent-contrast: var(--fg-on-brand);
+  --color-radix-gray-contrast: var(--fg-primary);
+  --color-radix-red-contrast: var(--fg-on-destructive);
+  --color-radix-green-contrast: var(--fg-on-brand);
+  --color-radix-orange-contrast: var(--fg-on-brand);
+
+  /* ============================================================================
+     Your Existing Design Tokens (Preserved)
+     ============================================================================ */
+
+  /* Custom colors using CSS variables */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+  --color-bg-selected: var(--bg-selected);
+  --color-bg-brand: var(--bg-brand);
+  --color-bg-accent: var(--bg-accent);
+  --color-bg-destructive: var(--bg-destructive);
+  --color-bg-warning: var(--bg-warning);
+  --color-bg-success: var(--bg-success);
+  --color-bg-overlay: var(--bg-overlay);
+  --color-bg-disabled: var(--bg-disabled);
+
+  --color-fg-primary: var(--fg-primary);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-fg-hover: var(--fg-hover);
+  --color-fg-active: var(--fg-active);
+  --color-fg-brand: var(--fg-brand);
+  --color-fg-accent: var(--fg-accent);
+  --color-fg-destructive: var(--fg-destructive);
+  --color-fg-warning: var(--fg-warning);
+  --color-fg-success: var(--fg-success);
+  --color-fg-on-brand: var(--fg-on-brand);
+  --color-fg-on-accent: var(--fg-on-accent);
+  --color-fg-on-destructive: var(--fg-on-destructive);
+
+  --color-surface-base: var(--surface-base);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-surface-brand: var(--surface-brand);
+  --color-surface-accent: var(--surface-accent);
+  --color-surface-destructive: var(--surface-destructive);
+  --color-surface-warning: var(--surface-warning);
+  --color-surface-success: var(--surface-success);
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-hover: var(--border-hover);
+  --color-border-focus: var(--border-focus);
+  --color-border-destructive: var(--border-destructive);
+  --color-border-warning: var(--border-warning);
+  --color-border-success: var(--border-success);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-tertiary: var(--brand-tertiary);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+}

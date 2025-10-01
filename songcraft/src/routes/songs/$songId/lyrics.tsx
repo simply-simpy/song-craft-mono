@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams, createFileRoute } from "@tanstack/react-router";
-import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { API_ENDPOINTS } from "../../../lib/api";
 
 interface LyricVersion {
@@ -75,7 +74,6 @@ function RouteComponent() {
                 {songId}
               </span>
             </div>
-            <ThemeSwitcher />
           </div>
         </div>
       </div>

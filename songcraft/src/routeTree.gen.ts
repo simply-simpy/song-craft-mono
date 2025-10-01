@@ -11,8 +11,10 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UiSimpleRouteImport } from './routes/ui-simple'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ThemeIndexRouteImport } from './routes/theme/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
@@ -32,6 +34,11 @@ import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.
 
 const rootServerRouteImport = createServerRootRoute()
 
+const UiSimpleRoute = UiSimpleRouteImport.update({
+  id: '/ui-simple',
+  path: '/ui-simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
@@ -40,6 +47,11 @@ const SignInRoute = SignInRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThemeIndexRoute = ThemeIndexRouteImport.update({
+  id: '/theme/',
+  path: '/theme/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SongsIndexRoute = SongsIndexRouteImport.update({
@@ -126,6 +138,7 @@ const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -135,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
+  '/theme': typeof ThemeIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
@@ -145,6 +159,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -154,6 +169,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
+  '/theme': typeof ThemeIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
@@ -165,6 +181,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
+  '/ui-simple': typeof UiSimpleRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -174,6 +191,7 @@ export interface FileRoutesById {
   '/projects/': typeof ProjectsIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/songs/': typeof SongsIndexRoute
+  '/theme/': typeof ThemeIndexRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
@@ -186,6 +204,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -195,6 +214,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sessions'
     | '/songs'
+    | '/theme'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
@@ -205,6 +225,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -214,6 +235,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sessions'
     | '/songs'
+    | '/theme'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
@@ -224,6 +246,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/sign-in'
+    | '/ui-simple'
     | '/admin/accounts'
     | '/admin/orgs'
     | '/admin/users'
@@ -233,6 +256,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/sessions/'
     | '/songs/'
+    | '/theme/'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
@@ -244,6 +268,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SignInRoute: typeof SignInRouteWithChildren
+  UiSimpleRoute: typeof UiSimpleRoute
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminOrgsRoute: typeof AdminOrgsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -252,6 +277,7 @@ export interface RootRouteChildren {
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
   SongsIndexRoute: typeof SongsIndexRoute
+  ThemeIndexRoute: typeof ThemeIndexRoute
   SongsSongIdCollabRoute: typeof SongsSongIdCollabRoute
   SongsSongIdLyricsRoute: typeof SongsSongIdLyricsRoute
   SongsSongIdMidiRoute: typeof SongsSongIdMidiRoute
@@ -283,6 +309,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ui-simple': {
+      id: '/ui-simple'
+      path: '/ui-simple'
+      fullPath: '/ui-simple'
+      preLoaderRoute: typeof UiSimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
@@ -295,6 +328,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/theme/': {
+      id: '/theme/'
+      path: '/theme'
+      fullPath: '/theme'
+      preLoaderRoute: typeof ThemeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/songs/': {
@@ -430,6 +470,7 @@ const SignInRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SignInRoute: SignInRouteWithChildren,
+  UiSimpleRoute: UiSimpleRoute,
   AdminAccountsRoute: AdminAccountsRoute,
   AdminOrgsRoute: AdminOrgsRoute,
   AdminUsersRoute: AdminUsersRoute,
@@ -438,6 +479,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIndexRoute: ProjectsIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
   SongsIndexRoute: SongsIndexRoute,
+  ThemeIndexRoute: ThemeIndexRoute,
   SongsSongIdCollabRoute: SongsSongIdCollabRoute,
   SongsSongIdLyricsRoute: SongsSongIdLyricsRoute,
   SongsSongIdMidiRoute: SongsSongIdMidiRoute,

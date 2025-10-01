@@ -1,0 +1,11 @@
+/* src/styles/radix-colors.css */
+@import "@radix-ui/colors/blue.css";
+@import "@radix-ui/colors/blue-dark.css";
+@import "@radix-ui/colors/slate.css"; /* neutral */
+@import "@radix-ui/colors/slate-dark.css"; /* neutral dark */
+@import "@radix-ui/colors/red.css"; /* destructive */
+@import "@radix-ui/colors/red-dark.css";
+@import "@radix-ui/colors/jade.css"; /* success */
+@import "@radix-ui/colors/jade-dark.css";
+@import "@radix-ui/colors/amber.css"; /* warning */
+@import "@radix-ui/colors/amber-dark.css";

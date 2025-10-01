@@ -1,4 +1,4 @@
-Welcome to your new TanStack app!
+wWelcome to your new TanStack app!
 
 # Getting Started
 
@@ -38,6 +38,12 @@ npm run lint
 npm run format
 npm run check
 ```
+
+## Storybook
+
+- npm run storybook
+- npm run build-storybook
+- http://localhost:6006/
 
 ## Setting up Clerk
 

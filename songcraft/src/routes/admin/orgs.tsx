@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth } from "../../lib/requireAuth.server";
-import { API_ENDPOINTS } from "../../lib/api";
 import ErrorComponent from "../../components/layout/page/error";
 import { PendingComponent } from "../../components/ui/pending-component";
+import { API_ENDPOINTS } from "../../lib/api";
+import { requireAuth } from "../../lib/requireAuth.server";
 
 interface Organization {
   id: string;
@@ -62,11 +62,11 @@ function RouteComponent() {
   const pagination = data?.pagination;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Organizations</h1>
+    <div className="max-w-6xl mx-auto p-6 bg-surface-base">
+      <h1 className="text-2xl font-bold mb-6 text-fg-primary">Organizations</h1>
 
       {orgs.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-fg-tertiary py-8">
           No organizations found
         </div>
       ) : (
@@ -74,18 +74,19 @@ function RouteComponent() {
           {orgs.map((org) => (
             <div
               key={org.id}
-              className="border rounded-lg p-4 hover:bg-gray-50"
+              className="border border-border-primary rounded-lg p-4 bg-surface-elevated hover:bg-surface-hover transition-colors"
             >
-              <h3 className="font-semibold">{org.name}</h3>
-              <p className="text-sm text-gray-600">
-                Status: {org.status} | Accounts: {org.accountCount} | Created:{" "}
+              <h3 className="font-semibold text-fg-primary">{org.name}</h3>
+              <p className="text-sm text-fg-secondary">
+                Status: <span className="text-fg-brand">{org.status}</span> |
+                Accounts: {org.accountCount} | Created:{" "}
                 {new Date(org.createdAt).toLocaleDateString()}
               </p>
             </div>
           ))}
 
           {pagination && (
-            <div className="mt-6 text-center text-sm text-gray-600">
+            <div className="mt-6 text-center text-sm text-fg-tertiary">
               Page {pagination.page} of {pagination.pages} ({pagination.total}{" "}
               total)
             </div>

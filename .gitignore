@@ -122,3 +122,6 @@ temp/
 
 # SSL/TLS certs and keys (do not commit)
 ssl/
+
+*storybook.log
+storybook-static

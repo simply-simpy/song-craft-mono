@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { useNavigate, createFileRoute } from "@tanstack/react-router";
-import { requireAuth } from "../../lib/requireAuth.server";
 import { useMutation } from "@tanstack/react-query";
-import { ThemeSwitcher } from "../../components/ThemeSwitcher";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { API_ENDPOINTS } from "../../lib/api";
+import { requireAuth } from "../../lib/requireAuth.server";
 
 export const Route = createFileRoute("/songs/new")({
   beforeLoad: () => requireAuth(),
@@ -77,7 +76,6 @@ function RouteComponent() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Create New Song</h1>
-        <ThemeSwitcher />
       </div>
 
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
