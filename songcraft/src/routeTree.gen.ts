@@ -26,11 +26,14 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminOrgsRouteImport } from './routes/admin/orgs'
 import { Route as AdminAccountsRouteImport } from './routes/admin/accounts'
 import { Route as SongsSongIdIndexRouteImport } from './routes/songs/$songId/index'
+import { Route as SongsNewRefactoredRouteImport } from './routes/songs/new.refactored'
 import { Route as SongsSongIdRecordRouteImport } from './routes/songs/$songId/record'
 import { Route as SongsSongIdPackageRouteImport } from './routes/songs/$songId/package'
 import { Route as SongsSongIdMidiRouteImport } from './routes/songs/$songId/midi'
 import { Route as SongsSongIdLyricsRouteImport } from './routes/songs/$songId/lyrics'
 import { Route as SongsSongIdCollabRouteImport } from './routes/songs/$songId/collab'
+import { Route as AdminAccountsRefactoredRouteImport } from './routes/admin/accounts.refactored'
+import { Route as SongsSongIdIndexRefactoredRouteImport } from './routes/songs/$songId/index.refactored'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -110,6 +113,11 @@ const SongsSongIdIndexRoute = SongsSongIdIndexRouteImport.update({
   path: '/songs/$songId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SongsNewRefactoredRoute = SongsNewRefactoredRouteImport.update({
+  id: '/refactored',
+  path: '/refactored',
+  getParentRoute: () => SongsNewRoute,
+} as any)
 const SongsSongIdRecordRoute = SongsSongIdRecordRouteImport.update({
   id: '/songs/$songId/record',
   path: '/songs/$songId/record',
@@ -135,6 +143,17 @@ const SongsSongIdCollabRoute = SongsSongIdCollabRouteImport.update({
   path: '/songs/$songId/collab',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAccountsRefactoredRoute = AdminAccountsRefactoredRouteImport.update({
+  id: '/refactored',
+  path: '/refactored',
+  getParentRoute: () => AdminAccountsRoute,
+} as any)
+const SongsSongIdIndexRefactoredRoute =
+  SongsSongIdIndexRefactoredRouteImport.update({
+    id: '/songs/$songId/index/refactored',
+    path: '/songs/$songId/index/refactored',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -146,44 +165,50 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRouteWithChildren
   '/theme-test': typeof ThemeTestRoute
   '/ui-simple': typeof UiSimpleRoute
-  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/accounts': typeof AdminAccountsRouteWithChildren
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
-  '/songs/new': typeof SongsNewRoute
+  '/songs/new': typeof SongsNewRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/theme': typeof ThemeIndexRoute
+  '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
   '/songs/$songId/package': typeof SongsSongIdPackageRoute
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
+  '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId': typeof SongsSongIdIndexRoute
+  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/theme-test': typeof ThemeTestRoute
   '/ui-simple': typeof UiSimpleRoute
-  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/accounts': typeof AdminAccountsRouteWithChildren
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
-  '/songs/new': typeof SongsNewRoute
+  '/songs/new': typeof SongsNewRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
   '/theme': typeof ThemeIndexRoute
+  '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
   '/songs/$songId/package': typeof SongsSongIdPackageRoute
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
+  '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId': typeof SongsSongIdIndexRoute
+  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -191,22 +216,25 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRouteWithChildren
   '/theme-test': typeof ThemeTestRoute
   '/ui-simple': typeof UiSimpleRoute
-  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/accounts': typeof AdminAccountsRouteWithChildren
   '/admin/orgs': typeof AdminOrgsRoute
   '/admin/users': typeof AdminUsersRoute
   '/sign-in/sso-callback': typeof SignInSsoCallbackRoute
-  '/songs/new': typeof SongsNewRoute
+  '/songs/new': typeof SongsNewRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/songs/': typeof SongsIndexRoute
   '/theme/': typeof ThemeIndexRoute
+  '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
   '/songs/$songId/midi': typeof SongsSongIdMidiRoute
   '/songs/$songId/package': typeof SongsSongIdPackageRoute
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
+  '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId/': typeof SongsSongIdIndexRoute
+  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -225,12 +253,15 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/songs'
     | '/theme'
+    | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
     | '/songs/$songId/package'
     | '/songs/$songId/record'
+    | '/songs/new/refactored'
     | '/songs/$songId'
+    | '/songs/$songId/index/refactored'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -247,12 +278,15 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/songs'
     | '/theme'
+    | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
     | '/songs/$songId/package'
     | '/songs/$songId/record'
+    | '/songs/new/refactored'
     | '/songs/$songId'
+    | '/songs/$songId/index/refactored'
   id:
     | '__root__'
     | '/'
@@ -269,12 +303,15 @@ export interface FileRouteTypes {
     | '/sessions/'
     | '/songs/'
     | '/theme/'
+    | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
     | '/songs/$songId/midi'
     | '/songs/$songId/package'
     | '/songs/$songId/record'
+    | '/songs/new/refactored'
     | '/songs/$songId/'
+    | '/songs/$songId/index/refactored'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -282,10 +319,10 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRouteWithChildren
   ThemeTestRoute: typeof ThemeTestRoute
   UiSimpleRoute: typeof UiSimpleRoute
-  AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminAccountsRoute: typeof AdminAccountsRouteWithChildren
   AdminOrgsRoute: typeof AdminOrgsRoute
   AdminUsersRoute: typeof AdminUsersRoute
-  SongsNewRoute: typeof SongsNewRoute
+  SongsNewRoute: typeof SongsNewRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
@@ -297,6 +334,7 @@ export interface RootRouteChildren {
   SongsSongIdPackageRoute: typeof SongsSongIdPackageRoute
   SongsSongIdRecordRoute: typeof SongsSongIdRecordRoute
   SongsSongIdIndexRoute: typeof SongsSongIdIndexRoute
+  SongsSongIdIndexRefactoredRoute: typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
@@ -427,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SongsSongIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/songs/new/refactored': {
+      id: '/songs/new/refactored'
+      path: '/refactored'
+      fullPath: '/songs/new/refactored'
+      preLoaderRoute: typeof SongsNewRefactoredRouteImport
+      parentRoute: typeof SongsNewRoute
+    }
     '/songs/$songId/record': {
       id: '/songs/$songId/record'
       path: '/songs/$songId/record'
@@ -462,6 +507,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SongsSongIdCollabRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/accounts/refactored': {
+      id: '/admin/accounts/refactored'
+      path: '/refactored'
+      fullPath: '/admin/accounts/refactored'
+      preLoaderRoute: typeof AdminAccountsRefactoredRouteImport
+      parentRoute: typeof AdminAccountsRoute
+    }
+    '/songs/$songId/index/refactored': {
+      id: '/songs/$songId/index/refactored'
+      path: '/songs/$songId/index/refactored'
+      fullPath: '/songs/$songId/index/refactored'
+      preLoaderRoute: typeof SongsSongIdIndexRefactoredRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -487,15 +546,39 @@ const SignInRouteChildren: SignInRouteChildren = {
 const SignInRouteWithChildren =
   SignInRoute._addFileChildren(SignInRouteChildren)
 
+interface AdminAccountsRouteChildren {
+  AdminAccountsRefactoredRoute: typeof AdminAccountsRefactoredRoute
+}
+
+const AdminAccountsRouteChildren: AdminAccountsRouteChildren = {
+  AdminAccountsRefactoredRoute: AdminAccountsRefactoredRoute,
+}
+
+const AdminAccountsRouteWithChildren = AdminAccountsRoute._addFileChildren(
+  AdminAccountsRouteChildren,
+)
+
+interface SongsNewRouteChildren {
+  SongsNewRefactoredRoute: typeof SongsNewRefactoredRoute
+}
+
+const SongsNewRouteChildren: SongsNewRouteChildren = {
+  SongsNewRefactoredRoute: SongsNewRefactoredRoute,
+}
+
+const SongsNewRouteWithChildren = SongsNewRoute._addFileChildren(
+  SongsNewRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SignInRoute: SignInRouteWithChildren,
   ThemeTestRoute: ThemeTestRoute,
   UiSimpleRoute: UiSimpleRoute,
-  AdminAccountsRoute: AdminAccountsRoute,
+  AdminAccountsRoute: AdminAccountsRouteWithChildren,
   AdminOrgsRoute: AdminOrgsRoute,
   AdminUsersRoute: AdminUsersRoute,
-  SongsNewRoute: SongsNewRoute,
+  SongsNewRoute: SongsNewRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
@@ -507,6 +590,7 @@ const rootRouteChildren: RootRouteChildren = {
   SongsSongIdPackageRoute: SongsSongIdPackageRoute,
   SongsSongIdRecordRoute: SongsSongIdRecordRoute,
   SongsSongIdIndexRoute: SongsSongIdIndexRoute,
+  SongsSongIdIndexRefactoredRoute: SongsSongIdIndexRefactoredRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

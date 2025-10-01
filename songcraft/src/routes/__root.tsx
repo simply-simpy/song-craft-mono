@@ -167,7 +167,7 @@ function Root() {
                             tabIndex={0}
                             className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
                           >
-                            <div className="p-3 border-b border-gray-200">
+                            <div className="p-3 border-b border-border-primary">
                               <Input placeholder="Search songs, commands…" />
                             </div>
                             <div className="p-3">

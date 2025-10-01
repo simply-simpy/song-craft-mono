@@ -43,7 +43,9 @@
    5) Your component styles
    --------------------------- */
 @import "./styles/components/button.css" layer(components);
+@import "./styles/components/buttons.css" layer(components);
 @import "./styles/components/nav-item.css" layer(components);
+@import "./styles/components/forms.css" layer(components);
 @import "./styles/components/radix-ui.css" layer(components);
 @import "./styles/components/radix-themed-components.css" layer(components);
 
