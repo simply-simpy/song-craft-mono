@@ -24,15 +24,15 @@
 
 /* Form input variants */
 .form-input {
-  @apply form-control;
+  /* @apply form-control; */
 }
 
 .form-textarea {
-  @apply form-control resize-none;
+  /* @apply form-control resize-none; */
 }
 
 .form-select {
-  @apply form-control cursor-pointer;
+  /* @apply form-control cursor-pointer; */
 }
 
 /* Form labels */
@@ -55,11 +55,11 @@
 }
 
 .form-row-2 {
-  @apply form-row grid-cols-2;
+  @apply grid-cols-2;
 }
 
 .form-row-3 {
-  @apply form-row grid-cols-3;
+  @apply grid-cols-3;
 }
 
 /* Form actions */
@@ -100,13 +100,12 @@
 /* Info box pattern from forms */
 .form-info-box {
   @apply p-4 rounded-lg border mb-6;
-  @apply bg-bg-info border-border-info;
 }
 
 .form-info-box .title {
-  @apply text-sm font-medium text-fg-info mb-1;
+  @apply text-sm font-medium  mb-1;
 }
 
 .form-info-box .content {
-  @apply text-sm text-fg-info;
+  @apply text-sm;
 }

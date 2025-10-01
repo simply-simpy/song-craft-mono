@@ -138,10 +138,10 @@ function AccountsPage() {
         header: "Actions",
         cell: () => (
           <div className="flex gap-2">
-            <button type="button" className="btn btn-sm btn-outline">
+            <button type="button" className="btn-sm-outline">
               View Details
             </button>
-            <button type="button" className="btn btn-sm btn-outline">
+            <button type="button" className="btn-sm-outline">
               Edit
             </button>
           </div>

@@ -127,7 +127,7 @@ export function DataTable<TData>({
 			<div className="flex items-center gap-2 mt-4">
 				<button
 					type="button"
-					className="btn btn-sm"
+					className="btn-sm-outline"
 					onClick={() => table.firstPage()}
 					disabled={!table.getCanPreviousPage()}
 				>
@@ -135,7 +135,7 @@ export function DataTable<TData>({
 				</button>
 				<button
 					type="button"
-					className="btn btn-sm"
+					className="btn-sm-outline"
 					onClick={() => table.previousPage()}
 					disabled={!table.getCanPreviousPage()}
 				>
@@ -143,7 +143,7 @@ export function DataTable<TData>({
 				</button>
 				<button
 					type="button"
-					className="btn btn-sm"
+					className="btn-sm-outline"
 					onClick={() => table.nextPage()}
 					disabled={!table.getCanNextPage()}
 				>
@@ -151,7 +151,7 @@ export function DataTable<TData>({
 				</button>
 				<button
 					type="button"
-					className="btn btn-sm"
+					className="btn-sm-outline"
 					onClick={() => table.lastPage()}
 					disabled={!table.getCanNextPage()}
 				>

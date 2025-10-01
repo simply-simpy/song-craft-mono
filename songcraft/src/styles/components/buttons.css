@@ -11,14 +11,12 @@
 }
 
 .btn-sm-outline {
-  @apply btn-sm;
   @apply bg-surface-elevated text-fg-secondary border border-border-secondary;
   @apply hover:bg-surface-hover hover:text-fg-primary;
   @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
 }
 
 .btn-sm-primary {
-  @apply btn-sm;
   @apply bg-bg-brand text-fg-on-brand;
   @apply hover:bg-brand-hover;
   @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
@@ -44,15 +42,15 @@
 }
 
 .btn-icon-sm {
-  @apply btn-icon w-8 h-8;
+  @apply w-8 h-8;
 }
 
 .btn-icon-base {
-  @apply btn-icon w-10 h-10;
+  @apply w-10 h-10;
 }
 
 .btn-icon-lg {
-  @apply btn-icon w-12 h-12;
+  @apply w-12 h-12;
 }
 
 /* Loading state buttons */
