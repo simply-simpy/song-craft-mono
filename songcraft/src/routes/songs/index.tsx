@@ -1,13 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
 import { z } from "zod";
-import { SongCard } from "../../components/SongCard";
-
+import { DataTable } from "../../components/admin/DataTable";
+import { Button } from "@/components/ui";
 import { API_ENDPOINTS, ApiError, apiRequest } from "../../lib/api";
 import { requireAuth } from "../../lib/requireAuth.server";
-import { Button } from "@/components/ui";
+import type { ColumnDef } from "@tanstack/react-table";
 
 export const Route = createFileRoute("/songs/")({
   beforeLoad: () => requireAuth(),
@@ -40,7 +38,6 @@ type Song = z.infer<typeof songResponseSchema>;
 
 function RouteComponent() {
   const queryClient = useQueryClient();
-  const parentRef = useRef<HTMLDivElement>(null);
 
   const handleDelete = async (id: string) => {
     const ok =
@@ -52,135 +49,115 @@ function RouteComponent() {
     await queryClient.invalidateQueries({ queryKey: ["songs"] });
   };
 
-  const { data: songsData, isLoading, error } = useQuery({
-    queryKey: ["songs"],
-    queryFn: async () =>
-      apiRequest({
-        endpoint: API_ENDPOINTS.songs(),
-        schema: songsListSchema,
-      }),
-  });
+  const columns: ColumnDef<Song>[] = [
+    {
+      accessorKey: "shortId",
+      header: "Song ID",
+      cell: ({ row }) => (
+        <div className="font-mono text-sm">{row.getValue("shortId")}</div>
+      ),
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("title")}</div>
+      ),
+    },
+    {
+      accessorKey: "artist",
+      header: "Artist",
+      cell: ({ row }) => {
+        const artist = row.getValue("artist") as string | null;
+        return <div>{artist || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "bpm",
+      header: "BPM",
+      cell: ({ row }) => {
+        const bpm = row.getValue("bpm") as number | null;
+        return <div>{bpm || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "key",
+      header: "Key",
+      cell: ({ row }) => {
+        const key = row.getValue("key") as string | null;
+        return <div>{key || "-"}</div>;
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created",
+      cell: ({ row }) => {
+        const date = row.getValue("createdAt") as string;
+        return <div>{date ? new Date(date).toLocaleDateString() : "-"}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const song = row.original;
+        return (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/songs/$songId"
+              params={{ songId: song.id }}
+              className="text-blue-600 hover:text-blue-700 text-sm"
+            >
+              View
+            </Link>
+            <button
+              onClick={() => handleDelete(song.id)}
+              className="text-red-600 hover:text-red-700 text-sm"
+            >
+              Delete
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
 
-  const songs: Song[] = songsData?.songs ?? [];
+  const queryFn = async (pagination: {
+    pageIndex: number;
+    pageSize: number;
+  }) => {
+    const response = await apiRequest({
+      endpoint: `${API_ENDPOINTS.songs()}?page=${
+        pagination.pageIndex + 1
+      }&limit=${pagination.pageSize}&sort=updatedAt&order=desc`,
+      schema: songsListSchema,
+    });
 
-  // Set up virtualization - only virtualize if we have more than 20 songs
-  const shouldVirtualize = songs.length > 20;
-
-  const rowVirtualizer = useVirtualizer({
-    count: songs.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 72, // Height of each song row (approximate)
-    enabled: shouldVirtualize,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="text-center">Loading songs...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    const message =
-      error instanceof ApiError
-        ? `${error.status} ${error.statusText}`
-        : error instanceof Error
-        ? error.message
-        : "Unknown error";
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="text-center text-red-600">
-          Error loading songs: {message}
-        </div>
-      </div>
-    );
-  }
+    return {
+      data: response.songs,
+      rowCount: response.pagination.total,
+      pageCount: response.pagination.pages,
+    };
+  };
 
   return (
     <div className="mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Songs</h1>
         <div className="flex items-center gap-4">
-          <Button variant="default">New Song</Button>
+          <Button variant="default" asChild>
+            <Link to="/songs/new">New Song</Link>
+          </Button>
         </div>
       </div>
 
-      {songs.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg mb-4">No songs yet</div>
-          <Link
-            to="/songs/new"
-            className="text-blue-600 hover:text-blue-700 underline"
-          >
-            Create your first song
-          </Link>
-        </div>
-      ) : (
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          {/* Header */}
-          <div className="bg-gray-50 border-b border-gray-200">
-            <div className="px-6 py-3 grid grid-cols-12 gap-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <div className="col-span-2">Song ID</div>
-              <div className="col-span-3">Title</div>
-              <div className="col-span-2">Artist</div>
-              <div className="col-span-1">BPM</div>
-              <div className="col-span-1">Key</div>
-              <div className="col-span-2">Created</div>
-              <div className="col-span-1">Actions</div>
-            </div>
-          </div>
-
-          {/* Virtualized List or Regular List */}
-          {shouldVirtualize ? (
-            <div
-              ref={parentRef}
-              className="h-150 overflow-auto" // Fixed height for virtualization
-            >
-              <div
-                style={{
-                  height: `${rowVirtualizer.getTotalSize()}px`,
-                  width: "100%",
-                  position: "relative",
-                }}
-              >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const song = songs[virtualRow.index];
-                  return (
-                    <div
-                      key={virtualRow.key}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: `${virtualRow.size}px`,
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    >
-                      <SongCard song={song} onDelete={handleDelete} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="max-h-96 overflow-auto">
-              {songs.map((song: Song) => (
-                <SongCard key={song.id} song={song} onDelete={handleDelete} />
-              ))}
-            </div>
-          )}
-
-          {/* Songs count indicator */}
-          <div className="bg-gray-50 px-6 py-2 border-t border-gray-200">
-            <div className="text-sm text-gray-500">
-              {songs.length} song{songs.length !== 1 ? "s" : ""} total
-              {shouldVirtualize && " (virtualized for performance)"}
-            </div>
-          </div>
-        </div>
-      )}
+      <DataTable
+        title="Songs"
+        columns={columns}
+        queryKey={["songs"]}
+        queryFn={queryFn}
+        initialPageSize={20}
+        pageSizeOptions={[10, 20, 50, 100]}
+      />
     </div>
   );
 }
