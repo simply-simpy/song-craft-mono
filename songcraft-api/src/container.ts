@@ -16,6 +16,10 @@ import {
   type SongsService,
   createSongsService,
 } from "./services/songs.service";
+import {
+  type SearchService,
+  createSearchService,
+} from "./services/search.service";
 
 /**
  * Simple dependency injection container
@@ -34,6 +38,7 @@ export class Container {
   private _songsService?: SongsService;
   private _adminService?: AdminService;
   private _projectService?: ProjectService;
+  private _searchService?: SearchService;
 
   /**
    * Get or create SongRepository instance
@@ -171,6 +176,20 @@ export class Container {
   }
 
   /**
+   * Get or create SearchService instance
+   */
+  get searchService(): SearchService {
+    if (!this._searchService) {
+      this._searchService = createSearchService(
+        this.songsService,
+        this.projectService,
+        this.adminService
+      );
+    }
+    return this._searchService;
+  }
+
+  /**
    * Reset container (useful for testing)
    */
   reset(): void {
@@ -186,6 +205,7 @@ export class Container {
     this._songsService = undefined;
     this._adminService = undefined;
     this._projectService = undefined;
+    this._searchService = undefined;
   }
 }
 
