@@ -8,6 +8,7 @@ import {
 
 import { env } from "../config/env";
 import { superUserPlugin } from "../middleware/super-user";
+import tenantContextPlugin from "../middleware/tenant-context";
 import { corsPlugin } from "../plugins/cors";
 import { documentationPlugin } from "../plugins/documentation";
 import { securityHeadersPlugin } from "../plugins/security";
@@ -29,6 +30,7 @@ export const createServer = (): FastifyInstance => {
   server.register(securityHeadersPlugin);
   server.register(corsPlugin);
   server.register(documentationPlugin);
+  server.register(tenantContextPlugin);
 
   server.register(superUserPlugin);
 

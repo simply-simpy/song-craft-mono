@@ -55,7 +55,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
         request.query as PaginationQuery;
 
       const result = await container.songsService.listSongs(
-        { accountId, ownerClerkId },
+        { ownerClerkId }, // Remove accountId - RLS policies handle account filtering
         { page, limit, sort, order }
       );
 

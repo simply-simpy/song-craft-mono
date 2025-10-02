@@ -38,8 +38,7 @@ export const songResponseSchema = z.object({
   lyrics: z.string().nullable(),
   midiData: z.string().nullable(),
   collaborators: z.array(z.string()),
-  accountId: z.string().uuid().nullable(),
-  projectId: z.string().uuid().nullable(),
+  // Remove accountId and projectId - these are now handled via associations
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -63,7 +62,7 @@ export type CreateSongInput = z.infer<typeof songSchema>;
 export type UpdateSongInput = Partial<CreateSongInput>;
 
 export interface SongQueryConditions {
-  accountId?: string;
+  // Remove accountId - songs are now filtered via associations in RLS policies
   ownerClerkId?: string;
 }
 
@@ -145,8 +144,7 @@ export class SongsService {
       key: song.key ?? null,
       lyrics: song.lyrics ?? null,
       midiData: song.midiData ?? null,
-      accountId: song.accountId ?? null,
-      projectId: song.projectId ?? null,
+      // Remove accountId and projectId - these are now handled via associations
       tags: this.toStringArray(song.tags),
       collaborators: this.toStringArray(song.collaborators),
       createdAt: song.createdAt.toISOString(),
@@ -229,10 +227,19 @@ export class SongsService {
       lyrics: input.lyrics,
       midiData: input.midiData,
       collaborators: input.collaborators,
-      accountId: accountId ?? null,
+      // Remove accountId - songs are now created without direct account reference
     };
 
     const newSong = await this.songRepository.create(createData);
+
+    // Create song-account association if accountId is provided
+    if (accountId) {
+      await this.songRepository.createSongAccountAssociation(
+        newSong.id,
+        accountId
+      );
+    }
+
     return this.serializeSong(newSong);
   }
 
@@ -260,7 +267,7 @@ export class SongsService {
     options: SongPaginationOptions
   ): Promise<SongListResult> {
     const queryOptions: RepositorySongQueryOptions = {
-      accountId: conditions.accountId,
+      // Remove accountId - songs are now filtered via RLS policies using associations
       ownerClerkId: conditions.ownerClerkId,
     };
 

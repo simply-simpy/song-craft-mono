@@ -105,9 +105,9 @@ export class SearchService {
   ): Promise<Song[]> {
     try {
       // Use the existing songs service with search-like filtering
-      // Pass accountId to let the songs service handle account filtering
+      // Remove accountId - songs are now filtered via RLS policies using associations
       const result = await this.songsService.listSongs(
-        { accountId }, // Pass accountId for proper filtering
+        {}, // Empty conditions - RLS policies handle account filtering
         { page: 1, limit, sort: "updatedAt", order: "desc" }
       );
 
