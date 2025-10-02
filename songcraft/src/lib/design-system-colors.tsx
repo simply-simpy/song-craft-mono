@@ -5,6 +5,16 @@
  * and why hardcoded colors should be avoided.
  */
 
+import React from "react";
+
+// Import Button component for examples
+interface ButtonProps {
+  children: React.ReactNode;
+  color?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({ children }) => <button>{children}</button>;
+
 // ============================================================================
 // ❌ BAD: Hardcoded Colors (Don't Do This)
 // ============================================================================

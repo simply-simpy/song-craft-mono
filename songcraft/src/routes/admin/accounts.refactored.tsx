@@ -6,7 +6,10 @@ import { API_ENDPOINTS } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import { requireAuth } from "../../lib/requireAuth.server";
 
-export const Route = createFileRoute("/admin/accounts")({
+// Import new reusable components
+import { Badge, StatusBadge, PlanBadge, CountBadge } from "../../components/Badge";
+
+export const Route = createFileRoute("/admin/accounts/refactored")({
   beforeLoad: () => requireAuth(),
   component: AccountsPage,
 });
@@ -39,9 +42,9 @@ function AccountsPage() {
           const isDefault = info.row.original.isDefault;
           return (
             <div className="flex items-center gap-2">
-              <span className="font-medium">{name}</span>
+              <span className="font-medium text-fg-primary">{name}</span>
               {isDefault && (
-                <span className="badge badge-xs badge-primary">Default</span>
+                <Badge variant="brand" size="sm">Default</Badge>
               )}
             </div>
           );
@@ -52,21 +55,7 @@ function AccountsPage() {
         header: "Plan",
         cell: (info) => {
           const plan = info.getValue() as string;
-          const planColors = {
-            Free: "badge-info",
-            Pro: "badge-success",
-            Team: "badge-warning",
-            Enterprise: "badge-error",
-          };
-          return (
-            <span
-              className={`badge ${
-                planColors[plan as keyof typeof planColors] || "badge-neutral"
-              }`}
-            >
-              {plan}
-            </span>
-          );
+          return <PlanBadge plan={plan} />;
         },
       },
       {
@@ -74,21 +63,7 @@ function AccountsPage() {
         header: "Status",
         cell: (info) => {
           const status = info.getValue() as string;
-          const statusColors = {
-            active: "badge-success",
-            suspended: "badge-warning",
-            cancelled: "badge-error",
-          };
-          return (
-            <span
-              className={`badge ${
-                statusColors[status as keyof typeof statusColors] ||
-                "badge-neutral"
-              }`}
-            >
-              {status}
-            </span>
-          );
+          return <StatusBadge status={status} />;
         },
       },
       {
@@ -97,9 +72,9 @@ function AccountsPage() {
         cell: (info) => {
           const orgName = info.getValue() as string | undefined;
           return orgName ? (
-            <span className="text-sm">{orgName}</span>
+            <span className="text-sm text-fg-primary">{orgName}</span>
           ) : (
-            <span className="text-sm text-gray-400">No Organization</span>
+            <span className="text-sm text-fg-tertiary">No Organization</span>
           );
         },
       },
@@ -109,9 +84,11 @@ function AccountsPage() {
         cell: (info) => {
           const count = info.getValue() as number;
           return (
-            <span className="badge badge-outline">
-              {count} member{count !== 1 ? "s" : ""}
-            </span>
+            <CountBadge 
+              count={count} 
+              singular="member" 
+              plural="members"
+            />
           );
         },
       },
@@ -121,9 +98,9 @@ function AccountsPage() {
         cell: (info) => {
           const email = info.getValue() as string | undefined;
           return email ? (
-            <span className="text-sm">{email}</span>
+            <span className="text-sm text-fg-primary">{email}</span>
           ) : (
-            <span className="text-sm text-gray-400">-</span>
+            <span className="text-sm text-fg-tertiary">-</span>
           );
         },
       },

@@ -10,6 +10,8 @@ import type {
   SongQueryOptions as RepositorySongQueryOptions,
   UpdateSongData,
 } from "../repositories/song.repository";
+import type { IUserRepository } from "../repositories/user.repository";
+import type { IMembershipRepository } from "../repositories/membership.repository";
 
 // Types and Schemas
 
@@ -83,7 +85,11 @@ export interface SongListResult {
 }
 
 export class SongsService {
-  constructor(private songRepository: ISongRepository) {}
+  constructor(
+    private songRepository: ISongRepository,
+    private userRepository: IUserRepository,
+    private membershipRepository: IMembershipRepository
+  ) {}
   /**
    * Converts various input types to a clean string array
    * Handles arrays, JSON strings, objects, and single strings
@@ -195,6 +201,21 @@ export class SongsService {
     ownerClerkId: string,
     accountId?: string
   ): Promise<Song> {
+    // Validate account access if accountId is provided
+    if (accountId) {
+      const user = await this.userRepository.findByClerkId(ownerClerkId);
+      if (!user) {
+        throw new ForbiddenError("User not found");
+      }
+      const membership = await this.membershipRepository.findByUserAndAccount(
+        user.id,
+        accountId
+      );
+      if (!membership) {
+        throw new ForbiddenError("User does not have access to this account");
+      }
+    }
+
     const shortId = await this.generateUniqueShortId();
 
     const createData: CreateSongData = {
@@ -315,7 +336,9 @@ export class SongsService {
 
 // Service factory function for dependency injection
 export const createSongsService = (
-  songRepository: ISongRepository
+  songRepository: ISongRepository,
+  userRepository: IUserRepository,
+  membershipRepository: IMembershipRepository
 ): SongsService => {
-  return new SongsService(songRepository);
+  return new SongsService(songRepository, userRepository, membershipRepository);
 };

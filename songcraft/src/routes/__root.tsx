@@ -9,7 +9,9 @@ import {
 // app/routes/__root.tsx
 import * as React from "react";
 import ClerkProvider from "../integrations/clerk/provider";
-import { RadixThemeProvider } from "@/components/ui/radix-theme-provider";
+import { RadixThemeIntegration } from "../components/RadixThemeIntegration";
+import { ThemeProvider } from "../components/ThemeProvider";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
 
 // Import styles
 import "../styles.css";
@@ -78,114 +80,113 @@ function Root() {
       <head>
         <HeadContent />
       </head>
-      <ClerkProvider>
-        <body>
-          <RadixThemeProvider accentColor="crimson" radius="small">
-            {isAuthPage ? (
-              <main className="p-6 min-h-screen grid place-items-center">
-                <Outlet />
-              </main>
-            ) : (
-              <>
-                {/* Temporarily disable auth redirect for development */}
-                <SignedOut>
-                  <Navigate
-                    to="/sign-in"
-                    search={{
-                      returnTo: `${location.pathname}${location.search ?? ""}`,
-                    }}
-                  />
-                </SignedOut>{" "}
-                <SignedIn>
-                  <div className="h-screen grid grid-rows-[48px_1fr]">
-                    {/* Top bar with search */}
-                    <div className="flex items-center gap-3 px-3 border-b border-gray-200">
-                      <Link to="/" className="font-bold">
-                        SongScribe
-                      </Link>
-                      <Link
-                        to="/ui-simple"
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        UI Demo
-                      </Link>
-                      <Input
-                        placeholder="Search (⌘K)"
-                        onFocus={() => setCmdOpen(true)}
-                      />
+      <ThemeProvider defaultTheme={{ colorScheme: "light", brandSkin: "blue" }}>
+        <ClerkProvider>
+          <body>
+            <RadixThemeIntegration>
+              {isAuthPage ? (
+                <main className="p-6 min-h-screen grid place-items-center">
+                  <Outlet />
+                </main>
+              ) : (
+                <>
+                  {/* Temporarily disable auth redirect for development */}
+                  <SignedOut>
+                    <Navigate
+                      to="/sign-in"
+                      search={{
+                        returnTo: `${location.pathname}${
+                          location.search ?? ""
+                        }`,
+                      }}
+                    />
+                  </SignedOut>{" "}
+                  <SignedIn>
+                    <div className="h-screen grid grid-rows-[48px_1fr]">
+                      {/* Top bar with search */}
+                      <div className="flex items-center gap-3 px-3 border-b border-gray-200">
+                        <Link to="/" className="font-bold">
+                          SongScribe
+                        </Link>
 
-                      <SignedIn>
-                        <Button variant="default">Sign out</Button>
-                        <AccountContextDisplay />
-                      </SignedIn>
-                      <button
-                        type="button"
-                        onClick={() => setRightOpen((v) => !v)}
-                        className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
-                      >
-                        {rightOpen ? "Hide" : "Show"} Panel
-                      </button>
-                    </div>
+                        <Link
+                          to="/theme-test"
+                          className="text-sm text-green-600 hover:underline"
+                        >
+                          Theme Test
+                        </Link>
+                        <Input
+                          placeholder="Search (⌘K)"
+                          onFocus={() => setCmdOpen(true)}
+                        />
 
-                    {/* 3-column layout */}
-                    <div className="grid grid-cols-[260px_1fr]   h-full">
-                      {/* Left nav */}
-                      <aside className="border-r bg-surface-elevated border-gray-200 p-3">
-                        <Navigation />
-                        <CurrentUser />
-                      </aside>
+                        <SignedIn>
+                          <ThemeSwitcher />
+                          <Button variant="default">Sign out</Button>
+                          <AccountContextDisplay />
+                        </SignedIn>
+                      </div>
 
-                      {/* Main content */}
-                      <main className="p-3 overflow-auto">
-                        <Outlet />
-                      </main>
-                    </div>
+                      {/* 3-column layout */}
+                      <div className="grid grid-cols-[260px_1fr]   h-full">
+                        {/* Left nav */}
+                        <aside className="border-r bg-surface-elevated border-gray-200 p-3">
+                          <Navigation />
+                          <CurrentUser />
+                        </aside>
 
-                    {/* Command palette modal */}
-                    {cmdOpen && (
-                      <div
-                        onClick={() => setCmdOpen(false)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            setCmdOpen(false);
-                          }
-                        }}
-                        // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
-                        role="button"
-                        tabIndex={0}
-                        className="fixed inset-0 bg-black/20 grid place-items-start-center pt-[10vh]"
-                      >
+                        {/* Main content */}
+                        <main className="p-3 overflow-auto">
+                          <Outlet />
+                        </main>
+                      </div>
+
+                      {/* Command palette modal */}
+                      {cmdOpen && (
                         <div
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={() => setCmdOpen(false)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") {
-                              e.stopPropagation();
+                              setCmdOpen(false);
                             }
                           }}
                           // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
                           role="button"
                           tabIndex={0}
-                          className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
+                          className="fixed inset-0 bg-black/20 grid place-items-start-center pt-[10vh]"
                         >
-                          <div className="p-3 border-b border-gray-200">
-                            <Input placeholder="Search songs, commands…" />
-                          </div>
-                          <div className="p-3">
-                            <p className="text-gray-600">
-                              Recent: last opened songs…
-                            </p>
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.stopPropagation();
+                              }
+                            }}
+                            // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
+                            role="button"
+                            tabIndex={0}
+                            className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
+                          >
+                            <div className="p-3 border-b border-border-primary">
+                              <Input placeholder="Search songs, commands…" />
+                            </div>
+                            <div className="p-3">
+                              <p className="text-gray-600">
+                                Recent: last opened songs…
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </SignedIn>
-              </>
-            )}
-            <Scripts />
-          </RadixThemeProvider>
-        </body>
-      </ClerkProvider>
+                      )}
+                    </div>
+                  </SignedIn>
+                </>
+              )}
+              <Scripts />
+            </RadixThemeIntegration>
+          </body>
+        </ClerkProvider>
+      </ThemeProvider>
     </html>
   );
 }

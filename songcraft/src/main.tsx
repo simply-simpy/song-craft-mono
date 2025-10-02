@@ -20,10 +20,6 @@ declare module "@tanstack/react-router" {
 // Create a client
 const queryClient = new QueryClient();
 
-// Initialize theme from localStorage
-const savedTheme = localStorage.getItem("theme") || "brand";
-document.documentElement.setAttribute("data-theme", savedTheme);
-
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found");
 

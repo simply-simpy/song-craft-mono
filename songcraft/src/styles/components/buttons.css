@@ -1,0 +1,93 @@
+/**
+ * Button @apply Classes
+ * 
+ * Additional @apply classes for button patterns extracted from routes.
+ * Complements the form button classes with more specific use cases.
+ */
+
+/* Small action buttons (used in table actions) */
+.btn-sm {
+  @apply px-3 py-1.5 text-sm font-medium rounded-md transition-colors;
+}
+
+.btn-sm-outline {
+  @apply bg-surface-elevated text-fg-secondary border border-border-secondary;
+  @apply hover:bg-surface-hover hover:text-fg-primary;
+  @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
+}
+
+.btn-sm-primary {
+  @apply bg-bg-brand text-fg-on-brand;
+  @apply hover:bg-brand-hover;
+  @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
+}
+
+/* Link-style buttons */
+.btn-link {
+  @apply inline-flex items-center font-medium text-fg-brand;
+  @apply hover:text-brand-hover hover:underline;
+  @apply transition-colors;
+}
+
+.btn-link-muted {
+  @apply inline-flex items-center font-medium text-fg-secondary;
+  @apply hover:text-fg-primary hover:underline;
+  @apply transition-colors;
+}
+
+/* Icon buttons */
+.btn-icon {
+  @apply inline-flex items-center justify-center rounded-md transition-colors;
+  @apply hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-border-focus;
+}
+
+.btn-icon-sm {
+  @apply w-8 h-8;
+}
+
+.btn-icon-base {
+  @apply w-10 h-10;
+}
+
+.btn-icon-lg {
+  @apply w-12 h-12;
+}
+
+/* Loading state buttons */
+.btn-loading {
+  @apply opacity-75 cursor-not-allowed;
+}
+
+/* Button groups */
+.btn-group {
+  @apply inline-flex rounded-md shadow-sm;
+}
+
+.btn-group > .btn-group-item:not(:first-child) {
+  @apply -ml-px rounded-l-none;
+}
+
+.btn-group > .btn-group-item:not(:last-child) {
+  @apply rounded-r-none;
+}
+
+/* Floating action button style */
+.btn-fab {
+  @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg;
+  @apply bg-bg-brand text-fg-on-brand;
+  @apply hover:bg-brand-hover hover:shadow-xl;
+  @apply focus:outline-none focus:ring-4 focus:ring-brand-primary/25;
+  @apply transition-all duration-200;
+}
+
+/* Button with badge/counter */
+.btn-badge {
+  @apply relative;
+}
+
+.btn-badge .badge {
+  @apply absolute -top-1 -right-1;
+  @apply min-w-5 h-5 flex items-center justify-center;
+  @apply text-xs font-bold rounded-full;
+  @apply bg-bg-destructive text-fg-on-destructive;
+}
