@@ -2,7 +2,13 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { accounts, projectAccountAssociations, projects, sessions, users } from "../schema";
+import {
+  accounts,
+  projectAccountAssociations,
+  projects,
+  sessions,
+  users,
+} from "../schema";
 
 // Database types
 export type DbProject = typeof projects.$inferSelect;
@@ -67,7 +73,11 @@ export interface IProjectRepository {
   // Project-specific operations
   getSessionsCount(projectId: string): Promise<number>;
   deleteWithRelatedData(projectId: string): Promise<void>;
-  createAccountAssociation(projectId: string, accountId: string, associationType?: string): Promise<void>;
+  createAccountAssociation(
+    projectId: string,
+    accountId: string,
+    associationType?: string
+  ): Promise<void>;
 }
 
 // Repository implementation
@@ -111,7 +121,6 @@ export class ProjectRepository implements IProjectRepository {
    */
   private buildConditions(conditions: ProjectQueryOptions): SQL[] {
     const sqlConditions: SQL[] = [];
-
 
     if (conditions.createdBy) {
       sqlConditions.push(eq(projects.createdBy, conditions.createdBy));
@@ -289,7 +298,7 @@ export class ProjectRepository implements IProjectRepository {
   async createAccountAssociation(
     projectId: string,
     accountId: string,
-    associationType: string = "primary"
+    associationType = "primary"
   ): Promise<void> {
     await this.db
       .insert(projectAccountAssociations)

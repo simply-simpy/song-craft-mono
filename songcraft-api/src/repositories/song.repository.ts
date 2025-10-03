@@ -264,7 +264,7 @@ export class SongRepository implements ISongRepository {
   async createSongAccountAssociation(
     songId: string,
     accountId: string,
-    associationType: string = "primary"
+    associationType = "primary"
   ): Promise<void> {
     await this.db.insert(songAccountLinks).values({
       songId,
@@ -276,7 +276,7 @@ export class SongRepository implements ISongRepository {
   async createSongProjectAssociation(
     songId: string,
     projectId: string,
-    associationType: string = "primary"
+    associationType = "primary"
   ): Promise<void> {
     await this.db.insert(songProjectAssociations).values({
       songId,
