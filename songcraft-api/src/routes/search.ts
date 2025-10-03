@@ -75,13 +75,17 @@ export default async function searchRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
       const clerkId = requireClerkUser(request);
       const accountId = request.headers["x-account-id"] as string;
       const { q, limit, types } = request.query as z.infer<
         typeof searchQuerySchema
       >;
 
-      const result = await request.container!.searchService.searchAll({
+      const result = await request.container.searchService.searchAll({
         query: q,
         limit,
         types,
