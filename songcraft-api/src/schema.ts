@@ -77,18 +77,11 @@ export const songs = pgTable(
       .$type<string[]>()
       .default([])
       .notNull(),
-    accountId: uuid("account_id"), // Optional - handled by RLS policies
-    projectId: uuid("project_id").references(() => projects.id),
   },
   (table) => {
     return {
       ownerClerkIdIdx: index("songs_owner_clerk_id_idx").on(table.ownerClerkId),
-      accountCreatedIdx: index("songs_account_created_desc_idx").on(
-        table.accountId,
-        table.createdAt.desc()
-      ),
       updatedAtIdx: index("songs_updated_at_idx").on(table.updatedAt.desc()),
-      projectIdIdx: index("songs_project_id_idx").on(table.projectId),
     };
   }
 );

@@ -19,7 +19,13 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
       // Set the tenant context in the database session
       try {
         // Set the app.account_id config directly
-        if (request.db) {
+        if (request.pgClient) {
+          await request.pgClient.query(
+            "SELECT set_config('app.account_id', $1, true)",
+            [accountId]
+          );
+        } else if (request.db) {
+          // Fallback just in case
           await request.db.execute(
             sql`SELECT set_config('app.account_id', ${accountId}, true)`
           );

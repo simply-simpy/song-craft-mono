@@ -26,6 +26,32 @@ const toErrorStatus = (error: unknown) => {
 		} as const;
 	}
 
+	// Map common Postgres / RLS errors to nicer API errors
+	const pgCode = (error as any)?.code as string | undefined;
+	const msg = ((error as any)?.message as string | undefined)?.toLowerCase() || "";
+
+	// app_current_account_id() raised because tenant context not set
+	if (pgCode === "28000" || msg.includes("app.account_id is not set")) {
+		return {
+			statusCode: 400,
+			payload: {
+				error: "Tenant context missing. Include x-account-id header.",
+				code: "TENANT_CONTEXT_MISSING",
+			},
+		} as const;
+	}
+
+	// Invalid UUID for account id
+	if (msg.includes("invalid input syntax for type uuid") && msg.includes("app.account_id")) {
+		return {
+			statusCode: 400,
+			payload: {
+				error: "Invalid account ID (must be a UUID).",
+				code: "INVALID_ACCOUNT_ID",
+			},
+		} as const;
+	}
+
 	return {
 		statusCode: 500,
 		payload: {
