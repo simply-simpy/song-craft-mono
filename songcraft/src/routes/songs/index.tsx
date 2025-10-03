@@ -1,9 +1,9 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { DataTable } from "../../components/admin/DataTable";
 import { Button } from "@/components/ui";
-import { API_ENDPOINTS, ApiError, apiRequest } from "../../lib/api";
+import { API_ENDPOINTS, apiRequest } from "../../lib/api";
 import { requireAuth } from "../../lib/requireAuth.server";
 import type { ColumnDef } from "@tanstack/react-table";
 
