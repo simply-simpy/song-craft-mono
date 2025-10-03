@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
 
 import {
@@ -148,7 +148,12 @@ const errorResponseSchema = z.object({
 });
 
 export default async function projectRoutes(fastify: FastifyInstance) {
-  const getProjectService = (req: any) => req.container!.projectService;
+  const getProjectService = (req: FastifyRequest) => {
+    if (!req.container) {
+      throw new Error("Container not available");
+    }
+    return req.container.projectService;
+  };
 
   fastify.get(
     "/projects",
@@ -348,7 +353,11 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const { id, userId } = request.params as { id: string; userId: string };
       const clerkId = requireClerkUser(request);
 
-      await getProjectService(request).removeProjectPermission(id, userId, clerkId);
+      await getProjectService(request).removeProjectPermission(
+        id,
+        userId,
+        clerkId
+      );
 
       return reply.status(204).send();
     })
