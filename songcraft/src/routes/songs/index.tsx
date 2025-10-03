@@ -111,6 +111,7 @@ function RouteComponent() {
               View
             </Link>
             <button
+              type="button"
               onClick={() => handleDelete(song.id)}
               className="text-red-600 hover:text-red-700 text-sm"
             >

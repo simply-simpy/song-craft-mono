@@ -59,7 +59,6 @@ export const Route = createRootRoute({
 });
 
 function Root() {
-  const [rightOpen, setRightOpen] = React.useState(false);
   const [cmdOpen, setCmdOpen] = React.useState(false);
   const location = useRouterState({ select: (s) => s.location });
   const isAuthPage = location.pathname.startsWith("/sign-in");
