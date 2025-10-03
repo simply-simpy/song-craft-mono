@@ -1,4 +1,3 @@
-import { container } from "../container";
 import type { Song } from "./songs.service";
 import type { ProjectWithFullDetails } from "./project.service";
 import type { DbUser } from "../repositories/user.repository";

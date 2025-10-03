@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 
-import { container } from "../container";
 import {
   AppError,
   ForbiddenError,
@@ -149,7 +148,7 @@ const errorResponseSchema = z.object({
 });
 
 export default async function projectRoutes(fastify: FastifyInstance) {
-  const projectService = container.projectService;
+  const getProjectService = (req: any) => req.container!.projectService;
 
   fastify.get(
     "/projects",
@@ -168,7 +167,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const query = request.query as ProjectPaginationQuery;
       const { page, limit } = query;
 
-      const result = await projectService.listProjects(query);
+      const result = await getProjectService(request).listProjects(query);
 
       return reply.status(200).send({
         projects: result.projects,
@@ -198,7 +197,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const project = await projectService.getProject(id);
+      const project = await getProjectService(request).getProject(id);
       if (!project) {
         throw new NotFoundError("Project not found");
       }
@@ -225,7 +224,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const clerkId = requireClerkUser(request);
       const body = request.body as z.infer<typeof createProjectSchema>;
 
-      const project = await projectService.createProject({
+      const project = await getProjectService(request).createProject({
         accountId: body.accountId,
         name: body.name,
         description: body.description,
@@ -259,7 +258,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const clerkId = requireClerkUser(request);
       const body = request.body as z.infer<typeof updateProjectSchema>;
 
-      const project = await projectService.updateProject({
+      const project = await getProjectService(request).updateProject({
         id,
         name: body.name,
         description: body.description,
@@ -290,7 +289,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const clerkId = requireClerkUser(request);
 
-      await projectService.deleteProject(id, clerkId);
+      await getProjectService(request).deleteProject(id, clerkId);
 
       return reply.status(204).send();
     })
@@ -318,7 +317,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const body = request.body as z.infer<typeof addPermissionSchema>;
       const clerkId = requireClerkUser(request);
 
-      const permission = await projectService.addProjectPermission({
+      const permission = await getProjectService(request).addProjectPermission({
         projectId: id,
         userId: body.userId,
         permissionLevel: body.permissionLevel,
@@ -349,7 +348,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const { id, userId } = request.params as { id: string; userId: string };
       const clerkId = requireClerkUser(request);
 
-      await projectService.removeProjectPermission(id, userId, clerkId);
+      await getProjectService(request).removeProjectPermission(id, userId, clerkId);
 
       return reply.status(204).send();
     })
@@ -372,7 +371,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       const query = request.query as SessionsPaginationQuery;
       const { page, limit } = query;
 
-      const result = await projectService.listSessions(query);
+      const result = await getProjectService(request).listSessions(query);
 
       return reply.status(200).send({
         data: result.data,
@@ -401,7 +400,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const result = await projectService.getProjectSessions(id);
+      const result = await getProjectService(request).getProjectSessions(id);
 
       return reply.status(200).send({
         data: result.data,

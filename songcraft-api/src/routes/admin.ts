@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { container } from "../container";
 import { GlobalRole, superUserManager } from "../lib/super-user";
 import { withErrorHandling } from "./_utils/route-helpers";
 
@@ -29,7 +28,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 				role?: string;
 			};
 
-			return await container.adminService.listUsers(query);
+			return await request.container!.adminService.listUsers(query);
 		}),
 	);
 
@@ -45,7 +44,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		withErrorHandling(async (request) => {
 			const { userId } = request.params as { userId: string };
 
-			const result = await container.adminService.getUser(userId);
+			const result = await request.container!.adminService.getUser(userId);
 			if (!result) {
 				return { success: false, error: "User not found" };
 			}
@@ -80,7 +79,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 			}
 
 			// Get target user's clerk ID first
-			const targetUser = await container.userRepository.findById(userId);
+			const targetUser = await request.container!.userRepository.findById(userId);
 			if (!targetUser) {
 				return { success: false, error: "User not found" };
 			}
@@ -126,7 +125,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 				orgId?: string;
 			};
 
-			return await container.adminService.listAccounts(query);
+			return await request.container!.adminService.listAccounts(query);
 		}),
 	);
 
@@ -142,7 +141,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		withErrorHandling(async (request) => {
 			const { accountId } = request.params as { accountId: string };
 
-			const result = await container.adminService.getAccount(accountId);
+			const result = await request.container!.adminService.getAccount(accountId);
 			if (!result) {
 				return { success: false, error: "Account not found" };
 			}
@@ -167,7 +166,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		},
 		withErrorHandling(async (request) => {
 			const query = request.query as { page: number; limit: number };
-			return await container.adminService.listOrgs(query);
+			return await request.container!.adminService.listOrgs(query);
 		}),
 	);
 
@@ -183,7 +182,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		withErrorHandling(async (request) => {
 			const { orgId } = request.params as { orgId: string };
 
-			const result = await container.adminService.getOrg(orgId);
+			const result = await request.container!.adminService.getOrg(orgId);
 			if (!result) {
 				return { success: false, error: "Organization not found" };
 			}
@@ -206,7 +205,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		withErrorHandling(async (request) => {
 			const { userId } = request.params as { userId: string };
 
-			const result = await container.adminService.getUserContext(userId);
+			const result = await request.container!.adminService.getUserContext(userId);
 			if (!result) {
 				return { success: false, error: "User context not found" };
 			}
@@ -235,7 +234,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 				reason?: string;
 			};
 
-			return await container.adminService.switchUserContext({
+			return await request.container!.adminService.switchUserContext({
 				userId,
 				accountId: body.accountId,
 				reason: body.reason,
@@ -249,8 +248,8 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 		{
 			preHandler: fastify.requireSuperUser(GlobalRole.SUPER_ADMIN),
 		},
-		withErrorHandling(async () => {
-			return await container.adminService.getSystemStats();
+withErrorHandling(async (request) => {
+			return await request.container!.adminService.getSystemStats();
 		}),
 	);
 }

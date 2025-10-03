@@ -2,8 +2,6 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { sql } from "drizzle-orm";
 
-import { db } from "../db";
-
 declare module "fastify" {
   interface FastifyRequest {
     tenantContext?: {
@@ -21,9 +19,11 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
       // Set the tenant context in the database session
       try {
         // Set the app.account_id config directly
-        await db.execute(
-          sql`SELECT set_config('app.account_id', ${accountId}, false)`
-        );
+        if (request.db) {
+          await request.db.execute(
+            sql`SELECT set_config('app.account_id', ${accountId}, true)`
+          );
+        }
         request.tenantContext = { accountId };
       } catch (error) {
         fastify.log.warn(

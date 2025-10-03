@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 
-import { container } from "../container";
 import {
   songResponseSchema,
   songSchema,
@@ -54,7 +53,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
       const { page, limit, sort, order, accountId, ownerClerkId } =
         request.query as PaginationQuery;
 
-      const result = await container.songsService.listSongs(
+      const result = await request.container!.songsService.listSongs(
         { ownerClerkId }, // Remove accountId - RLS policies handle account filtering
         { page, limit, sort, order }
       );
@@ -79,7 +78,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const song = await container.songsService.findById(id);
+      const song = await request.container!.songsService.findById(id);
       if (!song) {
         throw new Error("Song not found");
       }
@@ -104,7 +103,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { shortId } = request.params as { shortId: string };
 
-      const song = await container.songsService.findByShortId(shortId);
+      const song = await request.container!.songsService.findByShortId(shortId);
       if (!song) {
         throw new Error("Song not found");
       }
@@ -129,7 +128,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const versions = await container.songsService.getSongVersions(id);
+      const versions = await request.container!.songsService.getSongVersions(id);
 
       return reply.status(200).send({ versions });
     })
@@ -161,7 +160,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
       const body = request.body as z.infer<typeof songSchema>;
 
-      const song = await container.songsService.createSong(
+      const song = await request.container!.songsService.createSong(
         body,
         clerkId,
         accountId
@@ -195,7 +194,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
 
       const body = request.body as Partial<z.infer<typeof songSchema>>;
 
-      const song = await container.songsService.updateSong(id, body, clerkId);
+      const song = await request.container!.songsService.updateSong(id, body, clerkId);
 
       return reply.status(200).send({ song });
     })
@@ -219,7 +218,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string };
       const clerkId = requireClerkUser(request);
 
-      await container.songsService.deleteSong(id, clerkId);
+      await request.container!.songsService.deleteSong(id, clerkId);
 
       return reply.status(204).send();
     })

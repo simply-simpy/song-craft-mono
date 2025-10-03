@@ -8,6 +8,7 @@ import {
 
 import { env } from "../config/env";
 import { superUserPlugin } from "../middleware/super-user";
+import requestDbPlugin from "../middleware/request-db";
 import tenantContextPlugin from "../middleware/tenant-context";
 import { corsPlugin } from "../plugins/cors";
 import { documentationPlugin } from "../plugins/documentation";
@@ -30,6 +31,9 @@ export const createServer = (): FastifyInstance => {
   server.register(securityHeadersPlugin);
   server.register(corsPlugin);
   server.register(documentationPlugin);
+
+  // Ensure request-scoped DB/transaction is established before tenant context
+  server.register(requestDbPlugin);
   server.register(tenantContextPlugin);
 
   server.register(superUserPlugin);

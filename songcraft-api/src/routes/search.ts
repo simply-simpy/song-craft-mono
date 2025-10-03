@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { container } from "../container";
 import { requireClerkUser } from "./_utils/auth";
 import { withErrorHandling } from "./_utils/route-helpers";
 
@@ -82,7 +81,7 @@ export default async function searchRoutes(fastify: FastifyInstance) {
         typeof searchQuerySchema
       >;
 
-      const result = await container.searchService.searchAll({
+      const result = await request.container!.searchService.searchAll({
         query: q,
         limit,
         types,

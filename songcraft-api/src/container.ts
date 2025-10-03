@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db as defaultDb } from "./db";
 import { AccountRepository } from "./repositories/account.repository";
 import {
   MembershipRepository,
@@ -25,7 +25,10 @@ import {
  * Simple dependency injection container
  * Manages the creation and wiring of repositories and services
  */
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+
 export class Container {
+  private _db: NodePgDatabase<Record<string, unknown>>;
   private _songRepository?: SongRepository;
   private _userRepository?: UserRepository;
   private _accountRepository?: AccountRepository;
@@ -40,12 +43,16 @@ export class Container {
   private _projectService?: ProjectService;
   private _searchService?: SearchService;
 
+  constructor(db: NodePgDatabase<Record<string, unknown>> = defaultDb) {
+    this._db = db;
+  }
+
   /**
    * Get or create SongRepository instance
    */
   get songRepository(): SongRepository {
     if (!this._songRepository) {
-      this._songRepository = new SongRepository(db);
+      this._songRepository = new SongRepository(this._db);
     }
     return this._songRepository;
   }
@@ -55,7 +62,7 @@ export class Container {
    */
   get userRepository(): UserRepository {
     if (!this._userRepository) {
-      this._userRepository = new UserRepository(db);
+      this._userRepository = new UserRepository(this._db);
     }
     return this._userRepository;
   }
@@ -65,7 +72,7 @@ export class Container {
    */
   get accountRepository(): AccountRepository {
     if (!this._accountRepository) {
-      this._accountRepository = new AccountRepository(db);
+      this._accountRepository = new AccountRepository(this._db);
     }
     return this._accountRepository;
   }
@@ -75,7 +82,7 @@ export class Container {
    */
   get organizationRepository(): OrganizationRepository {
     if (!this._organizationRepository) {
-      this._organizationRepository = new OrganizationRepository(db);
+      this._organizationRepository = new OrganizationRepository(this._db);
     }
     return this._organizationRepository;
   }
@@ -85,7 +92,7 @@ export class Container {
    */
   get membershipRepository(): MembershipRepository {
     if (!this._membershipRepository) {
-      this._membershipRepository = new MembershipRepository(db);
+      this._membershipRepository = new MembershipRepository(this._db);
     }
     return this._membershipRepository;
   }
@@ -95,7 +102,7 @@ export class Container {
    */
   get userContextRepository(): UserContextRepository {
     if (!this._userContextRepository) {
-      this._userContextRepository = new UserContextRepository(db);
+      this._userContextRepository = new UserContextRepository(this._db);
     }
     return this._userContextRepository;
   }
@@ -119,7 +126,7 @@ export class Container {
    */
   get projectRepository(): ProjectRepository {
     if (!this._projectRepository) {
-      this._projectRepository = new ProjectRepository(db);
+      this._projectRepository = new ProjectRepository(this._db);
     }
     return this._projectRepository;
   }
@@ -129,7 +136,7 @@ export class Container {
    */
   get projectPermissionsRepository(): ProjectPermissionsRepository {
     if (!this._projectPermissionsRepository) {
-      this._projectPermissionsRepository = new ProjectPermissionsRepository(db);
+      this._projectPermissionsRepository = new ProjectPermissionsRepository(this._db);
     }
     return this._projectPermissionsRepository;
   }
@@ -139,7 +146,7 @@ export class Container {
    */
   get sessionRepository(): SessionRepository {
     if (!this._sessionRepository) {
-      this._sessionRepository = new SessionRepository(db);
+      this._sessionRepository = new SessionRepository(this._db);
     }
     return this._sessionRepository;
   }
