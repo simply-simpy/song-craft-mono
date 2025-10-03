@@ -25,7 +25,7 @@ import type { IUserRepository } from "../repositories/user.repository";
 // Service types
 export interface ProjectWithFullDetails {
 	id: string;
-	accountId: string;
+	accountId?: string | null;
 	name: string;
 	description: string | null;
 	status: string;
@@ -150,7 +150,7 @@ export class ProjectService {
 
 		return {
 			id: project.id,
-			accountId: project.accountId,
+			accountId: project.accountId ?? undefined,
 			name: project.name,
 			description: project.description,
 			status: project.status,
@@ -201,7 +201,7 @@ export class ProjectService {
 
 				return {
 					id: project.id,
-					accountId: project.accountId,
+					accountId: project.accountId ?? undefined,
 					name: project.name,
 					description: project.description,
 					status: project.status,
@@ -249,15 +249,16 @@ export class ProjectService {
 		const userId = await this.requireUserIdByClerkId(params.creatorClerkId);
 
 		const createData: CreateProjectData = {
-			accountId: params.accountId,
 			name: params.name,
 			description: params.description,
 			status: params.status || "active",
 			createdBy: userId,
 		};
 
-		// Create project and grant creator full access in a transaction-like manner
 		const project = await this.projects.create(createData);
+
+		// Associate project to account via association table
+		await this.projects.createAccountAssociation(project.id, params.accountId);
 
 		// Grant the creator full access to the project
 		await this.permissions.create({

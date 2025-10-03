@@ -310,9 +310,6 @@ export const projects = pgTable(
   "projects",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => accounts.id),
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
     status: varchar("status", { length: 50 }).default("active").notNull(),
@@ -328,7 +325,6 @@ export const projects = pgTable(
   },
   (table) => {
     return {
-      accountIdIdx: index("projects_account_id_idx").on(table.accountId),
       statusIdx: index("projects_status_idx").on(table.status),
       statusCheck: check(
         "projects_status_check",
