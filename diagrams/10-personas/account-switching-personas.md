@@ -55,7 +55,7 @@ These personas demonstrate different scenarios where account switching is essent
 ### Open Questions
 
 - Does Jamie have a list of all of the artists she manages under users, and then the account switches when she picks one? Or a different way?
-- If she switches accounts, does this mean she is in all of those accoutns as well?
+- If she switches accounts, does this mean she is in all of those accounts as well?
 
 ### Analysis & Recommendations
 
@@ -82,7 +82,7 @@ These personas demonstrate different scenarios where account switching is essent
 **Experience Level**: Intermediate
 **Primary Use Case**: Contributing to different projects while maintaining client separation
 
-### Background
+### Background 2
 
 - 29-year-old freelance songwriter
 - Works with 8-10 different clients monthly
@@ -90,7 +90,7 @@ These personas demonstrate different scenarios where account switching is essent
 - Needs to track contributions and credits across multiple projects
 - Maintains professional relationships with diverse client base
 
-### Account Switching Needs
+### Account Switching Needs 2
 
 **Why Account Switching is Essential:**
 
@@ -99,7 +99,7 @@ These personas demonstrate different scenarios where account switching is essent
 - **Credit Tracking**: Accurate attribution for royalty purposes
 - **Professional Boundaries**: Clear separation maintains professional relationships
 
-### Typical Workflow
+### Typical Workflow 2
 
 1. **Client A Session**: Switches to "PopStar Records" account
 2. **Creative Focus**: Works on pop/rock songs with specific collaborators
@@ -108,26 +108,26 @@ These personas demonstrate different scenarios where account switching is essent
 5. **Multiple Switches**: Throughout day, switches between 3-4 different client accounts
 6. **Evening Review**: Switches to personal account to review own projects
 
-### Pain Points Without Account Switching
+### Pain Points Without Account Switching 2
 
 - **Creative Confusion**: Mixing different client styles and requirements
 - **Client Concerns**: Clients worried about seeing other clients' work
 - **Credit Issues**: Difficulty tracking which contributions belong to which client
 - **Professional Risk**: Potential conflicts of interest or confidentiality breaches
 
-### Account Switching Benefits
+### Account Switching Benefits 2
 
 - **Client Trust**: Clients confident their work remains private
 - **Creative Focus**: Clear context for each client's specific needs
 - **Accurate Tracking**: Proper attribution and credit management
 - **Professional Reputation**: Maintains clean professional boundaries
 
-### Open Questions
+### Open Questions 2
 
 - Accounts also have projects. Just because someone is in an account doesn't mean they can see every project. Does this impact Riley?
 - Should we better define the function of accounts?
 
-### Analysis & Recommendations
+### Analysis & Recommendations 2
 
 **Account vs. Project Hierarchy:**
 
@@ -150,7 +150,7 @@ These personas demonstrate different scenarios where account switching is essent
 **Experience Level**: Advanced
 **Primary Use Case**: Managing student projects, faculty collaborations, and institutional accounts
 
-### Background
+### Background 3
 
 - 44-year-old music education administrator
 - Manages music school with 200+ students and 15 faculty members
@@ -158,7 +158,7 @@ These personas demonstrate different scenarios where account switching is essent
 - Needs to maintain separation between different educational contexts
 - Oversees multiple departments and programs
 
-### Account Switching Needs
+### Account Switching Needs 3
 
 **Why Account Switching is Necessary:**
 
@@ -167,7 +167,7 @@ These personas demonstrate different scenarios where account switching is essent
 - **Department Separation**: Different departments have different requirements
 - **Institutional Projects**: School-wide projects need dedicated space
 
-### Typical Workflow
+### Typical Workflow 3
 
 1. **Student Projects**: Switches to "Student Projects" account
 2. **Review Work**: Reviews student compositions and collaborations
@@ -178,27 +178,27 @@ These personas demonstrate different scenarios where account switching is essent
 7. **Institutional Switch**: Switches to "School Administration" account
 8. **Policy Work**: Handles school-wide policies and procedures
 
-### Pain Points Without Account Switching
+### Pain Points Without Account Switching 3
 
 - **Privacy Violations**: Student work accidentally visible to faculty
 - **Context Confusion**: Mixing academic research with student projects
 - **Assessment Issues**: Difficulty maintaining proper academic standards
 - **Compliance Problems**: FERPA and educational privacy requirements
 
-### Account Switching Benefits
+### Account Switching Benefits 3
 
 - **Privacy Compliance**: Meets educational privacy requirements
 - **Clear Context**: Appropriate environment for each type of work
 - **Academic Integrity**: Maintains proper academic standards
 - **Efficient Management**: Quick switching between different responsibilities
 
-### Open Questions
+### Open Questions 3
 
 - Why does Casey need separate accounts? What Benefit is it for them?
 - After an account switch does Casey only see the users in that account? This makes sense, but does that mean there should be an all users view as well?
 - I'm not sure how well the app would work in an academic setting, but we should discuss further as how to make this work. Because there are lots of songwriting school programs out there.
 
-### Analysis & Recommendations
+### Analysis & Recommendations 3
 
 **Academic Account Structure:**
 
@@ -225,7 +225,7 @@ These personas demonstrate different scenarios where account switching is essent
 - Originally I was thinking of limiting the amount of collaborators on a song to around 5, but for a classroom setting this may need to be larger.
   - I'm not sure of what is feasible from a UX perpsective with more than 5 or so writers
 
-### Analysis & Recommendations
+### Analysis & Recommendations 4
 
 **Classroom Collaboration Scenarios:**
 
@@ -264,7 +264,7 @@ These personas demonstrate different scenarios where account switching is essent
 **Experience Level**: Expert
 **Primary Use Case**: Scouting and developing artists across different label divisions
 
-### Background
+### Background 4
 
 - 35-year-old A&R executive at major record label
 - Manages multiple artist development projects
@@ -272,7 +272,7 @@ These personas demonstrate different scenarios where account switching is essent
 - Needs to maintain separation between different label divisions
 - Handles both signed and unsigned artist projects
 
-### Account Switching Needs
+### Account Switching Needs 4
 
 **Why Account Switching is Critical:**
 
@@ -281,7 +281,7 @@ These personas demonstrate different scenarios where account switching is essent
 - **Budget Tracking**: Different projects have different financial constraints
 - **Creative Direction**: Each artist needs focused, dedicated creative environment
 
-### Typical Workflow
+### Typical Workflow 4
 
 1. **Pop Division**: Switches to "Pop Division" account
 2. **Artist Development**: Works on pop artist's album development
@@ -292,14 +292,14 @@ These personas demonstrate different scenarios where account switching is essent
 7. **International Switch**: Switches to "International" account
 8. **Global Projects**: Works on international artist collaborations
 
-### Pain Points Without Account Switching
+### Pain Points Without Account Switching 4
 
 - **Budget Confusion**: Mixing budgets from different divisions
 - **Creative Interference**: Different artists' styles getting mixed up
 - **Confidentiality Issues**: Artists seeing other artists' development work
 - **Division Conflicts**: Different priorities and strategies getting confused
 
-### Account Switching Benefits
+### Account Switching Benefits 4
 
 - **Clear Budgets**: Each division's budget properly tracked
 - **Focused Development**: Each artist gets dedicated creative attention
@@ -310,7 +310,7 @@ These personas demonstrate different scenarios where account switching is essent
 
 - Does Morgan have a way to see all of her artist? Or only by account
 
-### Analysis & Recommendations
+### Analysis & Recommendations 5
 
 **Morgan's Cross-Account Visibility:**
 
@@ -334,7 +334,7 @@ These personas demonstrate different scenarios where account switching is essent
 **Experience Level**: Expert
 **Primary Use Case**: Managing songwriters across different publishing deals and territories
 
-### Background
+### Background 5
 
 - 41-year-old music publisher
 - Manages 20+ songwriters across different publishing deals
@@ -342,7 +342,7 @@ These personas demonstrate different scenarios where account switching is essent
 - Needs to maintain separation between different publishing agreements
 - Handles both domestic and international publishing
 
-### Account Switching Needs
+### Account Switching Needs 5
 
 **Why Account Switching is Essential:**
 
@@ -351,7 +351,7 @@ These personas demonstrate different scenarios where account switching is essent
 - **Songwriter Privacy**: Each songwriter's work must remain confidential
 - **Royalty Tracking**: Accurate attribution for different publishing deals
 
-### Typical Workflow
+### Typical Workflow 5
 
 1. **Domestic Pop**: Switches to "Domestic Pop Publishing" account
 2. **Songwriter A**: Works on pop songwriter's catalog and new songs
@@ -362,21 +362,21 @@ These personas demonstrate different scenarios where account switching is essent
 7. **Sync Switch**: Switches to "Sync Licensing" account
 8. **Commercial Focus**: Different goals, different client relationships
 
-### Pain Points Without Account Switching
+### Pain Points Without Account Switching 5
 
 - **Contract Confusion**: Mixing terms from different publishing deals
 - **Royalty Errors**: Incorrect attribution leading to payment disputes
 - **Territory Issues**: Wrong royalty rates applied to wrong territories
 - **Songwriter Concerns**: Songwriters worried about seeing other writers' work
 
-### Account Switching Benefits
+### Account Switching Benefits 5
 
 - **Contract Clarity**: Each publishing deal properly managed
 - **Accurate Royalties**: Proper attribution and payment tracking
 - **Territory Management**: Correct royalty rates for each territory
 - **Songwriter Trust**: Songwriters confident their work is private and secure
 
-### Open Questions
+### Open Questions 5
 
 - Are we saying that contract terms and territories are assigned on the account level?
 - Are we saying different publishing agreements are on the account level?
@@ -385,7 +385,7 @@ These personas demonstrate different scenarios where account switching is essent
     - Then an artist (songwriter) would need to switch accounts for every song.
     - 20 different publishers would prob never happen -- but still, it seems having the flexibility would be useful.
 
-### Analysis & Recommendations
+### Analysis & Recommendations 5a
 
 **Publishing Account Structure:**
 
@@ -406,7 +406,6 @@ These personas demonstrate different scenarios where account switching is essent
 - **Accurate Royalties**: Proper attribution and payment tracking
 - **Territory Management**: Correct royalty rates for each territory
 - **Songwriter Trust**: Songwriters confident their work is private and secure
-- ***
 
 ## **Common Account Switching Patterns**
 

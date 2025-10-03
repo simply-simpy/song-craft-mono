@@ -79,43 +79,39 @@
 
 ### **Creator/Songwriter**
 
-```
 Interface: Unified Song View
+
 - See all songs across accounts
 - Account context as metadata
 - Project-based organization
 - Account switching only when needed
-```
 
 ### **Producer/Creative Director**
 
-```
 Interface: Hybrid (Can Switch)
+
 - Creator interface for creative work
 - Admin interface for business tasks
 - Contextual switching based on task
 - Full permissions in both contexts
-```
 
 ### **Studio Manager/Account Manager**
 
-```
 Interface: Account Management
+
 - Account-centric navigation
 - Team and permission management
 - Billing and contract oversight
 - Account switching is primary workflow
-```
 
 ### **Finance Manager/Billing Admin**
 
-```
 Interface: Billing Interface
+
 - Account-specific financial data
 - Billing and payment management
 - Financial reporting
 - Account switching for financial context
-```
 
 ## Implementation Considerations
 
@@ -135,16 +131,14 @@ Interface: Billing Interface
 
 ### **Permission Matrix**
 
-```
-Role                | Song Access | Account Mgmt | Billing | Admin
---------------------|-------------|--------------|---------|-------
-Creator/Songwriter  | ✅ All      | ❌ None      | ❌ None | ❌ None
-Producer            | ✅ All      | ✅ Limited   | ❌ None | ❌ None
-Studio Manager      | ✅ Account  | ✅ Full      | ✅ View | ❌ None
-Finance Manager     | ✅ Account  | ❌ None      | ✅ Full | ❌ None
-Org Admin           | ✅ All      | ✅ All       | ✅ All  | ✅ Limited
-Super Admin         | ✅ All      | ✅ All       | ✅ All  | ✅ Full
-```
+| Role               | Song Access | Account Mgmt | Billing | Admin      |
+| ------------------ | ----------- | ------------ | ------- | ---------- |
+| Creator/Songwriter | ✅ All      | ❌ None      | ❌ None | ❌ None    |
+| Producer           | ✅ All      | ✅ Limited   | ❌ None | ❌ None    |
+| Studio Manager     | ✅ Account  | ✅ Full      | ✅ View | ❌ None    |
+| Finance Manager    | ✅ Account  | ❌ None      | ✅ Full | ❌ None    |
+| Org Admin          | ✅ All      | ✅ All       | ✅ All  | ✅ Limited |
+| Super Admin        | ✅ All      | ✅ All       | ✅ All  | ✅ Full    |
 
 ## Recommended Role Names
 
