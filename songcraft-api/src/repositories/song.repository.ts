@@ -2,7 +2,12 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { lyricVersions, songs } from "../schema";
+import {
+  lyricVersions,
+  songs,
+  songAccountLinks,
+  songProjectAssociations,
+} from "../schema";
 
 // Database types
 export type DbSong = typeof songs.$inferSelect;
@@ -20,8 +25,7 @@ export interface CreateSongData {
   lyrics?: string;
   midiData?: string;
   collaborators?: string[];
-  accountId?: string | null;
-  projectId?: string;
+  // Remove accountId and projectId - these are now handled via associations
 }
 
 export interface UpdateSongData {
@@ -37,9 +41,8 @@ export interface UpdateSongData {
 }
 
 export interface SongQueryOptions {
-  accountId?: string;
+  // Remove accountId and projectId - songs are now filtered via RLS policies using associations
   ownerClerkId?: string;
-  projectId?: string;
 }
 
 export interface SongPaginationOptions {
@@ -71,6 +74,24 @@ export interface ISongRepository {
   // Related data operations
   findSongVersions(songId: string): Promise<DbLyricVersion[]>;
   deleteWithVersions(songId: string): Promise<void>;
+
+  // Association operations
+  createSongAccountAssociation(
+    songId: string,
+    accountId: string,
+    associationType?: string
+  ): Promise<void>;
+  createSongProjectAssociation(
+    songId: string,
+    projectId: string,
+    associationType?: string
+  ): Promise<void>;
+  getSongAccountAssociations(
+    songId: string
+  ): Promise<Array<{ accountId: string; associationType: string }>>;
+  getSongProjectAssociations(
+    songId: string
+  ): Promise<Array<{ projectId: string; associationType: string }>>;
 }
 
 // Repository implementation
@@ -91,16 +112,9 @@ export class SongRepository implements ISongRepository {
   private buildConditions(conditions: SongQueryOptions): SQL[] {
     const sqlConditions: SQL[] = [];
 
-    if (conditions.accountId) {
-      sqlConditions.push(eq(songs.accountId, conditions.accountId));
-    }
-
+    // Remove accountId and projectId conditions - these are now handled via RLS policies using associations
     if (conditions.ownerClerkId) {
       sqlConditions.push(eq(songs.ownerClerkId, conditions.ownerClerkId));
-    }
-
-    if (conditions.projectId) {
-      sqlConditions.push(eq(songs.projectId, conditions.projectId));
     }
 
     return sqlConditions;
@@ -140,8 +154,7 @@ export class SongRepository implements ISongRepository {
         lyrics: data.lyrics,
         midiData: data.midiData,
         collaborators: data.collaborators || [],
-        accountId: data.accountId,
-        projectId: data.projectId,
+        // Remove accountId and projectId - these are now handled via associations
       })
       .returning();
 
@@ -245,5 +258,58 @@ export class SongRepository implements ISongRepository {
       await tx.delete(lyricVersions).where(eq(lyricVersions.songId, songId));
       await tx.delete(songs).where(eq(songs.id, songId));
     });
+  }
+
+  // Association methods
+  async createSongAccountAssociation(
+    songId: string,
+    accountId: string,
+    associationType = "primary"
+  ): Promise<void> {
+    await this.db.insert(songAccountLinks).values({
+      songId,
+      accountId,
+      associationType,
+    });
+  }
+
+  async createSongProjectAssociation(
+    songId: string,
+    projectId: string,
+    associationType = "primary"
+  ): Promise<void> {
+    await this.db.insert(songProjectAssociations).values({
+      songId,
+      projectId,
+      associationType,
+    });
+  }
+
+  async getSongAccountAssociations(
+    songId: string
+  ): Promise<Array<{ accountId: string; associationType: string }>> {
+    const associations = await this.db
+      .select({
+        accountId: songAccountLinks.accountId,
+        associationType: songAccountLinks.associationType,
+      })
+      .from(songAccountLinks)
+      .where(eq(songAccountLinks.songId, songId));
+
+    return associations;
+  }
+
+  async getSongProjectAssociations(
+    songId: string
+  ): Promise<Array<{ projectId: string; associationType: string }>> {
+    const associations = await this.db
+      .select({
+        projectId: songProjectAssociations.projectId,
+        associationType: songProjectAssociations.associationType,
+      })
+      .from(songProjectAssociations)
+      .where(eq(songProjectAssociations.songId, songId));
+
+    return associations;
   }
 }

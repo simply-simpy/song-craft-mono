@@ -2,14 +2,19 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { accounts, projects, sessions, users } from "../schema";
+import {
+  accounts,
+  projectAccountAssociations,
+  projects,
+  sessions,
+  users,
+} from "../schema";
 
 // Database types
 export type DbProject = typeof projects.$inferSelect;
 
 // Repository input types
 export interface CreateProjectData {
-  accountId: string;
   name: string;
   description?: string;
   status?: string;
@@ -38,7 +43,7 @@ export interface ProjectPaginationOptions {
 
 export interface ProjectWithDetails {
   id: string;
-  accountId: string;
+  accountId: string | null;
   name: string;
   description: string | null;
   status: string;
@@ -68,6 +73,11 @@ export interface IProjectRepository {
   // Project-specific operations
   getSessionsCount(projectId: string): Promise<number>;
   deleteWithRelatedData(projectId: string): Promise<void>;
+  createAccountAssociation(
+    projectId: string,
+    accountId: string,
+    associationType?: string
+  ): Promise<void>;
 }
 
 // Repository implementation
@@ -77,7 +87,6 @@ export class ProjectRepository implements IProjectRepository {
   // Selection objects for consistent queries
   private readonly projectSelection = {
     id: projects.id,
-    accountId: projects.accountId,
     name: projects.name,
     description: projects.description,
     status: projects.status,
@@ -85,7 +94,18 @@ export class ProjectRepository implements IProjectRepository {
     updatedAt: projects.updatedAt,
     createdBy: projects.createdBy,
     creatorName: users.email,
-    accountName: accounts.name,
+    // derive account via association
+    accountId: sql<string | null>`(
+      select paa.account_id from project_account_associations paa
+      where paa.project_id = ${projects.id}
+      limit 1
+    )`,
+    accountName: sql<string | null>`(
+      select a.name from project_account_associations paa
+      join accounts a on a.id = paa.account_id
+      where paa.project_id = ${projects.id}
+      limit 1
+    )`,
   } as const;
 
   // Order columns mapping
@@ -101,10 +121,6 @@ export class ProjectRepository implements IProjectRepository {
    */
   private buildConditions(conditions: ProjectQueryOptions): SQL[] {
     const sqlConditions: SQL[] = [];
-
-    if (conditions.accountId) {
-      sqlConditions.push(eq(projects.accountId, conditions.accountId));
-    }
 
     if (conditions.createdBy) {
       sqlConditions.push(eq(projects.createdBy, conditions.createdBy));
@@ -142,7 +158,7 @@ export class ProjectRepository implements IProjectRepository {
    */
   private serializeProject(project: {
     id: string;
-    accountId: string;
+    accountId: string | null;
     name: string;
     description: string | null;
     status: string;
@@ -170,7 +186,6 @@ export class ProjectRepository implements IProjectRepository {
     const [newProject] = await this.db
       .insert(projects)
       .values({
-        accountId: data.accountId,
         name: data.name,
         description: data.description,
         status: data.status || "active",
@@ -196,7 +211,6 @@ export class ProjectRepository implements IProjectRepository {
       .select(this.projectSelection)
       .from(projects)
       .leftJoin(users, eq(projects.createdBy, users.id))
-      .leftJoin(accounts, eq(projects.accountId, accounts.id))
       .where(eq(projects.id, id))
       .limit(1);
 
@@ -232,7 +246,6 @@ export class ProjectRepository implements IProjectRepository {
       .select(this.projectSelection)
       .from(projects)
       .leftJoin(users, eq(projects.createdBy, users.id))
-      .leftJoin(accounts, eq(projects.accountId, accounts.id))
       .$dynamic();
 
     if (mergedConditions) {
@@ -280,5 +293,15 @@ export class ProjectRepository implements IProjectRepository {
       // Delete the project itself
       await tx.delete(projects).where(eq(projects.id, projectId));
     });
+  }
+
+  async createAccountAssociation(
+    projectId: string,
+    accountId: string,
+    associationType = "primary"
+  ): Promise<void> {
+    await this.db
+      .insert(projectAccountAssociations)
+      .values({ projectId, accountId, associationType });
   }
 }

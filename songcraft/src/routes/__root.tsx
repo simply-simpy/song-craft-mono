@@ -16,6 +16,7 @@ import { ThemeSwitcher } from "../components/ThemeSwitcher";
 // Import styles
 import "../styles.css";
 import CurrentUser from "@/components/admin/currentUser";
+import { CommandPalette } from "@/components/CommandPalette";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
 import { Button, Input } from "@/components/ui";
@@ -58,7 +59,6 @@ export const Route = createRootRoute({
 });
 
 function Root() {
-  const [rightOpen, setRightOpen] = React.useState(false);
   const [cmdOpen, setCmdOpen] = React.useState(false);
   const location = useRouterState({ select: (s) => s.location });
   const isAuthPage = location.pathname.startsWith("/sign-in");
@@ -135,53 +135,18 @@ function Root() {
                           <CurrentUser />
                         </aside>
 
-                        {/* Main content */}
                         <main className="p-3 overflow-auto">
                           <Outlet />
                         </main>
                       </div>
-
-                      {/* Command palette modal */}
-                      {cmdOpen && (
-                        <div
-                          onClick={() => setCmdOpen(false)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              setCmdOpen(false);
-                            }
-                          }}
-                          // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
-                          role="button"
-                          tabIndex={0}
-                          className="fixed inset-0 bg-black/20 grid place-items-start-center pt-[10vh]"
-                        >
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.stopPropagation();
-                              }
-                            }}
-                            // biome-ignore lint/a11y/useSemanticElements: <explanation>Role seems appropriate</explanation>
-                            role="button"
-                            tabIndex={0}
-                            className="w-[720px] max-w-[90vw] bg-white rounded-lg shadow-2xl"
-                          >
-                            <div className="p-3 border-b border-border-primary">
-                              <Input placeholder="Search songs, commands…" />
-                            </div>
-                            <div className="p-3">
-                              <p className="text-gray-600">
-                                Recent: last opened songs…
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </SignedIn>
                 </>
               )}
+              <CommandPalette
+                isOpen={cmdOpen}
+                onClose={() => setCmdOpen(false)}
+              />
               <Scripts />
             </RadixThemeIntegration>
           </body>

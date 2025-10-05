@@ -1,7 +1,7 @@
 import { asc, desc, eq, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { accounts, projects, sessions, users } from "../schema";
+import { projects, sessions, users } from "../schema";
 
 // Database types
 export type DbSession = typeof sessions.$inferSelect;
@@ -98,7 +98,7 @@ export class SessionRepository implements ISessionRepository {
     createdBy: sessions.createdBy,
     creatorName: users.email,
     projectName: projects.name,
-    accountName: accounts.name,
+    accountName: sql<string | null>`null`,
   } as const;
 
   // Order columns mapping
@@ -198,7 +198,6 @@ export class SessionRepository implements ISessionRepository {
       .from(sessions)
       .leftJoin(users, eq(sessions.createdBy, users.id))
       .leftJoin(projects, eq(sessions.projectId, projects.id))
-      .leftJoin(accounts, eq(projects.accountId, accounts.id))
       .where(eq(sessions.id, id))
       .limit(1);
 
@@ -232,7 +231,6 @@ export class SessionRepository implements ISessionRepository {
       .from(sessions)
       .leftJoin(users, eq(sessions.createdBy, users.id))
       .leftJoin(projects, eq(sessions.projectId, projects.id))
-      .leftJoin(accounts, eq(projects.accountId, accounts.id))
       .orderBy(orderBy)
       .limit(pagination.limit)
       .offset(pagination.offset);
@@ -246,7 +244,6 @@ export class SessionRepository implements ISessionRepository {
       .from(sessions)
       .leftJoin(users, eq(sessions.createdBy, users.id))
       .leftJoin(projects, eq(sessions.projectId, projects.id))
-      .leftJoin(accounts, eq(projects.accountId, accounts.id))
       .where(eq(sessions.projectId, projectId))
       .orderBy(desc(sessions.scheduledStart));
 

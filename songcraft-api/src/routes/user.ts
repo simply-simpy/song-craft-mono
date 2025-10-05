@@ -1,5 +1,4 @@
 import type { FastifyInstance } from "fastify";
-import { container } from "../container";
 import { GlobalRole } from "../lib/super-user";
 import { withErrorHandling } from "./_utils/route-helpers";
 // me endpoint
@@ -16,7 +15,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 				return { success: false, error: "User not authenticated" };
 			}
 
-			const result = await container.adminService.getMe(clerkId);
+			const result = await request.container!.adminService.getMe(clerkId);
 			if (!result) {
 				return { success: false, error: "User not found" };
 			}

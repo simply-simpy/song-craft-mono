@@ -221,3 +221,20 @@
 3. Provides suggestions and comments
 4. Project owner incorporates feedback
 5. Process repeats as needed
+
+---
+
+## **Account Switching Personas**
+
+For detailed personas focused on account switching scenarios and multi-tenant workflows, see:
+
+- [Account Switching Personas](./account-switching-personas.md) - 5 personas demonstrating real-world account switching needs
+- [Account Switching Diagram](./account-switching-personas.mermaid) - Visual representation of account switching scenarios
+
+These personas cover:
+
+- **Jamie** - Multi-Artist Manager (5+ artists, different labels)
+- **Riley** - Freelance Songwriter (8-10 clients monthly)
+- **Casey** - Music School Administrator (200+ students, 15 faculty)
+- **Morgan** - Record Label A&R (multiple divisions, signed/unsigned artists)
+- **Taylor** - Music Publisher (20+ songwriters, different territories)
