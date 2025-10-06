@@ -1,22 +1,4 @@
 // Common types used across the application
-export interface Song {
-  id: string;
-  title: string;
-  artist?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  lyrics?: string;
-  midiData?: string;
-  collaborators?: string[];
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  avatar?: string;
-}
-
 export interface Collaboration {
   id: string;
   songId: string;
