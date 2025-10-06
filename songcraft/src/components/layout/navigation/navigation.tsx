@@ -3,7 +3,7 @@ import {
 	SignedIn,
 	SignedOut,
 	UserButton,
-} from "@clerk/clerk-react";
+} from "@clerk/tanstack-react-start";
 import { SiSuperuser } from "react-icons/si";
 import { NavItem } from "./nav-item";
 

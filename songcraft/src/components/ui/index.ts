@@ -9,9 +9,9 @@
 export { Button, buttonVariants } from "./Button";
 export type { ButtonProps } from "./Button";
 
-export { Input } from "./Input";
-export { Label } from "./Label";
-export { Textarea } from "./Textarea";
+export { Input } from "./input";
+export { Label } from "./label";
+export { Textarea } from "./textarea";
 
 // Form components
 export {

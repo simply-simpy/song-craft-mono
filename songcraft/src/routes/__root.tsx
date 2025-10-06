@@ -20,7 +20,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
 import { Button, Input } from "@/components/ui";
-import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
 import { Navigate } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
