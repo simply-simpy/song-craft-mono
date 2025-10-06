@@ -5,14 +5,14 @@
  * that can be consumed by Tailwind CSS and our components.
  */
 
-import { 
-  semanticTokens, 
-  darkTokens, 
-  typography, 
-  spacing, 
-  shadows, 
-  radius, 
-  animation 
+import {
+	semanticTokens,
+	darkTokens,
+	typography,
+	spacing,
+	shadows,
+	radius,
+	animation,
 } from "./tokens";
 
 // Helper function to convert nested objects to CSS custom properties

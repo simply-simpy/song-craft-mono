@@ -1,12 +1,17 @@
 /**
  * Theme Switcher - Unified Design System
- * 
+ *
  * Provides theme switching for both color scheme (light/dark)
  * and brand skin (blue/green/red/purple) using semantic tokens.
  */
 
 import { useState } from "react";
-import { useTheme, THEME_OPTIONS, type ColorScheme, type BrandSkin } from "./ThemeProvider";
+import {
+	useTheme,
+	THEME_OPTIONS,
+	type ColorScheme,
+	type BrandSkin,
+} from "./ThemeProvider";
 import { cn } from "../lib/ui-utils";
 
 export function ThemeSwitcher() {
@@ -36,7 +41,7 @@ export function ThemeSwitcher() {
 					"inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md",
 					"bg-surface-elevated hover:bg-surface-hover border border-border-secondary",
 					"text-fg-secondary hover:text-fg-primary transition-colors",
-					"focus:outline-none focus:ring-2 focus:ring-border-focus focus:ring-offset-2"
+					"focus:outline-none focus:ring-2 focus:ring-border-focus focus:ring-offset-2",
 				)}
 				aria-expanded={isOpen}
 				aria-haspopup="true"
@@ -59,10 +64,7 @@ export function ThemeSwitcher() {
 				Theme
 				{/* Dropdown Arrow */}
 				<svg
-					className={cn(
-						"w-4 h-4 transition-transform",
-						isOpen && "rotate-180"
-					)}
+					className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")}
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -86,15 +88,16 @@ export function ThemeSwitcher() {
 						type="button"
 						className="fixed inset-0 z-10"
 						onClick={closeDropdown}
-						 
 					/>
 
 					{/* Dropdown Content */}
-					<div className={cn(
-						"absolute right-0 top-full mt-2 w-64 z-20",
-						"bg-surface-elevated border border-border-secondary rounded-lg shadow-lg",
-						"animate-in fade-in scale-in"
-					)}>
+					<div
+						className={cn(
+							"absolute right-0 top-full mt-2 w-64 z-20",
+							"bg-surface-elevated border border-border-secondary rounded-lg shadow-lg",
+							"animate-in fade-in scale-in",
+						)}
+					>
 						<div className="p-2">
 							{/* Color Scheme Section */}
 							<div className="mb-4">
@@ -111,7 +114,7 @@ export function ThemeSwitcher() {
 												"flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition-colors",
 												colorScheme === scheme.value
 													? "bg-surface-brand text-fg-brand font-medium"
-													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary"
+													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary",
 											)}
 										>
 											<span className="text-base">{scheme.icon}</span>
@@ -153,7 +156,7 @@ export function ThemeSwitcher() {
 												"flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition-colors",
 												brandSkin === skin.value
 													? "bg-surface-brand text-fg-brand font-medium"
-													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary"
+													: "text-fg-secondary hover:bg-surface-hover hover:text-fg-primary",
 											)}
 										>
 											{/* Color Swatch */}
