@@ -216,7 +216,7 @@ export default {
   
   // Add custom utilities for Radix integration
   plugins: [
-    function({ addUtilities, theme }) {
+    ({ addUtilities, theme }) => {
       addUtilities({
         '.radix-button-primary': {
           backgroundColor: 'var(--radix-accent-9)',

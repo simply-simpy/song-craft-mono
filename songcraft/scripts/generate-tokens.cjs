@@ -10,8 +10,8 @@
  * - Component-specific utilities
  */
 
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 
 // Token definitions using proper Radix color references
 const tokens = {
