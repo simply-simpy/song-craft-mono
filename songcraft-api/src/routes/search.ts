@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { z } from "zod";
+import { z } from "@songcraft/shared";
 import { requireClerkUser } from "./_utils/auth";
 import { withErrorHandling } from "./_utils/route-helpers";
 

@@ -28,6 +28,9 @@ export interface Collaboration {
 // Common validation schemas
 import { z } from "zod";
 
+// Re-export Zod for use across workspaces
+export { z, ZodError } from "zod";
+
 export const songSchema = z.object({
   id: z.string(),
   title: z.string().min(1, "Title is required"),

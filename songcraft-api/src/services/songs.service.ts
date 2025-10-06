@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { z } from "zod";
+import { z } from "@songcraft/shared";
 
 import { AppError, ForbiddenError, NotFoundError } from "../lib/errors";
 import type {

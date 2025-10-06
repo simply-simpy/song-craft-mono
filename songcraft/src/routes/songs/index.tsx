@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
+import { z } from "@songcraft/shared";
 import { DataTable } from "../../components/admin/DataTable";
 import { Button } from "@/components/ui";
 import { API_ENDPOINTS, apiRequest } from "../../lib/api";
