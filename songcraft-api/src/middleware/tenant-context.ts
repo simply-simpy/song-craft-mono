@@ -31,7 +31,7 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
           );
         }
         request.tenantContext = { accountId };
-      } catch (error) {
+      } catch (_error) {
         fastify.log.warn(
           `Failed to set tenant context for account ${accountId}`
         );

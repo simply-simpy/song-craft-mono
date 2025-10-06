@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button } from "@radix-ui/themes";
 import {
   radixButtonVariants,
@@ -20,29 +19,46 @@ export function RadixThemeIntegrationDemo() {
           Approach 1: Radix CSS Variables in Tailwind
         </h3>
         <div className="flex gap-2 flex-wrap">
-          <button className={cn(radixButtonVariants({ variant: "default" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "default" }))}
+          >
             Primary
           </button>
           <button
+            type="button"
             className={cn(radixButtonVariants({ variant: "destructive" }))}
           >
             Destructive
           </button>
-          <button className={cn(radixButtonVariants({ variant: "outline" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "outline" }))}
+          >
             Outline
           </button>
-          <button className={cn(radixButtonVariants({ variant: "secondary" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "secondary" }))}
+          >
             Secondary
           </button>
-          <button className={cn(radixButtonVariants({ variant: "ghost" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "ghost" }))}
+          >
             Ghost
           </button>
-          <button className={cn(radixButtonVariants({ variant: "link" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "link" }))}
+          >
             Link
           </button>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "sm" })
             )}
@@ -50,6 +66,7 @@ export function RadixThemeIntegrationDemo() {
             Small
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "default" })
             )}
@@ -57,6 +74,7 @@ export function RadixThemeIntegrationDemo() {
             Default
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "lg" })
             )}
@@ -64,6 +82,7 @@ export function RadixThemeIntegrationDemo() {
             Large
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "icon" })
             )}
@@ -111,36 +130,66 @@ export function RadixThemeIntegrationDemo() {
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">Approach 4: Pure CSS Classes</h3>
         <div className="flex gap-2 flex-wrap">
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--default radix-themed-button--default-size"
+          >
             Default
           </button>
-          <button className="radix-themed-button radix-themed-button--destructive radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--destructive radix-themed-button--default-size"
+          >
             Destructive
           </button>
-          <button className="radix-themed-button radix-themed-button--outline radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--outline radix-themed-button--default-size"
+          >
             Outline
           </button>
-          <button className="radix-themed-button radix-themed-button--secondary radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--secondary radix-themed-button--default-size"
+          >
             Secondary
           </button>
-          <button className="radix-themed-button radix-themed-button--ghost radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--ghost radix-themed-button--default-size"
+          >
             Ghost
           </button>
-          <button className="radix-themed-button radix-themed-button--link radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--link radix-themed-button--default-size"
+          >
             Link
           </button>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--sm">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--default radix-themed-button--sm"
+          >
             Small
           </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--default-size">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--default radix-themed-button--default-size"
+          >
             Default
           </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--lg">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--default radix-themed-button--lg"
+          >
             Large
           </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--icon">
+          <button
+            type="button"
+            className="radix-themed-button radix-themed-button--default radix-themed-button--icon"
+          >
             ⚙️
           </button>
         </div>
@@ -152,16 +201,24 @@ export function RadixThemeIntegrationDemo() {
           Approach 5: Mapped CSS Variables
         </h3>
         <div className="flex gap-2 flex-wrap">
-          <button className="btn-mapped btn-mapped--primary">Primary</button>
-          <button className="btn-mapped btn-mapped--destructive">
+          <button type="button" className="btn-mapped btn-mapped--primary">
+            Primary
+          </button>
+          <button type="button" className="btn-mapped btn-mapped--destructive">
             Destructive
           </button>
-          <button className="btn-mapped btn-mapped--outline">Outline</button>
-          <button className="btn-mapped btn-mapped--secondary">
+          <button type="button" className="btn-mapped btn-mapped--outline">
+            Outline
+          </button>
+          <button type="button" className="btn-mapped btn-mapped--secondary">
             Secondary
           </button>
-          <button className="btn-mapped btn-mapped--ghost">Ghost</button>
-          <button className="btn-mapped btn-mapped--link">Link</button>
+          <button type="button" className="btn-mapped btn-mapped--ghost">
+            Ghost
+          </button>
+          <button type="button" className="btn-mapped btn-mapped--link">
+            Link
+          </button>
         </div>
       </section>
 
@@ -171,16 +228,28 @@ export function RadixThemeIntegrationDemo() {
           Approach 6: Theme-aware Components
         </h3>
         <div className="flex gap-2 flex-wrap">
-          <button className="theme-aware-button theme-aware-button--default">
+          <button
+            type="button"
+            className="theme-aware-button theme-aware-button--default"
+          >
             Default
           </button>
-          <button className="theme-aware-button theme-aware-button--sm">
+          <button
+            type="button"
+            className="theme-aware-button theme-aware-button--sm"
+          >
             Small
           </button>
-          <button className="theme-aware-button theme-aware-button--lg">
+          <button
+            type="button"
+            className="theme-aware-button theme-aware-button--lg"
+          >
             Large
           </button>
-          <button className="theme-aware-button theme-aware-button--icon">
+          <button
+            type="button"
+            className="theme-aware-button theme-aware-button--icon"
+          >
             ⚙️
           </button>
         </div>

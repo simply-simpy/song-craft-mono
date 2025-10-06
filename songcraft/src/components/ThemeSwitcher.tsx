@@ -66,6 +66,8 @@ export function ThemeSwitcher() {
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
+					aria-label="Toggle dropdown"
+					role="img"
 				>
 					<path
 						strokeLinecap="round"
@@ -84,7 +86,7 @@ export function ThemeSwitcher() {
 						type="button"
 						className="fixed inset-0 z-10"
 						onClick={closeDropdown}
-						aria-hidden="true"
+						 
 					/>
 
 					{/* Dropdown Content */}
@@ -119,6 +121,7 @@ export function ThemeSwitcher() {
 													className="w-4 h-4 text-fg-brand"
 													fill="currentColor"
 													viewBox="0 0 20 20"
+													aria-hidden="true"
 												>
 													<path
 														fillRule="evenodd"
@@ -164,6 +167,7 @@ export function ThemeSwitcher() {
 													className="w-4 h-4 text-fg-brand"
 													fill="currentColor"
 													viewBox="0 0 20 20"
+													aria-hidden="true"
 												>
 													<path
 														fillRule="evenodd"

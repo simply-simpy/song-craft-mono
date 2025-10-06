@@ -51,11 +51,11 @@ export default async function songRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const { page, limit, sort, order, accountId, ownerClerkId } =
+      const { page, limit, sort, order, ownerClerkId } =
         request.query as PaginationQuery;
 
       const result = await container.songsService.listSongs(
-        { ownerClerkId }, // Remove accountId - RLS policies handle account filtering
+        { ownerClerkId },
         { page, limit, sort, order }
       );
 
@@ -190,8 +190,6 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
       const clerkId = requireClerkUser(request);
-      const accountId =
-        (request.headers["x-account-id"] as string | undefined) ?? null;
 
       const body = request.body as Partial<z.infer<typeof songSchema>>;
 

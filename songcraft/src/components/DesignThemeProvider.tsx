@@ -2,14 +2,14 @@
  * LEGACY: Option 3: Hybrid Approach with Theme Provider
  *
  * ⚠️ THIS FILE IS DEPRECATED - Use ThemeProvider.tsx instead
- * 
+ *
  * This approach creates a React theme provider that syncs Radix themes
  * with your design tokens, providing the best of both worlds.
- * 
+ *
  * Replaced by the simpler ThemeProvider.tsx in Phase 1 consolidation.
  */
-
-import React, { createContext, useContext, useEffect, useState } from "react";
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Theme } from "@radix-ui/themes";
 
 // Theme configuration types
