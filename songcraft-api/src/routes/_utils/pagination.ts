@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@songcraft/shared";
 
 export const orderDirectionSchema = z.enum(["asc", "desc"]);
 

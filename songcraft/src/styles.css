@@ -58,9 +58,9 @@
    7) App-specific base styles
    --------------------------- */
 body {
-  font-family: var(--font-font-sans);
-  font-weight: var(--font-weight-normal);
-  color: var(--fg-primary);
-  background-color: var(--bg-primary);
-  line-height: var(--font-leading-normal);
+	font-family: var(--font-font-sans);
+	font-weight: var(--font-weight-normal);
+	color: var(--fg-primary);
+	background-color: var(--bg-primary);
+	line-height: var(--font-leading-normal);
 }

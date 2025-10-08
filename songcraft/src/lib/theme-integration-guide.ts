@@ -210,16 +210,16 @@ GRADUAL MIGRATION:
 */
 
 export {
-  // Export types and utilities for each approach
-  type ThemeColor,
-  type GrayColor,
-  type Radius,
-  type Scaling,
-  type Appearance,
-  type ThemeConfig,
-  type DesignTokenTheme,
-  DesignThemeProvider,
-  useDesignTheme,
-  getThemeClasses,
-  THEME_MAPPINGS,
+	// Export types and utilities for each approach
+	type ThemeColor,
+	type GrayColor,
+	type Radius,
+	type Scaling,
+	type Appearance,
+	type ThemeConfig,
+	type DesignTokenTheme,
+	DesignThemeProvider,
+	useDesignTheme,
+	getThemeClasses,
+	THEME_MAPPINGS,
 };

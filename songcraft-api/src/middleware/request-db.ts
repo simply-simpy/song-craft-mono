@@ -8,58 +8,58 @@ import { pool } from "../db";
 import { Container } from "../container";
 
 declare module "fastify" {
-  interface FastifyRequest {
-    db?: NodePgDatabase<Record<string, unknown>>;
-    container?: Container;
-    pgClient?: PoolClient;
-    dbTxDone?: boolean;
-  }
+	interface FastifyRequest {
+		db?: NodePgDatabase<Record<string, unknown>>;
+		container?: Container;
+		pgClient?: PoolClient;
+		dbTxDone?: boolean;
+	}
 }
 
 async function requestDbPlugin(fastify: FastifyInstance) {
-  // Acquire a dedicated client and start a transaction per request
-  fastify.addHook("preHandler", async (request) => {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      request.pgClient = client;
+	// Acquire a dedicated client and start a transaction per request
+	fastify.addHook("preHandler", async (request) => {
+		const client = await pool.connect();
+		try {
+			await client.query("BEGIN");
+			request.pgClient = client;
 
-      const requestDb = drizzle(client);
-      request.db = requestDb;
-      request.container = new Container(requestDb);
-    } catch (err) {
-      client.release();
-      throw err;
-    }
-  });
+			const requestDb = drizzle(client);
+			request.db = requestDb;
+			request.container = new Container(requestDb);
+		} catch (err) {
+			client.release();
+			throw err;
+		}
+	});
 
-  // Rollback on error
-  fastify.addHook("onError", async (request) => {
-    const client = request.pgClient;
-    if (client && !request.dbTxDone) {
-      try {
-        await client.query("ROLLBACK");
-      } finally {
-        client.release();
-        request.dbTxDone = true;
-        request.pgClient = undefined;
-      }
-    }
-  });
+	// Rollback on error
+	fastify.addHook("onError", async (request) => {
+		const client = request.pgClient;
+		if (client && !request.dbTxDone) {
+			try {
+				await client.query("ROLLBACK");
+			} finally {
+				client.release();
+				request.dbTxDone = true;
+				request.pgClient = undefined;
+			}
+		}
+	});
 
-  // Commit on success and ensure release
-  fastify.addHook("onResponse", async (request) => {
-    const client = request.pgClient;
-    if (client && !request.dbTxDone) {
-      try {
-        await client.query("COMMIT");
-      } finally {
-        client.release();
-        request.dbTxDone = true;
-        request.pgClient = undefined;
-      }
-    }
-  });
+	// Commit on success and ensure release
+	fastify.addHook("onResponse", async (request) => {
+		const client = request.pgClient;
+		if (client && !request.dbTxDone) {
+			try {
+				await client.query("COMMIT");
+			} finally {
+				client.release();
+				request.dbTxDone = true;
+				request.pgClient = undefined;
+			}
+		}
+	});
 }
 
 export default fp(requestDbPlugin, { name: "request-db" });

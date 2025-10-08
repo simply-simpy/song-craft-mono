@@ -15,7 +15,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 				return { success: false, error: "User not authenticated" };
 			}
 
-			const result = await request.container!.adminService.getMe(clerkId);
+			const result = await request.container?.adminService.getMe(clerkId);
 			if (!result) {
 				return { success: false, error: "User not found" };
 			}

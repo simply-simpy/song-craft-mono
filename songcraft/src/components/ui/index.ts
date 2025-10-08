@@ -9,22 +9,22 @@
 export { Button, buttonVariants } from "./Button";
 export type { ButtonProps } from "./Button";
 
-export { Input } from "./Input";
-export { Label } from "./Label";
-export { Textarea } from "./Textarea";
+export { Input } from "./input";
+export { Label } from "./label";
+export { Textarea } from "./textarea";
 
 // Form components
 export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectScrollDownButton,
+	SelectScrollUpButton,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 } from "./select";
 
 export { Switch } from "./switch";
@@ -38,11 +38,11 @@ export type { Theme, Skin } from "./theme-provider";
 
 // Re-export utilities
 export {
-  cn,
-  focusRing,
-  transitions,
-  animations,
-  zIndex,
+	cn,
+	focusRing,
+	transitions,
+	animations,
+	zIndex,
 } from "../../lib/ui-utils";
 export type { Size, Variant, Intent } from "../../lib/ui-utils";
 

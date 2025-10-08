@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { z } from "zod";
+import { z, uuidSchema, errorResponseSchema } from "@songcraft/shared";
 
 import {
   AppError,
@@ -8,7 +8,6 @@ import {
   UnauthorizedError,
 } from "../lib/errors";
 import { GlobalRole } from "../lib/super-user";
-import { requireClerkUser } from "./_utils/auth";
 import {
   buildPaginationMeta,
   createPaginationSchema,
@@ -16,7 +15,6 @@ import {
 } from "./_utils/pagination";
 import { withErrorHandling } from "./_utils/route-helpers";
 
-const uuidSchema = z.string().uuid();
 const permissionLevelSchema = z.enum([
   "read",
   "read_notes",
@@ -141,12 +139,6 @@ const projectSessionsResponseSchema = z.object({
   data: z.array(sessionResponseSchema),
 });
 
-const errorResponseSchema = z.object({
-  error: z.string(),
-  code: z.string().optional(),
-  details: z.any().optional(),
-});
-
 export default async function projectRoutes(fastify: FastifyInstance) {
   const getProjectService = (req: FastifyRequest) => {
     if (!req.container) {
@@ -226,7 +218,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
       const body = request.body as z.infer<typeof createProjectSchema>;
 
       const project = await getProjectService(request).createProject({
@@ -260,7 +252,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
       const body = request.body as z.infer<typeof updateProjectSchema>;
 
       const project = await getProjectService(request).updateProject({
@@ -292,7 +284,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
 
       await getProjectService(request).deleteProject(id, clerkId);
 
@@ -320,7 +312,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
       const body = request.body as z.infer<typeof addPermissionSchema>;
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
 
       const permission = await getProjectService(request).addProjectPermission({
         projectId: id,
@@ -351,7 +343,7 @@ export default async function projectRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id, userId } = request.params as { id: string; userId: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
 
       await getProjectService(request).removeProjectPermission(
         id,

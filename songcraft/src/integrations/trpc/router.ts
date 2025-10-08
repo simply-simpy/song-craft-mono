@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@songcraft/shared";
 
 import { createTRPCRouter, publicProcedure } from "./init";
 

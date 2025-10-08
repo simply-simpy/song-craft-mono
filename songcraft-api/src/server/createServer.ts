@@ -2,8 +2,8 @@ import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
-  serializerCompiler,
-  validatorCompiler,
+	serializerCompiler,
+	validatorCompiler,
 } from "fastify-type-provider-zod";
 
 import { env } from "../config/env";
@@ -20,34 +20,34 @@ import songRoutes from "../routes/songs";
 import userRoutes from "../routes/user";
 
 export const createServer = (): FastifyInstance => {
-  const server = Fastify({
-    logger: { level: env.LOG_LEVEL },
-    trustProxy: env.TRUST_PROXY,
-  }).withTypeProvider<ZodTypeProvider>();
+	const server = Fastify({
+		logger: { level: env.LOG_LEVEL },
+		trustProxy: env.TRUST_PROXY,
+	}).withTypeProvider<ZodTypeProvider>();
 
-  server.setValidatorCompiler(validatorCompiler);
-  server.setSerializerCompiler(serializerCompiler);
+	server.setValidatorCompiler(validatorCompiler);
+	server.setSerializerCompiler(serializerCompiler);
 
-  server.register(securityHeadersPlugin);
-  server.register(corsPlugin);
-  server.register(documentationPlugin);
+	server.register(securityHeadersPlugin);
+	server.register(corsPlugin);
+	server.register(documentationPlugin);
 
-  // Ensure request-scoped DB/transaction is established before tenant context
-  server.register(requestDbPlugin);
-  server.register(tenantContextPlugin);
+	// Ensure request-scoped DB/transaction is established before tenant context
+	server.register(requestDbPlugin);
+	server.register(tenantContextPlugin);
 
-  server.register(superUserPlugin);
+	server.register(superUserPlugin);
 
-  server.register(songRoutes);
-  server.register(userRoutes);
-  server.register(searchRoutes);
-  server.register(adminRoutes, { prefix: "/admin" });
-  server.register(projectRoutes);
+	server.register(songRoutes);
+	server.register(userRoutes);
+	server.register(searchRoutes);
+	server.register(adminRoutes, { prefix: "/admin" });
+	server.register(projectRoutes);
 
-  server.get("/health", async () => ({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  }));
+	server.get("/health", async () => ({
+		status: "ok",
+		timestamp: new Date().toISOString(),
+	}));
 
-  return server;
+	return server;
 };

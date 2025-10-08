@@ -52,9 +52,7 @@ export class SearchService {
 
     // Search songs
     if (types.includes("songs")) {
-      searchPromises.push(
-        this.searchSongs(query, Math.ceil(limit / 4), clerkId, accountId)
-      );
+      searchPromises.push(this.searchSongs(query, Math.ceil(limit / 4)));
     } else {
       searchPromises.push(Promise.resolve([]));
     }
@@ -96,15 +94,8 @@ export class SearchService {
     };
   }
 
-  private async searchSongs(
-    query: string,
-    limit: number,
-    clerkId?: string,
-    accountId?: string
-  ): Promise<Song[]> {
+  private async searchSongs(query: string, limit: number): Promise<Song[]> {
     try {
-      // Use the existing songs service with search-like filtering
-      // Remove accountId - songs are now filtered via RLS policies using associations
       const result = await this.songsService.listSongs(
         {}, // Empty conditions - RLS policies handle account filtering
         { page: 1, limit, sort: "updatedAt", order: "desc" }

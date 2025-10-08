@@ -1,13 +1,13 @@
 /**
  * Theme Variants - Brand Color Overrides
- * 
+ *
  * This file provides brand color variants using [data-skin] selectors.
- * Each skin maps to proper Radix color scales while maintaining 
+ * Each skin maps to proper Radix color scales while maintaining
  * the same semantic token structure.
- * 
+ *
  * Usage:
  * - Default (blue): Uses var(--blue-*) from Radix
- * - Green skin: Uses var(--jade-*) from Radix  
+ * - Green skin: Uses var(--jade-*) from Radix
  * - Red skin: Uses var(--red-*) from Radix
  * - Purple skin: Uses var(--violet-*) from Radix
  */
@@ -27,39 +27,39 @@
    ============================================================================= */
 
 [data-skin="green"] {
-  /* Brand tokens - Override to use jade */
-  --brand-primary: var(--jade-9);
-  --brand-secondary: var(--jade-10);
-  --brand-tertiary: var(--jade-11);
-  --brand-hover: var(--jade-10);
-  --brand-active: var(--jade-9);
+	/* Brand tokens - Override to use jade */
+	--brand-primary: var(--jade-9);
+	--brand-secondary: var(--jade-10);
+	--brand-tertiary: var(--jade-11);
+	--brand-hover: var(--jade-10);
+	--brand-active: var(--jade-9);
 
-  /* Background colors */
-  --bg-brand: var(--jade-9);
-  --bg-accent: var(--jade-9);
-  --bg-selected: var(--jade-3);
+	/* Background colors */
+	--bg-brand: var(--jade-9);
+	--bg-accent: var(--jade-9);
+	--bg-selected: var(--jade-3);
 
-  /* Foreground colors */
-  --fg-brand: var(--jade-11);
-  --fg-accent: var(--jade-11);
-  --fg-on-brand: #fff;
-  --fg-on-accent: #fff;
+	/* Foreground colors */
+	--fg-brand: var(--jade-11);
+	--fg-accent: var(--jade-11);
+	--fg-on-brand: #fff;
+	--fg-on-accent: #fff;
 
-  /* Surfaces */
-  --surface-brand: var(--jade-3);
-  --surface-accent: var(--jade-3);
+	/* Surfaces */
+	--surface-brand: var(--jade-3);
+	--surface-accent: var(--jade-3);
 
-  /* Borders */
-  --border-focus: var(--jade-9);
-  --border-success: var(--jade-6);
+	/* Borders */
+	--border-focus: var(--jade-9);
+	--border-success: var(--jade-6);
 }
 
 /* Dark mode overrides for green skin */
 [data-theme="dark"][data-skin="green"] {
-  --bg-selected: var(--jade-4);
-  --surface-brand: var(--jade-4);
-  --surface-accent: var(--jade-4);
-  --border-success: var(--jade-7);
+	--bg-selected: var(--jade-4);
+	--surface-brand: var(--jade-4);
+	--surface-accent: var(--jade-4);
+	--border-success: var(--jade-7);
 }
 
 /* =============================================================================
@@ -67,37 +67,37 @@
    ============================================================================= */
 
 [data-skin="red"] {
-  /* Brand tokens - Override to use red */
-  --brand-primary: var(--red-9);
-  --brand-secondary: var(--red-10);
-  --brand-tertiary: var(--red-11);
-  --brand-hover: var(--red-10);
-  --brand-active: var(--red-9);
+	/* Brand tokens - Override to use red */
+	--brand-primary: var(--red-9);
+	--brand-secondary: var(--red-10);
+	--brand-tertiary: var(--red-11);
+	--brand-hover: var(--red-10);
+	--brand-active: var(--red-9);
 
-  /* Background colors */
-  --bg-brand: var(--red-9);
-  --bg-accent: var(--red-9);
-  --bg-selected: var(--red-3);
+	/* Background colors */
+	--bg-brand: var(--red-9);
+	--bg-accent: var(--red-9);
+	--bg-selected: var(--red-3);
 
-  /* Foreground colors */
-  --fg-brand: var(--red-11);
-  --fg-accent: var(--red-11);
-  --fg-on-brand: #fff;
-  --fg-on-accent: #fff;
+	/* Foreground colors */
+	--fg-brand: var(--red-11);
+	--fg-accent: var(--red-11);
+	--fg-on-brand: #fff;
+	--fg-on-accent: #fff;
 
-  /* Surfaces */
-  --surface-brand: var(--red-3);
-  --surface-accent: var(--red-3);
+	/* Surfaces */
+	--surface-brand: var(--red-3);
+	--surface-accent: var(--red-3);
 
-  /* Borders */
-  --border-focus: var(--red-9);
+	/* Borders */
+	--border-focus: var(--red-9);
 }
 
 /* Dark mode overrides for red skin */
 [data-theme="dark"][data-skin="red"] {
-  --bg-selected: var(--red-4);
-  --surface-brand: var(--red-4);
-  --surface-accent: var(--red-4);
+	--bg-selected: var(--red-4);
+	--surface-brand: var(--red-4);
+	--surface-accent: var(--red-4);
 }
 
 /* =============================================================================
@@ -105,37 +105,37 @@
    ============================================================================= */
 
 [data-skin="purple"] {
-  /* Brand tokens - Override to use violet */
-  --brand-primary: var(--violet-9);
-  --brand-secondary: var(--violet-10);
-  --brand-tertiary: var(--violet-11);
-  --brand-hover: var(--violet-10);
-  --brand-active: var(--violet-9);
+	/* Brand tokens - Override to use violet */
+	--brand-primary: var(--violet-9);
+	--brand-secondary: var(--violet-10);
+	--brand-tertiary: var(--violet-11);
+	--brand-hover: var(--violet-10);
+	--brand-active: var(--violet-9);
 
-  /* Background colors */
-  --bg-brand: var(--violet-9);
-  --bg-accent: var(--violet-9);
-  --bg-selected: var(--violet-3);
+	/* Background colors */
+	--bg-brand: var(--violet-9);
+	--bg-accent: var(--violet-9);
+	--bg-selected: var(--violet-3);
 
-  /* Foreground colors */
-  --fg-brand: var(--violet-11);
-  --fg-accent: var(--violet-11);
-  --fg-on-brand: #fff;
-  --fg-on-accent: #fff;
+	/* Foreground colors */
+	--fg-brand: var(--violet-11);
+	--fg-accent: var(--violet-11);
+	--fg-on-brand: #fff;
+	--fg-on-accent: #fff;
 
-  /* Surfaces */
-  --surface-brand: var(--violet-3);
-  --surface-accent: var(--violet-3);
+	/* Surfaces */
+	--surface-brand: var(--violet-3);
+	--surface-accent: var(--violet-3);
 
-  /* Borders */
-  --border-focus: var(--violet-9);
+	/* Borders */
+	--border-focus: var(--violet-9);
 }
 
 /* Dark mode overrides for purple skin */
 [data-theme="dark"][data-skin="purple"] {
-  --bg-selected: var(--violet-4);
-  --surface-brand: var(--violet-4);
-  --surface-accent: var(--violet-4);
+	--bg-selected: var(--violet-4);
+	--surface-brand: var(--violet-4);
+	--surface-accent: var(--violet-4);
 }
 
 /* =============================================================================
@@ -146,30 +146,30 @@
    regardless of the active skin */
 
 .brand-bg {
-  background-color: var(--bg-brand);
+	background-color: var(--bg-brand);
 }
 
 .brand-text {
-  color: var(--fg-brand);
+	color: var(--fg-brand);
 }
 
 .brand-border {
-  border-color: var(--brand-primary);
+	border-color: var(--brand-primary);
 }
 
 .brand-ring {
-  --tw-ring-color: var(--brand-primary);
+	--tw-ring-color: var(--brand-primary);
 }
 
 /* Focus ring that adapts to brand color */
 .brand-focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--border-focus);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--border-focus);
 }
 
 .brand-focus-offset {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--border-focus);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--border-focus);
 }
 
 /* =============================================================================
@@ -178,13 +178,14 @@
 
 /* Smooth transitions for skin changes */
 :root {
-  --brand-transition: background-color var(--animate-duration-normal) var(--animate-easing-ease),
-                      color var(--animate-duration-normal) var(--animate-easing-ease),
-                      border-color var(--animate-duration-normal) var(--animate-easing-ease);
+	--brand-transition: background-color var(--animate-duration-normal)
+		var(--animate-easing-ease), color var(--animate-duration-normal)
+		var(--animate-easing-ease), border-color var(--animate-duration-normal)
+		var(--animate-easing-ease);
 }
 
 .brand-transition {
-  transition: var(--brand-transition);
+	transition: var(--brand-transition);
 }
 
 /* Ensure all brand-related elements transition smoothly */
@@ -192,7 +193,7 @@
 [class*="bg-brand"],
 [class*="text-brand"],
 [class*="border-brand"] {
-  transition: var(--brand-transition);
+	transition: var(--brand-transition);
 }
 
 /* =============================================================================

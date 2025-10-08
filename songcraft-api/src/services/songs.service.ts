@@ -1,5 +1,9 @@
 import crypto from "node:crypto";
-import { z } from "zod";
+import {
+  z,
+  songResponseSchema,
+  songsListResponseSchema,
+} from "@songcraft/shared";
 
 import { AppError, ForbiddenError, NotFoundError } from "../lib/errors";
 import type {
@@ -26,32 +30,8 @@ export const songSchema = z.object({
   collaborators: z.array(z.string()).default([]),
 });
 
-export const songResponseSchema = z.object({
-  id: z.string().uuid(),
-  shortId: z.string().length(16),
-  ownerClerkId: z.string(),
-  title: z.string(),
-  artist: z.string().nullable(),
-  bpm: z.number().nullable(),
-  key: z.string().nullable(),
-  tags: z.array(z.string()),
-  lyrics: z.string().nullable(),
-  midiData: z.string().nullable(),
-  collaborators: z.array(z.string()),
-  // Remove accountId and projectId - these are now handled via associations
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-export const songsListResponseSchema = z.object({
-  songs: z.array(songResponseSchema),
-  pagination: z.object({
-    page: z.number(),
-    limit: z.number(),
-    total: z.number(),
-    pages: z.number(),
-  }),
-});
+// Re-export shared schemas for backward compatibility
+export { songResponseSchema, songsListResponseSchema };
 
 export const versionsResponseSchema = z.object({
   versions: z.array(z.any()),
