@@ -9,9 +9,9 @@ import { requireAuth } from "../../lib/requireAuth.server";
 // Import new reusable components
 import {
 	Badge,
-	StatusBadge,
-	PlanBadge,
 	CountBadge,
+	PlanBadge,
+	StatusBadge,
 } from "../../components/Badge";
 
 export const Route = createFileRoute("/admin/accounts/refactored")({

@@ -8,8 +8,8 @@ import {
 } from "../../../components/layout/PageLayout";
 import {
 	ActionLink,
-	NavMenu,
 	NavGroup,
+	NavMenu,
 } from "../../../components/navigation/NavigationComponents";
 
 export const Route = createFileRoute("/songs/$songId/index/refactored")({

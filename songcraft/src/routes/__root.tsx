@@ -8,15 +8,15 @@ import {
 } from "@tanstack/react-router";
 // app/routes/__root.tsx
 import * as React from "react";
-import ClerkProvider from "../integrations/clerk/provider";
 import { RadixThemeIntegration } from "../components/RadixThemeIntegration";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import ClerkProvider from "../integrations/clerk/provider";
 
 // Import styles
 import "../styles.css";
-import CurrentUser from "@/components/admin/currentUser";
 import { CommandPalette } from "@/components/CommandPalette";
+import CurrentUser from "@/components/admin/currentUser";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
 import { Button, Input } from "@/components/ui";

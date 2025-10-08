@@ -5,8 +5,8 @@
  * we create our own hook using ThemeContext.
  */
 
-import { useContext } from "react";
 import { ThemeContext } from "@radix-ui/themes";
+import { useContext } from "react";
 
 export const useRadixTheme = () => {
 	const context = useContext(ThemeContext);

@@ -8,9 +8,9 @@ import {
   songsListResponseSchema,
 } from "@songcraft/shared";
 
-import { container } from "../container";
 import { songSchema, versionsResponseSchema } from "../services/songs.service";
-import { requireClerkUser } from "./_utils/auth";
+import { NotFoundError } from "../lib/errors";
+import { requireUser, requireAccountId } from "../middleware/auth-prehandlers";
 import {
   buildPaginationMeta,
   createPaginationSchema,
@@ -44,7 +44,11 @@ export default async function songRoutes(fastify: FastifyInstance) {
       const { page, limit, sort, order, ownerClerkId } =
         request.query as PaginationQuery;
 
-      const result = await container.songsService.listSongs(
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const result = await request.container.songsService.listSongs(
         { ownerClerkId },
         { page, limit, sort, order }
       );
@@ -69,9 +73,13 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const song = await container.songsService.findById(id);
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const song = await request.container.songsService.findById(id);
       if (!song) {
-        throw new Error("Song not found");
+        throw new NotFoundError("Song not found");
       }
 
       return reply.status(200).send({ song });
@@ -94,9 +102,13 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { shortId } = request.params as { shortId: string };
 
-      const song = await container.songsService.findByShortId(shortId);
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const song = await request.container.songsService.findByShortId(shortId);
       if (!song) {
-        throw new Error("Song not found");
+        throw new NotFoundError("Song not found");
       }
 
       return reply.status(200).send({ song });
@@ -119,7 +131,11 @@ export default async function songRoutes(fastify: FastifyInstance) {
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      const versions = await container.songsService.getSongVersions(id);
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const versions = await request.container.songsService.getSongVersions(id);
 
       return reply.status(200).send({ versions });
     })
@@ -128,7 +144,11 @@ export default async function songRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/songs",
     {
+      preHandler: [requireUser, requireAccountId],
       schema: {
+        headers: z.object({
+          "x-account-id": uuidSchema.optional(),
+        }),
         body: songSchema,
         response: {
           201: z.object({ song: songResponseSchema }),
@@ -139,19 +159,16 @@ export default async function songRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const clerkId = requireClerkUser(request);
+      const clerkId = (request.user?.clerkId as string) ?? "";
       const accountId = request.headers["x-account-id"] as string;
-
-      if (!accountId) {
-        return reply.status(400).send({
-          error: "Account ID is required",
-          code: "MISSING_ACCOUNT_ID",
-        });
-      }
 
       const body = request.body as z.infer<typeof songSchema>;
 
-      const song = await container.songsService.createSong(
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const song = await request.container.songsService.createSong(
         body,
         clerkId,
         accountId
@@ -164,6 +181,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/songs/:id",
     {
+      preHandler: [requireUser],
       schema: {
         params: z.object({ id: uuidSchema }),
         body: songSchema.partial(),
@@ -179,11 +197,15 @@ export default async function songRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = (request.user?.clerkId as string) ?? "";
 
       const body = request.body as Partial<z.infer<typeof songSchema>>;
 
-      const song = await container.songsService.updateSong(id, body, clerkId);
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      const song = await request.container.songsService.updateSong(id, body, clerkId);
 
       return reply.status(200).send({ song });
     })
@@ -192,6 +214,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
   fastify.delete(
     "/songs/:id",
     {
+      preHandler: [requireUser],
       schema: {
         params: z.object({ id: uuidSchema }),
         response: {
@@ -205,9 +228,13 @@ export default async function songRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = (request.user?.clerkId as string) ?? "";
 
-      await container.songsService.deleteSong(id, clerkId);
+      if (!request.container) {
+        throw new Error("Container not available");
+      }
+
+      await request.container.songsService.deleteSong(id, clerkId);
 
       return reply.status(204).send();
     })

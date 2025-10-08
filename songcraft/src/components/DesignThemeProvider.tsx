@@ -1,3 +1,4 @@
+import { Theme } from "@radix-ui/themes";
 /**
  * LEGACY: Option 3: Hybrid Approach with Theme Provider
  *
@@ -10,7 +11,6 @@
  */
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { Theme } from "@radix-ui/themes";
 
 // Theme configuration types
 export type ThemeColor =

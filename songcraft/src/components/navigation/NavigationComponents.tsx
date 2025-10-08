@@ -5,8 +5,8 @@
  * Provides consistent styling for links and navigation elements.
  */
 
-import React from "react";
 import { Link, type LinkProps } from "@tanstack/react-router";
+import React from "react";
 import { cn } from "../../lib/ui-utils";
 
 interface NavLinkProps extends LinkProps {

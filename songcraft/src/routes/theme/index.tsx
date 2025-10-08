@@ -1,28 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	Button,
-	Card,
-	Flex,
-	Text,
-	Heading,
-	Separator,
-	Badge,
-	Switch,
-	Slider,
-	Select,
-	TextField,
-	TextArea,
-	Checkbox,
-	ThemePanel,
-	Grid,
-	Box,
-	Container,
-} from "@radix-ui/themes";
-import * as RadioGroup from "@radix-ui/react-radio-group";
-import * as Label from "@radix-ui/react-label";
-import { useState } from "react";
 import { RadixThemeIntegrationDemo } from "@/components/RadixThemeIntegrationDemo";
 import { ThemeInfo } from "@/components/ThemeInfo";
+import * as Label from "@radix-ui/react-label";
+import * as RadioGroup from "@radix-ui/react-radio-group";
+import {
+	Badge,
+	Box,
+	Button,
+	Card,
+	Checkbox,
+	Container,
+	Flex,
+	Grid,
+	Heading,
+	Select,
+	Separator,
+	Slider,
+	Switch,
+	Text,
+	TextArea,
+	TextField,
+	ThemePanel,
+} from "@radix-ui/themes";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/theme/")({
 	component: ThemePage,

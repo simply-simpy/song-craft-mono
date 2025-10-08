@@ -1,8 +1,8 @@
+import { z } from "@songcraft/shared";
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from "@tanstack/react-db";
-import { z } from "@songcraft/shared";
 
 const MessageSchema = z.object({
 	id: z.number(),

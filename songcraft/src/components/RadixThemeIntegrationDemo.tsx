@@ -1,10 +1,10 @@
 import { Button } from "@radix-ui/themes";
+import { cn } from "../lib/utils";
 import {
-	radixButtonVariants,
 	DynamicThemedButton,
 	StyledButton,
+	radixButtonVariants,
 } from "./ui/radix-theme-examples";
-import { cn } from "../lib/utils";
 
 export function RadixThemeIntegrationDemo() {
 	return (

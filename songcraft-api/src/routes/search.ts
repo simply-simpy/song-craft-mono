@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { z, errorResponseSchema } from "@songcraft/shared";
-import { requireClerkUser } from "./_utils/auth";
+import { z, errorResponseSchema, uuidSchema } from "@songcraft/shared";
+import { requireUser, requireAccountId } from "../middleware/auth-prehandlers";
 import { withErrorHandling } from "./_utils/route-helpers";
 
 const searchQuerySchema = z.object({
@@ -58,7 +58,11 @@ export default async function searchRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/search",
     {
+      preHandler: [requireUser, requireAccountId],
       schema: {
+        headers: z.object({
+          "x-account-id": uuidSchema.optional(),
+        }),
         querystring: searchQuerySchema,
         response: {
           200: searchResultSchema,
@@ -73,7 +77,7 @@ export default async function searchRoutes(fastify: FastifyInstance) {
         throw new Error("Container not available");
       }
 
-      const clerkId = requireClerkUser(request);
+      const clerkId = request.user?.clerkId as string;
       const accountId = request.headers["x-account-id"] as string;
       const { q, limit, types } = request.query as z.infer<
         typeof searchQuerySchema

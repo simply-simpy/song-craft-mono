@@ -6,13 +6,13 @@
  */
 
 import {
-	semanticTokens,
-	darkTokens,
-	typography,
-	spacing,
-	shadows,
-	radius,
 	animation,
+	darkTokens,
+	radius,
+	semanticTokens,
+	shadows,
+	spacing,
+	typography,
 } from "./tokens";
 
 // Helper function to convert nested objects to CSS custom properties

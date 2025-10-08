@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { ThemePanel } from "@radix-ui/themes";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Button } from "./Button";
 
 const meta: Meta = {

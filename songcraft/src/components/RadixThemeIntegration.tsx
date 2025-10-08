@@ -7,8 +7,8 @@
  * - Maintaining consistent theming across both systems
  */
 
-import { RadixThemeProvider } from "./ui/radix-theme-provider";
 import { useTheme } from "./ThemeProvider";
+import { RadixThemeProvider } from "./ui/radix-theme-provider";
 
 interface RadixThemeIntegrationProps {
 	children: React.ReactNode;

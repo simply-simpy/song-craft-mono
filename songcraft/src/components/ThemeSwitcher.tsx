@@ -6,13 +6,13 @@
  */
 
 import { useState } from "react";
-import {
-	useTheme,
-	THEME_OPTIONS,
-	type ColorScheme,
-	type BrandSkin,
-} from "./ThemeProvider";
 import { cn } from "../lib/ui-utils";
+import {
+	type BrandSkin,
+	type ColorScheme,
+	THEME_OPTIONS,
+	useTheme,
+} from "./ThemeProvider";
 
 export function ThemeSwitcher() {
 	const { colorScheme, brandSkin, setColorScheme, setBrandSkin } = useTheme();

@@ -1,3 +1,4 @@
+import { z } from "@songcraft/shared";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -5,6 +6,7 @@ import { LazyDataTable } from "../../components/admin/LazyDataTable";
 import { API_ENDPOINTS } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import { requireAuth } from "../../lib/requireAuth.server";
+import { useAuthedApi } from "../../lib/useAuthedApi";
 
 export const Route = createFileRoute("/admin/accounts")({
 	beforeLoad: () => requireAuth(),
@@ -26,7 +28,8 @@ interface Account {
 }
 
 function AccountsPage() {
-	const { getAuthHeaders, isLoaded } = useAuth();
+	const { isLoaded } = useAuth();
+	const authedApi = useAuthedApi();
 
 	// Define columns with useMemo for performance
 	const columns = useMemo<ColumnDef<Account>[]>(
@@ -152,33 +155,42 @@ function AccountsPage() {
 	);
 
 	// Query function for fetching accounts with pagination
+	const accountSchema = z.object({
+		id: z.string(),
+		name: z.string(),
+		description: z.string().nullish(),
+		plan: z.string(),
+		status: z.string(),
+		billingEmail: z.string().nullish(),
+		isDefault: z.boolean(),
+		createdAt: z.string(),
+		orgId: z.string().nullish(),
+		orgName: z.string().nullish(),
+		memberCount: z.number(),
+	});
+
+	const accountsResponseSchema = z.object({
+		success: z.boolean().optional(),
+		data: z.object({
+			accounts: z.array(accountSchema),
+			rowCount: z.number(),
+			pageCount: z.number(),
+		}),
+	});
+
 	const queryFn = async (pagination: PaginationState) => {
-		const authHeaders = getAuthHeaders();
 		const page = pagination.pageIndex + 1; // Convert 0-based to 1-based
 		const limit = pagination.pageSize;
 
-		const response = await fetch(
-			`${API_ENDPOINTS.admin.accounts()}?page=${page}&limit=${limit}`,
-			{
-				headers: {
-					"Content-Type": "application/json",
-					...(authHeaders["x-clerk-user-id"] && {
-						"x-clerk-user-id": authHeaders["x-clerk-user-id"],
-					}),
-				},
-			},
-		);
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch accounts: ${response.status}`);
-		}
-
-		const result = await response.json();
+		const parsed = await authedApi({
+			endpoint: `${API_ENDPOINTS.admin.accounts()}?page=${page}&limit=${limit}`,
+			schema: accountsResponseSchema,
+		});
 
 		return {
-			data: result.data.accounts,
-			rowCount: result.data.rowCount,
-			pageCount: result.data.pageCount,
+			data: parsed.data.accounts,
+			rowCount: parsed.data.rowCount,
+			pageCount: parsed.data.pageCount,
 		};
 	};
 

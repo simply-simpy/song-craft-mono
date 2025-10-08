@@ -1,3 +1,4 @@
+import { z } from "@songcraft/shared";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -5,6 +6,7 @@ import { LazyDataTable } from "../../components/admin/LazyDataTable";
 import { API_ENDPOINTS } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import { requireAuth } from "../../lib/requireAuth.server";
+import { useAuthedApi } from "../../lib/useAuthedApi";
 
 export const Route = createFileRoute("/projects/")({
 	beforeLoad: () => requireAuth(),
@@ -32,7 +34,8 @@ interface Project {
 }
 
 function ProjectsPage() {
-	const { getAuthHeaders, isLoaded } = useAuth();
+	const { isLoaded } = useAuth();
+	const authedApi = useAuthedApi();
 
 	// Define columns with useMemo for performance
 	const columns = useMemo<ColumnDef<Project>[]>(
@@ -105,34 +108,52 @@ function ProjectsPage() {
 	);
 
 	// Query function for fetching projects with pagination
+	const permissionSchema = z.object({
+		userId: z.string(),
+		permissionLevel: z.string(),
+		grantedAt: z.string(),
+		expiresAt: z.string().nullish(),
+		userEmail: z.string().nullish(),
+	});
+
+	const projectSchema = z.object({
+		id: z.string(),
+		accountId: z.string(),
+		name: z.string(),
+		description: z.string().nullable(),
+		status: z.string(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+		createdBy: z.string(),
+		creatorName: z.string().nullable(),
+		accountName: z.string().nullable(),
+		permissions: z.array(permissionSchema),
+		sessionsCount: z.union([z.string(), z.number()]),
+	});
+
+	const projectsResponseSchema = z.object({
+		projects: z.array(projectSchema),
+		pagination: z
+			.object({
+				total: z.number(),
+				pages: z.number(),
+			})
+			.optional(),
+	});
+
 	const queryFn = async (pagination: PaginationState) => {
-		const authHeaders = getAuthHeaders();
 		const page = pagination.pageIndex + 1; // Convert 0-based to 1-based
 		const limit = pagination.pageSize;
 
-		const response = await fetch(
-			`${API_ENDPOINTS.projects()}?page=${page}&limit=${limit}`,
-			{
-				headers: {
-					"Content-Type": "application/json",
-					...(authHeaders["x-clerk-user-id"] && {
-						"x-clerk-user-id": authHeaders["x-clerk-user-id"],
-					}),
-				},
-			},
-		);
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch projects: ${response.status}`);
-		}
-
-		const result = await response.json();
-		console.log("Projects API response:", result);
+		const parsed = await authedApi({
+			endpoint: `${API_ENDPOINTS.projects()}?page=${page}&limit=${limit}`,
+			schema: projectsResponseSchema,
+		});
 
 		return {
-			data: result.projects || [],
-			rowCount: result.pagination?.total || 0,
-			pageCount: result.pagination?.pages || 1,
+			data: parsed.projects,
+			rowCount: parsed.pagination?.total ?? 0,
+			pageCount: parsed.pagination?.pages ?? 1,
 		};
 	};
 

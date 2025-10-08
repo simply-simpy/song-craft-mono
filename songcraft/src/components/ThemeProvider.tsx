@@ -10,11 +10,11 @@
  */
 
 import {
+	type ReactNode,
 	createContext,
 	useContext,
 	useEffect,
 	useState,
-	type ReactNode,
 } from "react";
 
 // Theme types
