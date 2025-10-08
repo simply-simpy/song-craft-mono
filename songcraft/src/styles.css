@@ -1,13 +1,13 @@
 /* ---------------------------
-   1) Tailwind theme variables
+   1) Tailwind CSS v4 imports
    --------------------------- */
-@import "tailwindcss/theme";
+@import "tailwindcss";
 
 /* ---------------------------
    2) Color sources (Radix ramps)
       Import BEFORE tokens so aliases can see them
    --------------------------- */
-@import "./styles/radix-colors.css" layer(theme);
+@import "./styles/radix-colors.css";
 /* radix-colors.css should import:
    @radix-ui/colors/blue.css;
    @radix-ui/colors/blue-dark.css;
@@ -24,35 +24,25 @@
 /* ---------------------------
    3) Your semantic tokens (aliases that upstream code uses)
    --------------------------- */
-@import "./styles/tokens.css" layer(theme);
+@import "./styles/tokens.css";
 
 /* ---------------------------
    4) Theme variants (brand color overrides)
    --------------------------- */
-@import "./styles/theme-variants.css" layer(theme);
+@import "./styles/theme-variants.css";
 
 /* If you still have extra theme overrides, keep them after tokens */
-@import "./styles/theme.css" layer(theme);
-
-/* ---------------------------
-   4) Tailwind reset
-   --------------------------- */
-@import "tailwindcss/preflight" layer(base);
+@import "./styles/theme.css";
 
 /* ---------------------------
    5) Your component styles
    --------------------------- */
-@import "./styles/components/button.css" layer(components);
-@import "./styles/components/buttons.css" layer(components);
-@import "./styles/components/nav-item.css" layer(components);
-@import "./styles/components/forms.css" layer(components);
-@import "./styles/components/radix-ui.css" layer(components);
-@import "./styles/components/radix-themed-components.css" layer(components);
-
-/* ---------------------------
-   6) Tailwind utilities
-   --------------------------- */
-@import "tailwindcss/utilities";
+@import "./styles/components/button.css";
+@import "./styles/components/buttons.css";
+@import "./styles/components/nav-item.css";
+@import "./styles/components/forms.css";
+@import "./styles/components/radix-ui.css";
+@import "./styles/components/radix-themed-components.css";
 
 /* ---------------------------
    7) App-specific base styles

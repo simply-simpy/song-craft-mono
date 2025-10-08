@@ -5,6 +5,26 @@
  * Uses semantic tokens for theme compatibility.
  */
 
+@reference "tailwindcss";
+
+@theme {
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-primary: var(--border-primary);
+  --color-border-focus: var(--border-focus);
+  --color-border-destructive: var(--border-destructive);
+  --color-fg-primary: var(--fg-primary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-destructive: var(--fg-destructive);
+  --color-bg-brand: var(--bg-brand);
+  --color-fg-on-brand: var(--fg-on-brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-surface-hover: var(--surface-hover);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-bg-destructive: var(--bg-destructive);
+  --color-fg-on-destructive: var(--fg-on-destructive);
+}
+
 /* Base form control styles */
 .form-control {
   @apply w-full px-3 py-2 rounded-md transition-colors;
