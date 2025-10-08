@@ -1,6 +1,6 @@
 /**
  * Page Layout Components
- * 
+ *
  * Reusable layout components extracted from common patterns in routes.
  * Uses semantic tokens and @apply classes for consistent styling.
  */
@@ -13,28 +13,30 @@ interface PageContainerProps {
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "4xl" | "6xl" | "none";
 }
 
-export function PageContainer({ 
-  children, 
-  className, 
-  maxWidth = "6xl" 
+export function PageContainer({
+  children,
+  className,
+  maxWidth = "6xl",
 }: PageContainerProps) {
   const maxWidthClasses = {
     sm: "max-w-sm",
-    md: "max-w-md", 
+    md: "max-w-md",
     lg: "max-w-lg",
     xl: "max-w-xl",
     "2xl": "max-w-2xl",
-    "4xl": "max-w-4xl", 
+    "4xl": "max-w-4xl",
     "6xl": "max-w-6xl",
-    none: ""
+    none: "",
   };
 
   return (
-    <div className={cn(
-      "mx-auto p-6",
-      maxWidth !== "none" && maxWidthClasses[maxWidth],
-      className
-    )}>
+    <div
+      className={cn(
+        "mx-auto p-6",
+        maxWidth !== "none" && maxWidthClasses[maxWidth],
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -47,7 +49,12 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  subtitle,
+  actions,
+  className,
+}: PageHeaderProps) {
   return (
     <div className={cn("flex justify-between items-center mb-6", className)}>
       <div>
@@ -56,11 +63,7 @@ export function PageHeader({ title, subtitle, actions, className }: PageHeaderPr
           <p className="text-lg text-fg-secondary mt-1">{subtitle}</p>
         )}
       </div>
-      {actions && (
-        <div className="flex items-center gap-4">
-          {actions}
-        </div>
-      )}
+      {actions && <div className="flex items-center gap-4">{actions}</div>}
     </div>
   );
 }
@@ -70,7 +73,10 @@ interface LoadingStateProps {
   className?: string;
 }
 
-export function LoadingState({ message = "Loading...", className }: LoadingStateProps) {
+export function LoadingState({
+  message = "Loading...",
+  className,
+}: LoadingStateProps) {
   return (
     <PageContainer className={className}>
       <div className="text-center text-fg-secondary">{message}</div>
@@ -84,10 +90,10 @@ interface ErrorStateProps {
   className?: string;
 }
 
-export function ErrorState({ 
-  title = "Error", 
-  message, 
-  className 
+export function ErrorState({
+  title = "Error",
+  message,
+  className,
 }: ErrorStateProps) {
   return (
     <PageContainer className={className}>
@@ -106,7 +112,12 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({ title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
     <div className={cn("text-center py-12", className)}>
       <div className="text-fg-tertiary text-lg mb-4">{title}</div>
