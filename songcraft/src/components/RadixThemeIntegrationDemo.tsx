@@ -5,6 +5,7 @@ import {
   DynamicThemedButton,
   StyledButton,
 } from "./ui/radix-theme-examples";
+import { Button as CustomButton } from "./ui/Button";
 import { cn } from "../lib/utils";
 
 export function RadixThemeIntegrationDemo() {
@@ -107,82 +108,73 @@ export function RadixThemeIntegrationDemo() {
         </div>
       </section>
 
-      {/* Approach 4: Pure CSS Classes */}
+      {/* Approach 4: Pure CSS Classes (moved to docs/examples) */}
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">Approach 4: Pure CSS Classes</h3>
+        <p className="text-sm text-fg-secondary">
+          CSS examples moved to docs/examples/radix-themed-components.css
+        </p>
         <div className="flex gap-2 flex-wrap">
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--default-size">
-            Default
-          </button>
-          <button className="radix-themed-button radix-themed-button--destructive radix-themed-button--default-size">
-            Destructive
-          </button>
-          <button className="radix-themed-button radix-themed-button--outline radix-themed-button--default-size">
-            Outline
-          </button>
-          <button className="radix-themed-button radix-themed-button--secondary radix-themed-button--default-size">
-            Secondary
-          </button>
-          <button className="radix-themed-button radix-themed-button--ghost radix-themed-button--default-size">
-            Ghost
-          </button>
-          <button className="radix-themed-button radix-themed-button--link radix-themed-button--default-size">
-            Link
-          </button>
+          <CustomButton variant="default">Default</CustomButton>
+          <CustomButton variant="destructive">Destructive</CustomButton>
+          <CustomButton variant="outline">Outline</CustomButton>
+          <CustomButton variant="secondary">Secondary</CustomButton>
+          <CustomButton variant="ghost">Ghost</CustomButton>
+          <CustomButton variant="link">Link</CustomButton>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--sm">
+          <CustomButton variant="default" size="sm">
             Small
-          </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--default-size">
+          </CustomButton>
+          <CustomButton variant="default" size="default">
             Default
-          </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--lg">
+          </CustomButton>
+          <CustomButton variant="default" size="lg">
             Large
-          </button>
-          <button className="radix-themed-button radix-themed-button--default radix-themed-button--icon">
+          </CustomButton>
+          <CustomButton variant="default" size="icon">
             ⚙️
-          </button>
+          </CustomButton>
         </div>
       </section>
 
-      {/* Approach 5: Mapped CSS Variables */}
+      {/* Approach 5: Mapped CSS Variables (moved to docs/examples) */}
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">
           Approach 5: Mapped CSS Variables
         </h3>
+        <p className="text-sm text-fg-secondary">
+          CSS examples moved to docs/examples/radix-themed-components.css
+        </p>
         <div className="flex gap-2 flex-wrap">
-          <button className="btn-mapped btn-mapped--primary">Primary</button>
-          <button className="btn-mapped btn-mapped--destructive">
-            Destructive
-          </button>
-          <button className="btn-mapped btn-mapped--outline">Outline</button>
-          <button className="btn-mapped btn-mapped--secondary">
-            Secondary
-          </button>
-          <button className="btn-mapped btn-mapped--ghost">Ghost</button>
-          <button className="btn-mapped btn-mapped--link">Link</button>
+          <CustomButton variant="default">Primary</CustomButton>
+          <CustomButton variant="destructive">Destructive</CustomButton>
+          <CustomButton variant="outline">Outline</CustomButton>
+          <CustomButton variant="secondary">Secondary</CustomButton>
+          <CustomButton variant="ghost">Ghost</CustomButton>
+          <CustomButton variant="link">Link</CustomButton>
         </div>
       </section>
 
-      {/* Approach 6: Theme-aware Components */}
+      {/* Approach 6: Theme-aware Components (moved to docs/examples) */}
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">
           Approach 6: Theme-aware Components
         </h3>
+        <p className="text-sm text-fg-secondary">
+          CSS examples moved to docs/examples/radix-themed-components.css
+        </p>
         <div className="flex gap-2 flex-wrap">
-          <button className="theme-aware-button theme-aware-button--default">
-            Default
-          </button>
-          <button className="theme-aware-button theme-aware-button--sm">
+          <CustomButton variant="default">Default</CustomButton>
+          <CustomButton variant="default" size="sm">
             Small
-          </button>
-          <button className="theme-aware-button theme-aware-button--lg">
+          </CustomButton>
+          <CustomButton variant="default" size="lg">
             Large
-          </button>
-          <button className="theme-aware-button theme-aware-button--icon">
+          </CustomButton>
+          <CustomButton variant="default" size="icon">
             ⚙️
-          </button>
+          </CustomButton>
         </div>
       </section>
 

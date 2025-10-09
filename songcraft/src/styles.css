@@ -37,12 +37,9 @@
 /* ---------------------------
    5) Your component styles
    --------------------------- */
-@import "./styles/components/button.css";
 @import "./styles/components/buttons.css";
 @import "./styles/components/nav-item.css";
 @import "./styles/components/forms.css";
-@import "./styles/components/radix-ui.css";
-@import "./styles/components/radix-themed-components.css";
 
 /* ---------------------------
    7) App-specific base styles

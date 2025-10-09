@@ -1,11 +1,46 @@
 /**
- * Button @apply Classes
+ * Button Component Styles
  * 
- * Additional @apply classes for button patterns extracted from routes.
- * Complements the form button classes with more specific use cases.
+ * Consolidated button styles using semantic design tokens.
+ * Includes utility classes for various button patterns and Radix UI components.
  */
 
-/* Small action buttons (used in table actions) */
+/* ============================================================================
+   Base Button Styles
+   ============================================================================ */
+
+.btn {
+  @apply px-4 py-2 rounded bg-brand-primary text-white font-semibold border-2 border-brand-primary;
+}
+
+/* ============================================================================
+   Button Variants (for Radix UI components)
+   ============================================================================ */
+
+.btn-primary {
+  @apply bg-brand-primary text-white hover:bg-brand-hover;
+}
+
+.btn-secondary {
+  @apply bg-surface-elevated text-fg-secondary hover:bg-surface-hover;
+}
+
+.btn-outline {
+  @apply border border-border-primary bg-transparent hover:bg-surface-hover;
+}
+
+.btn-ghost {
+  @apply bg-transparent hover:bg-surface-hover;
+}
+
+.btn-destructive {
+  @apply bg-bg-destructive text-white hover:bg-bg-destructive/90;
+}
+
+/* ============================================================================
+   Size Variants
+   ============================================================================ */
+
 .btn-sm {
   @apply px-3 py-1.5 text-sm font-medium rounded-md transition-colors;
 }
@@ -22,7 +57,10 @@
   @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
 }
 
-/* Link-style buttons */
+/* ============================================================================
+   Link-style Buttons
+   ============================================================================ */
+
 .btn-link {
   @apply inline-flex items-center font-medium text-fg-brand;
   @apply hover:text-brand-hover hover:underline;
@@ -35,7 +73,10 @@
   @apply transition-colors;
 }
 
-/* Icon buttons */
+/* ============================================================================
+   Icon Buttons
+   ============================================================================ */
+
 .btn-icon {
   @apply inline-flex items-center justify-center rounded-md transition-colors;
   @apply hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-border-focus;
@@ -53,12 +94,18 @@
   @apply w-12 h-12;
 }
 
-/* Loading state buttons */
+/* ============================================================================
+   Button States
+   ============================================================================ */
+
 .btn-loading {
   @apply opacity-75 cursor-not-allowed;
 }
 
-/* Button groups */
+/* ============================================================================
+   Button Groups
+   ============================================================================ */
+
 .btn-group {
   @apply inline-flex rounded-md shadow-sm;
 }
@@ -71,7 +118,10 @@
   @apply rounded-r-none;
 }
 
-/* Floating action button style */
+/* ============================================================================
+   Special Button Types
+   ============================================================================ */
+
 .btn-fab {
   @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg;
   @apply bg-bg-brand text-fg-on-brand;
@@ -80,7 +130,6 @@
   @apply transition-all duration-200;
 }
 
-/* Button with badge/counter */
 .btn-badge {
   @apply relative;
 }
@@ -90,4 +139,32 @@
   @apply min-w-5 h-5 flex items-center justify-center;
   @apply text-xs font-bold rounded-full;
   @apply bg-bg-destructive text-fg-on-destructive;
+}
+
+/* ============================================================================
+   Dialog Component Styles (Radix UI)
+   ============================================================================ */
+
+.dialog-overlay {
+  @apply fixed inset-0 z-50 bg-bg-overlay/80 backdrop-blur-sm;
+}
+
+.dialog-content {
+  @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border-primary bg-surface-base p-6 shadow-lg rounded-lg;
+}
+
+.dialog-header {
+  @apply flex flex-col space-y-1.5 text-center sm:text-left;
+}
+
+.dialog-footer {
+  @apply flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2;
+}
+
+.dialog-title {
+  @apply text-lg font-semibold leading-none tracking-tight text-fg-primary;
+}
+
+.dialog-description {
+  @apply text-sm text-fg-secondary;
 }
