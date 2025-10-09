@@ -23,6 +23,7 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
   await fastify.register(
     rateLimit,
     {
+      prefix: "/auth",
       max: 10, // 10 attempts per 15 minutes
       timeWindow: "15 minutes",
       skipOnError: true,
@@ -32,14 +33,14 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
         code: "AUTH_RATE_LIMIT_EXCEEDED",
         retryAfter: Math.round(context.ttl / 1000),
       }),
-    },
-    { prefix: "/auth" }
+    }
   );
 
   // Moderate limits for API endpoints
   await fastify.register(
     rateLimit,
     {
+      prefix: "/api",
       max: 100, // 100 requests per 15 minutes
       timeWindow: "15 minutes",
       skipOnError: true,
@@ -49,14 +50,14 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
         code: "API_RATE_LIMIT_EXCEEDED",
         retryAfter: Math.round(context.ttl / 1000),
       }),
-    },
-    { prefix: "/api" }
+    }
   );
 
   // Very strict limits for admin endpoints
   await fastify.register(
     rateLimit,
     {
+      prefix: "/admin",
       max: 50, // 50 requests per 15 minutes
       timeWindow: "15 minutes",
       skipOnError: true,
@@ -66,8 +67,7 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
         code: "ADMIN_RATE_LIMIT_EXCEEDED",
         retryAfter: Math.round(context.ttl / 1000),
       }),
-    },
-    { prefix: "/admin" }
+    }
   );
 
   fastify.log.info("🛡️ Rate limiting plugin registered");

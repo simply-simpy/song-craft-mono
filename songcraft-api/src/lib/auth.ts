@@ -1,4 +1,4 @@
-import { createClerkClient } from "@clerk/backend";
+import { verifyToken } from "@clerk/backend";
 import type { FastifyRequest } from "fastify";
 
 import { env } from "../config/env";
@@ -20,19 +20,16 @@ export async function validateClerkToken(request: FastifyRequest): Promise<{
   const token = authHeader.substring(7); // Remove "Bearer " prefix
 
   try {
-    // Create Clerk client with secret key
-    const clerkClient = createClerkClient({
+    // Verify the JWT token using the backend helper
+    const { payload } = await verifyToken(token, {
+      // Prefer the secret key from env; verifyToken can also auto-read process.env
       secretKey: env.CLERK_SECRET_KEY,
     });
 
-    // Verify the JWT token
-    const payload = await clerkClient.verifyToken(token, {
-      jwtKey: "default", // Use default JWT key
-    });
-
     // Extract user ID and session ID from verified payload
-    const userId = payload.sub;
-    const sessionId = payload.sid;
+    const claims = payload as { sub?: string; sid?: string };
+    const userId = claims.sub;
+    const sessionId = claims.sid;
 
     if (!userId) {
       throw new UnauthorizedError("Invalid token: missing user ID");

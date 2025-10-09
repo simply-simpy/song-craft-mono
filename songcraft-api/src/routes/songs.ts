@@ -217,7 +217,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = await requireAuthenticatedUser(request);
 
       await container.songsService.deleteSong(id, clerkId);
 

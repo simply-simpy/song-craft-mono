@@ -1,9 +1,9 @@
-import DOMPurify from "dompurify";
+import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 
 // Create a JSDOM window for DOMPurify in Node.js environment
-const window = new JSDOM("").window;
-const purify = DOMPurify(window as unknown as Window);
+const jsdomWindow = new JSDOM("").window as unknown as Window & typeof globalThis;
+const purify = createDOMPurify(jsdomWindow);
 
 /**
  * Sanitizes HTML content to prevent XSS attacks

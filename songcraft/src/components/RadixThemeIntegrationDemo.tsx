@@ -11,7 +11,7 @@ import { cn } from "../lib/utils";
 export function RadixThemeIntegrationDemo() {
   return (
     <div className="p-6 space-y-8">
-      <h2 className="text-2xl font-bold mb-4">
+      <h2 className="mb-4 text-2xl font-bold">
         Radix Theme Integration Examples
       </h2>
 
@@ -20,30 +20,47 @@ export function RadixThemeIntegrationDemo() {
         <h3 className="text-lg font-semibold">
           Approach 1: Radix CSS Variables in Tailwind
         </h3>
-        <div className="flex gap-2 flex-wrap">
-          <button className={cn(radixButtonVariants({ variant: "default" }))}>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "default" }))}
+          >
             Primary
           </button>
           <button
+            type="button"
             className={cn(radixButtonVariants({ variant: "destructive" }))}
           >
             Destructive
           </button>
-          <button className={cn(radixButtonVariants({ variant: "outline" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "outline" }))}
+          >
             Outline
           </button>
-          <button className={cn(radixButtonVariants({ variant: "secondary" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "secondary" }))}
+          >
             Secondary
           </button>
-          <button className={cn(radixButtonVariants({ variant: "ghost" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "ghost" }))}
+          >
             Ghost
           </button>
-          <button className={cn(radixButtonVariants({ variant: "link" }))}>
+          <button
+            type="button"
+            className={cn(radixButtonVariants({ variant: "link" }))}
+          >
             Link
           </button>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "sm" })
             )}
@@ -51,6 +68,7 @@ export function RadixThemeIntegrationDemo() {
             Small
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "default" })
             )}
@@ -58,6 +76,7 @@ export function RadixThemeIntegrationDemo() {
             Default
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "lg" })
             )}
@@ -65,6 +84,7 @@ export function RadixThemeIntegrationDemo() {
             Large
           </button>
           <button
+            type="button"
             className={cn(
               radixButtonVariants({ variant: "default", size: "icon" })
             )}
@@ -79,7 +99,7 @@ export function RadixThemeIntegrationDemo() {
         <h3 className="text-lg font-semibold">
           Approach 2: Dynamic Theme Hook
         </h3>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <DynamicThemedButton variant="default">Default</DynamicThemedButton>
           <DynamicThemedButton variant="destructive">
             Destructive
@@ -98,7 +118,7 @@ export function RadixThemeIntegrationDemo() {
         <h3 className="text-lg font-semibold">
           Approach 3: CSS-in-JS with Radix Variables
         </h3>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <StyledButton variant="default">Default</StyledButton>
           <StyledButton variant="destructive">Destructive</StyledButton>
           <StyledButton variant="outline">Outline</StyledButton>
@@ -114,7 +134,7 @@ export function RadixThemeIntegrationDemo() {
         <p className="text-sm text-fg-secondary">
           CSS examples moved to docs/examples/radix-themed-components.css
         </p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <CustomButton variant="default">Default</CustomButton>
           <CustomButton variant="destructive">Destructive</CustomButton>
           <CustomButton variant="outline">Outline</CustomButton>
@@ -122,7 +142,7 @@ export function RadixThemeIntegrationDemo() {
           <CustomButton variant="ghost">Ghost</CustomButton>
           <CustomButton variant="link">Link</CustomButton>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <CustomButton variant="default" size="sm">
             Small
           </CustomButton>
@@ -146,7 +166,7 @@ export function RadixThemeIntegrationDemo() {
         <p className="text-sm text-fg-secondary">
           CSS examples moved to docs/examples/radix-themed-components.css
         </p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <CustomButton variant="default">Primary</CustomButton>
           <CustomButton variant="destructive">Destructive</CustomButton>
           <CustomButton variant="outline">Outline</CustomButton>
@@ -164,7 +184,7 @@ export function RadixThemeIntegrationDemo() {
         <p className="text-sm text-fg-secondary">
           CSS examples moved to docs/examples/radix-themed-components.css
         </p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <CustomButton variant="default">Default</CustomButton>
           <CustomButton variant="default" size="sm">
             Small
@@ -183,13 +203,13 @@ export function RadixThemeIntegrationDemo() {
         <h3 className="text-lg font-semibold">
           Native Radix Button (for comparison)
         </h3>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <Button variant="solid">Solid</Button>
           <Button variant="soft">Soft</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <Button size="1">Size 1</Button>
           <Button size="2">Size 2</Button>
           <Button size="3">Size 3</Button>
@@ -200,16 +220,16 @@ export function RadixThemeIntegrationDemo() {
       {/* Theme Information */}
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">Theme Information</h3>
-        <div className="bg-gray-4 p-4 rounded-md">
+        <div className="p-4 rounded-md bg-gray-4">
           <p className="text-sm text-gray-11">
             All buttons above automatically adapt to your current Radix theme
             settings. Change the theme using the ThemePanel to see the colors
             update in real-time.
           </p>
-          <p className="text-sm text-gray-11 mt-2">
+          <p className="mt-2 text-sm text-gray-11">
             <strong>Available Radix CSS Variables:</strong>
           </p>
-          <ul className="text-sm text-gray-11 mt-1 ml-4 list-disc">
+          <ul className="mt-1 ml-4 text-sm list-disc text-gray-11">
             <li>
               <code>--accent-9</code>, <code>--accent-10</code>,{" "}
               <code>--accent-contrast</code>

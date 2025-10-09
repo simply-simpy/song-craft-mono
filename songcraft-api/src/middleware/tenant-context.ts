@@ -63,8 +63,8 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
         }
 
         fastify.log.warn(
-          `Failed to set tenant context for account ${accountId}:`,
-          error
+          { err: error, accountId },
+          `Failed to set tenant context for account ${accountId}`
         );
         // Don't fail the request for other errors, just log them
       }

@@ -1,11 +1,11 @@
 /**
  * Data Table Layout Components
- * 
+ *
  * Reusable table components extracted from songs/index.tsx patterns.
  * Provides consistent styling for data tables across the app.
  */
 
-import React from "react";
+import type React from "react";
 import { cn } from "../../lib/ui-utils";
 
 interface TableContainerProps {
@@ -15,10 +15,12 @@ interface TableContainerProps {
 
 export function TableContainer({ children, className }: TableContainerProps) {
   return (
-    <div className={cn(
-      "bg-surface-base border border-border-secondary rounded-lg overflow-hidden shadow-sm",
-      className
-    )}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-lg border shadow-sm bg-surface-base border-border-secondary",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -31,14 +33,18 @@ interface TableHeaderProps {
 
 export function TableHeader({ children, className }: TableHeaderProps) {
   return (
-    <div className={cn(
-      "bg-bg-secondary border-b border-border-secondary",
-      className
-    )}>
-      <div className={cn(
-        "px-6 py-3 text-left text-xs font-medium text-fg-tertiary uppercase tracking-wider",
+    <div
+      className={cn(
+        "border-b bg-bg-secondary border-border-secondary",
         className
-      )}>
+      )}
+    >
+      <div
+        className={cn(
+          "px-6 py-3 text-xs font-medium tracking-wider text-left uppercase text-fg-tertiary",
+          className
+        )}
+      >
         {children}
       </div>
     </div>
@@ -55,14 +61,14 @@ interface TableGridHeaderProps {
   className?: string;
 }
 
-export function TableGridHeader({ 
-  columns, 
+export function TableGridHeader({
+  columns,
   totalCols = 12,
-  className 
+  className,
 }: TableGridHeaderProps) {
   return (
     <TableHeader className={className}>
-      <div className={`grid grid-cols-${totalCols} gap-4`}>
+      <div className={`grid gap-4 grid-cols-${totalCols}`}>
         {columns.map(({ key, label, span = 1 }) => (
           <div key={key} className={`col-span-${span}`}>
             {label}
@@ -80,20 +86,16 @@ interface TableBodyProps {
   className?: string;
 }
 
-export function TableBody({ 
-  children, 
+export function TableBody({
+  children,
   maxHeight,
   virtualized = false,
-  className 
+  className,
 }: TableBodyProps) {
   const heightClass = maxHeight || (virtualized ? "h-150" : "max-h-96");
-  
+
   return (
-    <div className={cn(
-      heightClass,
-      "overflow-auto",
-      className
-    )}>
+    <div className={cn(heightClass, "overflow-auto", className)}>
       {children}
     </div>
   );
@@ -105,13 +107,20 @@ interface TableRowProps {
   className?: string;
 }
 
-export function TableRow({ children, interactive = false, className }: TableRowProps) {
+export function TableRow({
+  children,
+  interactive = false,
+  className,
+}: TableRowProps) {
   return (
-    <div className={cn(
-      "border-b border-border-secondary px-6 py-4",
-      interactive && "hover:bg-surface-hover cursor-pointer transition-colors",
-      className
-    )}>
+    <div
+      className={cn(
+        "border-b border-border-secondary px-6 py-4",
+        interactive &&
+          "hover:bg-surface-hover cursor-pointer transition-colors",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -124,15 +133,15 @@ interface TableGridRowProps {
   className?: string;
 }
 
-export function TableGridRow({ 
-  children, 
+export function TableGridRow({
+  children,
   totalCols = 12,
   interactive = false,
-  className 
+  className,
 }: TableGridRowProps) {
   return (
     <TableRow interactive={interactive} className={className}>
-      <div className={`grid grid-cols-${totalCols} gap-4 items-center`}>
+      <div className={`grid gap-4 items-center grid-cols-${totalCols}`}>
         {children}
       </div>
     </TableRow>
@@ -146,25 +155,27 @@ interface TableCellProps {
   className?: string;
 }
 
-export function TableCell({ 
-  children, 
-  span = 1, 
+export function TableCell({
+  children,
+  span = 1,
   align = "left",
-  className 
+  className,
 }: TableCellProps) {
   const alignClass = {
     left: "text-left",
-    center: "text-center", 
-    right: "text-right"
+    center: "text-center",
+    right: "text-right",
   }[align];
 
   return (
-    <div className={cn(
-      `col-span-${span}`,
-      alignClass,
-      "text-fg-primary",
-      className
-    )}>
+    <div
+      className={cn(
+        `col-span-${span}`,
+        alignClass,
+        "text-fg-primary",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -177,13 +188,13 @@ interface TableFooterProps {
 
 export function TableFooter({ children, className }: TableFooterProps) {
   return (
-    <div className={cn(
-      "bg-bg-secondary px-6 py-2 border-t border-border-secondary",
-      className
-    )}>
-      <div className="text-sm text-fg-tertiary">
-        {children}
-      </div>
+    <div
+      className={cn(
+        "px-6 py-2 border-t bg-bg-secondary border-border-secondary",
+        className
+      )}
+    >
+      <div className="text-sm text-fg-tertiary">{children}</div>
     </div>
   );
 }
@@ -195,14 +206,16 @@ interface TableStatsProps {
   className?: string;
 }
 
-export function TableStats({ 
-  itemCount, 
+export function TableStats({
+  itemCount,
   itemLabel = "item",
   additionalInfo,
-  className 
+  className,
 }: TableStatsProps) {
-  const displayText = `${itemCount} ${itemCount === 1 ? itemLabel : `${itemLabel}s`} total`;
-  
+  const displayText = `${itemCount} ${
+    itemCount === 1 ? itemLabel : `${itemLabel}s`
+  } total`;
+
   return (
     <TableFooter className={className}>
       {displayText}
@@ -218,17 +231,19 @@ interface TableActionsProps {
   className?: string;
 }
 
-export function TableActions({ children, align = "left", className }: TableActionsProps) {
+export function TableActions({
+  children,
+  align = "left",
+  className,
+}: TableActionsProps) {
   const alignClass = {
     left: "justify-start",
     center: "justify-center",
-    right: "justify-end"
+    right: "justify-end",
   }[align];
 
   return (
-    <div className={cn("flex gap-2", alignClass, className)}>
-      {children}
-    </div>
+    <div className={cn("flex gap-2", alignClass, className)}>{children}</div>
   );
 }
 
@@ -240,10 +255,12 @@ interface TableIdProps {
 
 export function TableId({ id, className }: TableIdProps) {
   return (
-    <span className={cn(
-      "font-mono text-sm bg-surface-elevated px-2 py-1 rounded text-fg-secondary",
-      className
-    )}>
+    <span
+      className={cn(
+        "px-2 py-1 font-mono text-sm rounded bg-surface-elevated text-fg-secondary",
+        className
+      )}
+    >
       {id}
     </span>
   );

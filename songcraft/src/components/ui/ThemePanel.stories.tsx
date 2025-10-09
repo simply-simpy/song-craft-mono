@@ -20,11 +20,11 @@ export const InteractiveTheme: Story = {
       <div style={{ flex: 1, padding: "2rem" }}>
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Button Examples</h2>
+            <h2 className="mb-4 text-2xl font-bold">Button Examples</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Primary Variants</h3>
-                <div className="flex gap-2 flex-wrap">
+                <h3 className="mb-2 text-lg font-semibold">Primary Variants</h3>
+                <div className="flex flex-wrap gap-2">
                   <Button>Primary</Button>
                   <Button variant="outline">Outline</Button>
                   <Button variant="ghost">Ghost</Button>
@@ -33,18 +33,18 @@ export const InteractiveTheme: Story = {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">
+                <h3 className="mb-2 text-lg font-semibold">
                   Semantic Variants
                 </h3>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                   <Button variant="destructive">Destructive</Button>
                   <Button variant="secondary">Secondary</Button>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">Sizes</h3>
-                <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="mb-2 text-lg font-semibold">Sizes</h3>
+                <div className="flex flex-wrap gap-2 items-center">
                   <Button size="sm">Small</Button>
                   <Button size="default">Default</Button>
                   <Button size="lg">Large</Button>
@@ -55,7 +55,7 @@ export const InteractiveTheme: Story = {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4">Typography</h2>
+            <h2 className="mb-4 text-2xl font-bold">Typography</h2>
             <div className="space-y-2">
               <h1 className="text-4xl font-bold">Heading 1</h1>
               <h2 className="text-3xl font-semibold">Heading 2</h2>
@@ -67,21 +67,33 @@ export const InteractiveTheme: Story = {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4">Form Elements</h2>
+            <h2 className="mb-4 text-2xl font-bold">Form Elements</h2>
             <div className="space-y-4 max-w-md">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label
+                  for="input-field"
+                  className="block mb-1 text-sm font-medium"
+                >
                   Input Field
                 </label>
                 <input
+                  id="input-field"
                   type="text"
                   placeholder="Enter text..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Select</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label
+                  htmlFor="select-field"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Select
+                </label>
+                <select
+                  id="select-field"
+                  className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
                   <option>Option 1</option>
                   <option>Option 2</option>
                   <option>Option 3</option>

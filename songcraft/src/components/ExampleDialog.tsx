@@ -20,7 +20,9 @@ export function ExampleDialog() {
       </h2>
 
       {/* Your custom button */}
-      <button className="btn">Custom Button (Layer Components)</button>
+      <button type="button" className="btn">
+        Custom Button (Layer Components)
+      </button>
 
       {/* Radix UI Button */}
       <Button variant="default" className="ml-4">

@@ -33,9 +33,9 @@ export function ThemeSwitcher() {
 				type="button"
 				onClick={toggleDropdown}
 				className={cn(
-					"inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md",
-					"bg-surface-elevated hover:bg-surface-hover border border-border-secondary",
-					"text-fg-secondary hover:text-fg-primary transition-colors",
+					"inline-flex gap-2 items-center px-3 py-2 text-sm font-medium rounded-md",
+					"border bg-surface-elevated hover:bg-surface-hover border-border-secondary",
+					"transition-colors text-fg-secondary hover:text-fg-primary",
 					"focus:outline-none focus:ring-2 focus:ring-border-focus focus:ring-offset-2"
 				)}
 				aria-expanded={isOpen}
@@ -59,6 +59,7 @@ export function ThemeSwitcher() {
 				Theme
 				{/* Dropdown Arrow */}
 				<svg
+					aria-hidden="true"
 					className={cn(
 						"w-4 h-4 transition-transform",
 						isOpen && "rotate-180"
@@ -84,19 +85,18 @@ export function ThemeSwitcher() {
 						type="button"
 						className="fixed inset-0 z-10"
 						onClick={closeDropdown}
-						aria-hidden="true"
 					/>
 
 					{/* Dropdown Content */}
 					<div className={cn(
-						"absolute right-0 top-full mt-2 w-64 z-20",
-						"bg-surface-elevated border border-border-secondary rounded-lg shadow-lg",
+						"absolute right-0 top-full z-20 mt-2 w-64",
+						"rounded-lg border shadow-lg bg-surface-elevated border-border-secondary",
 						"animate-in fade-in scale-in"
 					)}>
 						<div className="p-2">
 							{/* Color Scheme Section */}
 							<div className="mb-4">
-								<div className="px-2 py-1 text-xs font-semibold text-fg-tertiary uppercase tracking-wider mb-2">
+								<div className="px-2 py-1 mb-2 text-xs font-semibold tracking-wider uppercase text-fg-tertiary">
 									Color Scheme
 								</div>
 								<div className="space-y-1">
@@ -116,6 +116,7 @@ export function ThemeSwitcher() {
 											<span className="flex-1 text-left">{scheme.label}</span>
 											{colorScheme === scheme.value && (
 												<svg
+													aria-hidden="true"
 													className="w-4 h-4 text-fg-brand"
 													fill="currentColor"
 													viewBox="0 0 20 20"
@@ -133,11 +134,11 @@ export function ThemeSwitcher() {
 							</div>
 
 							{/* Separator */}
-							<div className="border-t border-border-secondary mb-4" />
+							<div className="mb-4 border-t border-border-secondary" />
 
 							{/* Brand Colors Section */}
 							<div>
-								<div className="px-2 py-1 text-xs font-semibold text-fg-tertiary uppercase tracking-wider mb-2">
+								<div className="px-2 py-1 mb-2 text-xs font-semibold tracking-wider uppercase text-fg-tertiary">
 									Brand Color
 								</div>
 								<div className="space-y-1">
@@ -155,12 +156,13 @@ export function ThemeSwitcher() {
 										>
 											{/* Color Swatch */}
 											<div
-												className="w-4 h-4 rounded-full border border-border-secondary flex-shrink-0"
+												className="flex-shrink-0 w-4 h-4 rounded-full border border-border-secondary"
 												style={{ backgroundColor: skin.color }}
 											/>
 											<span className="flex-1 text-left">{skin.label}</span>
 											{brandSkin === skin.value && (
 												<svg
+													aria-hidden="true"
 													className="w-4 h-4 text-fg-brand"
 													fill="currentColor"
 													viewBox="0 0 20 20"
