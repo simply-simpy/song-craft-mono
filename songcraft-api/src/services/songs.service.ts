@@ -2,6 +2,12 @@ import crypto from "node:crypto";
 import { z } from "zod";
 
 import { AppError, ForbiddenError, NotFoundError } from "../lib/errors";
+import {
+  sanitizeLyrics,
+  sanitizeTitle,
+  sanitizeDescription,
+  sanitizeText,
+} from "../lib/sanitization";
 import type {
   CreateSongData,
   DbSong,
@@ -219,14 +225,16 @@ export class SongsService {
     const createData: CreateSongData = {
       shortId,
       ownerClerkId,
-      title: input.title,
-      artist: input.artist,
+      title: sanitizeTitle(input.title),
+      artist: input.artist ? sanitizeTitle(input.artist) : undefined,
       bpm: input.bpm,
-      key: input.key,
-      tags: input.tags,
-      lyrics: input.lyrics,
-      midiData: input.midiData,
-      collaborators: input.collaborators,
+      key: input.key ? sanitizeText(input.key) : undefined,
+      tags: input.tags.map((tag) => sanitizeText(tag)),
+      lyrics: input.lyrics ? sanitizeLyrics(input.lyrics) : undefined,
+      midiData: input.midiData, // MIDI data is binary, not text
+      collaborators: input.collaborators.map((collaborator) =>
+        sanitizeText(collaborator)
+      ),
       // Remove accountId - songs are now created without direct account reference
     };
 
@@ -306,6 +314,17 @@ export class SongsService {
 
     const updateData: UpdateSongData = {
       ...input,
+      // Sanitize text fields if they exist
+      ...(input.title && { title: sanitizeTitle(input.title) }),
+      ...(input.artist && { artist: sanitizeTitle(input.artist) }),
+      ...(input.key && { key: sanitizeText(input.key) }),
+      ...(input.tags && { tags: input.tags.map((tag) => sanitizeText(tag)) }),
+      ...(input.lyrics && { lyrics: sanitizeLyrics(input.lyrics) }),
+      ...(input.collaborators && {
+        collaborators: input.collaborators.map((collaborator) =>
+          sanitizeText(collaborator)
+        ),
+      }),
       updatedAt: new Date(),
     };
 

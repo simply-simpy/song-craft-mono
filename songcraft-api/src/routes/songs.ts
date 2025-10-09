@@ -8,7 +8,7 @@ import {
   songsListResponseSchema,
   versionsResponseSchema,
 } from "../services/songs.service";
-import { requireClerkUser } from "./_utils/auth";
+import { requireAuthenticatedUser } from "./_utils/auth";
 import {
   buildPaginationMeta,
   createPaginationSchema,
@@ -149,7 +149,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
       },
     },
     withErrorHandling(async (request, reply) => {
-      const clerkId = requireClerkUser(request);
+      const clerkId = await requireAuthenticatedUser(request);
       const accountId = request.headers["x-account-id"] as string;
 
       if (!accountId) {
@@ -189,7 +189,7 @@ export default async function songRoutes(fastify: FastifyInstance) {
     },
     withErrorHandling(async (request, reply) => {
       const { id } = request.params as { id: string };
-      const clerkId = requireClerkUser(request);
+      const clerkId = await requireAuthenticatedUser(request);
       const accountId =
         (request.headers["x-account-id"] as string | undefined) ?? null;
 

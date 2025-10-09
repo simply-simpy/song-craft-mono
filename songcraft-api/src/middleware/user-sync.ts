@@ -1,15 +1,19 @@
 import { eq } from "drizzle-orm";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type {
+  FastifyReply,
+  FastifyRequest,
+  FastifyLoggerInstance,
+} from "fastify";
 import { db } from "../db";
 import { users } from "../schema";
 
 /**
  * Middleware to ensure Clerk user exists in local database
  */
-// TODO check if _reply is used
 export async function syncClerkUser(
   request: FastifyRequest,
-  _reply: FastifyReply
+  _reply: FastifyReply,
+  logger?: FastifyLoggerInstance
 ) {
   // Skip if no auth header
   const clerkId = request.headers["x-clerk-user-id"] as string;
@@ -27,7 +31,11 @@ export async function syncClerkUser(
 
     if (existingUser.length === 0) {
       // User doesn't exist, create them
-      console.log(`🔄 Creating user record for Clerk ID: ${clerkId}`);
+      if (logger) {
+        logger.info(`Creating user record for Clerk ID: ${clerkId}`);
+      } else {
+        console.log(`🔄 Creating user record for Clerk ID: ${clerkId}`);
+      }
 
       // For now, we'll create with minimal info
       // In production, you'd get email from Clerk API
@@ -37,10 +45,18 @@ export async function syncClerkUser(
         globalRole: "user", // Default role
       });
 
-      console.log(`✅ Created user record for: ${clerkId}`);
+      if (logger) {
+        logger.info(`Created user record for: ${clerkId}`);
+      } else {
+        console.log(`✅ Created user record for: ${clerkId}`);
+      }
     }
   } catch (error) {
-    console.error("Failed to sync Clerk user:", error);
+    if (logger) {
+      logger.error({ error }, "Failed to sync Clerk user");
+    } else {
+      console.error("Failed to sync Clerk user:", error);
+    }
     // Don't fail the request, just log the error
   }
 }
@@ -76,11 +92,13 @@ export async function syncClerkUserWithDetails(clerkId: string) {
         globalRole: "user",
       });
 
+      // Note: In production, this should use structured logging
       console.log(
         `✅ Created user: ${clerkUser.primaryEmailAddress?.emailAddress}`
       );
     }
   } catch (error) {
+    // Note: In production, this should use structured logging
     console.error("Failed to sync user with Clerk details:", error);
     throw error;
   }

@@ -12,6 +12,7 @@ import requestDbPlugin from "../middleware/request-db";
 import tenantContextPlugin from "../middleware/tenant-context";
 import { corsPlugin } from "../plugins/cors";
 import { documentationPlugin } from "../plugins/documentation";
+import rateLimitPlugin from "../plugins/rate-limit";
 import { securityHeadersPlugin } from "../plugins/security";
 import adminRoutes from "../routes/admin";
 import projectRoutes from "../routes/projects";
@@ -30,6 +31,7 @@ export const createServer = (): FastifyInstance => {
 
   server.register(securityHeadersPlugin);
   server.register(corsPlugin);
+  server.register(rateLimitPlugin);
   server.register(documentationPlugin);
 
   // Ensure request-scoped DB/transaction is established before tenant context
