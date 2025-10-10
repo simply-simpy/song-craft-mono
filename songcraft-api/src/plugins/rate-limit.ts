@@ -1,76 +1,111 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest, RouteOptions } from "fastify";
 import fp from "fastify-plugin";
 import rateLimit from "@fastify/rate-limit";
 
+type Context = {
+  ttl: number;
+};
+type Request = FastifyRequest;
 /**
- * Rate limiting plugin with different limits for different endpoint types
+ * Rate limiting plugin with sensible defaults and per-route grouping.
+ *
+ * Implementation notes:
+ * - Register @fastify/rate-limit once with global: false so nothing is limited by default.
+ * - Use onRoute to attach route-level rateLimit configs by URL prefix.
+ * - Exclude pure OPTIONS (CORS preflight) and /health from rate limiting.
  */
 async function rateLimitPlugin(fastify: FastifyInstance) {
-  // Register the rate limit plugin
+  // Register the rate limit plugin (do not enable globally)
   await fastify.register(rateLimit, {
-    // Global rate limit: 1000 requests per 15 minutes per IP
-    max: 1000,
-    timeWindow: "15 minutes",
-    errorResponseBuilder: (request, context) => ({
-      success: false,
-      error: "Rate limit exceeded",
-      code: "RATE_LIMIT_EXCEEDED",
-      retryAfter: Math.round(context.ttl / 1000),
-    }),
+    global: false,
+    skipOnError: true,
+    continueExceeding: false,
+    addHeaders: {
+      // keep defaults but ensure Retry-After is exposed
+      "x-ratelimit-limit": true,
+      "x-ratelimit-remaining": true,
+      "x-ratelimit-reset": true,
+      "retry-after": true,
+    },
   });
 
-  // Stricter limits for authentication endpoints
-  await fastify.register(
-    rateLimit,
-    {
-      prefix: "/auth",
-      max: 10, // 10 attempts per 15 minutes
-      timeWindow: "15 minutes",
-      skipOnError: true,
-      errorResponseBuilder: (request, context) => ({
-        success: false,
-        error: "Too many authentication attempts",
-        code: "AUTH_RATE_LIMIT_EXCEEDED",
-        retryAfter: Math.round(context.ttl / 1000),
-      }),
-    }
-  );
+  const AUTH_LIMIT = { max: 10, timeWindow: "15 minutes" as const };
+  const API_LIMIT = { max: 100, timeWindow: "15 minutes" as const };
+  const ADMIN_LIMIT = { max: 50, timeWindow: "15 minutes" as const };
 
-  // Moderate limits for API endpoints
-  await fastify.register(
-    rateLimit,
-    {
-      prefix: "/api",
-      max: 100, // 100 requests per 15 minutes
-      timeWindow: "15 minutes",
-      skipOnError: true,
-      errorResponseBuilder: (request, context) => ({
-        success: false,
-        error: "API rate limit exceeded",
-        code: "API_RATE_LIMIT_EXCEEDED",
-        retryAfter: Math.round(context.ttl / 1000),
-      }),
-    }
-  );
+  function buildError(msg: string) {
+    const fn = (request: Request, context: Context) => ({
+      success: false,
+      error: msg,
+      code: msg.toUpperCase().replace(/[^A-Z0-9]+/g, "_") as
+        | "AUTH_RATE_LIMIT_EXCEEDED"
+        | "API_RATE_LIMIT_EXCEEDED"
+        | "ADMIN_RATE_LIMIT_EXCEEDED"
+        | "RATE_LIMIT_EXCEEDED",
+      retryAfter: Math.round(context.ttl / 1000),
+    });
+    return fn;
+  }
 
-  // Very strict limits for admin endpoints
-  await fastify.register(
-    rateLimit,
-    {
-      prefix: "/admin",
-      max: 50, // 50 requests per 15 minutes
-      timeWindow: "15 minutes",
-      skipOnError: true,
-      errorResponseBuilder: (request, context) => ({
-        success: false,
-        error: "Admin rate limit exceeded",
-        code: "ADMIN_RATE_LIMIT_EXCEEDED",
-        retryAfter: Math.round(context.ttl / 1000),
-      }),
+  // Attach group defaults to routes as they are registered
+  fastify.addHook("onRoute", (routeOptions: RouteOptions) => {
+    // Ensure we don't rate-limit CORS preflight handlers
+    const methods = Array.isArray(routeOptions.method)
+      ? routeOptions.method
+      : [routeOptions.method];
+    if (methods.length === 1 && methods[0] === "OPTIONS") {
+      routeOptions.config = {
+        ...(routeOptions.config || {}),
+        rateLimit: false,
+      };
+      return;
     }
-  );
 
-  fastify.log.info("🛡️ Rate limiting plugin registered");
+    const url = routeOptions.url || "";
+
+    // Skip health and documentation endpoints
+    if (url.startsWith("/health") || url.startsWith("/documentation")) {
+      routeOptions.config = {
+        ...(routeOptions.config || {}),
+        rateLimit: false,
+      };
+      return;
+    }
+
+    // Decide the bucket by URL prefix
+    if (url.startsWith("/auth")) {
+      routeOptions.config = {
+        ...(routeOptions.config || {}),
+        rateLimit: {
+          ...AUTH_LIMIT,
+          errorResponseBuilder: buildError("Too many authentication attempts"),
+        },
+      };
+      return;
+    }
+
+    if (url.startsWith("/admin")) {
+      routeOptions.config = {
+        ...(routeOptions.config || {}),
+        rateLimit: {
+          ...ADMIN_LIMIT,
+          errorResponseBuilder: buildError("Admin rate limit exceeded"),
+        },
+      };
+      return;
+    }
+
+    // Default API limit for everything else
+    routeOptions.config = {
+      ...(routeOptions.config || {}),
+      rateLimit: {
+        ...API_LIMIT,
+        errorResponseBuilder: buildError("API rate limit exceeded"),
+      },
+    };
+  });
+
+  fastify.log.info("🛡️ Rate limiting plugin registered (per-route)");
 }
 
 export default fp(rateLimitPlugin, {
