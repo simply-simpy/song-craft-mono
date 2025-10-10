@@ -22,7 +22,8 @@
 }
 
 .btn-secondary {
-  @apply bg-surface-elevated text-fg-secondary hover:bg-surface-hover;
+  background-color: var(--surface-elevated);
+  @apply text-fg-secondary hover:bg-surface-hover;
 }
 
 .btn-outline {
@@ -46,7 +47,9 @@
 }
 
 .btn-sm-outline {
-  @apply bg-surface-elevated text-fg-secondary border border-border-secondary;
+  background-color: var(--surface-elevated);
+  color: var(--fg-secondary);
+  border: 1px solid var(--border-secondary);
   @apply hover:bg-surface-hover hover:text-fg-primary;
   @apply focus:outline-none focus:ring-2 focus:ring-border-focus;
 }
@@ -167,4 +170,65 @@
 
 .dialog-description {
   @apply text-sm text-fg-secondary;
+}
+
+/* ============================================================================
+   Radix UI Button Variants
+   ============================================================================ */
+
+.radix-button-primary {
+  background-color: var(--radix-accent-9);
+  color: var(--radix-accent-contrast);
+}
+
+.radix-button-primary:hover {
+  background-color: var(--radix-accent-10);
+}
+
+.radix-button-secondary {
+  background-color: var(--radix-gray-4);
+  color: var(--radix-gray-11);
+}
+
+.radix-button-secondary:hover {
+  background-color: var(--radix-gray-5);
+}
+
+.radix-button-destructive {
+  background-color: var(--radix-red-9);
+  color: var(--radix-red-contrast);
+}
+
+.radix-button-destructive:hover {
+  background-color: var(--radix-red-10);
+}
+
+.radix-button-outline {
+  background-color: transparent;
+  border-color: var(--radix-gray-6);
+  color: var(--radix-gray-12);
+}
+
+.radix-button-outline:hover {
+  background-color: var(--radix-gray-4);
+}
+
+.radix-button-ghost {
+  background-color: transparent;
+  color: var(--radix-gray-11);
+}
+
+.radix-button-ghost:hover {
+  background-color: var(--radix-gray-4);
+}
+
+.radix-button-link {
+  background-color: transparent;
+  color: var(--radix-accent-11);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.radix-button-link:hover {
+  text-decoration: underline;
 }

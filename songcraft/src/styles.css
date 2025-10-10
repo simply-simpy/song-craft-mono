@@ -2,7 +2,7 @@
    1) Tailwind CSS v4 imports
    --------------------------- */
 @import "tailwindcss";
-
+@import "tailwind-animate";
 /* ---------------------------
    2) Color sources (Radix ramps)
       Import BEFORE tokens so aliases can see them

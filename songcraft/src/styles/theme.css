@@ -112,4 +112,94 @@
   --color-brand-tertiary: var(--brand-tertiary);
   --color-brand-hover: var(--brand-hover);
   --color-brand-active: var(--brand-active);
+
+  /* ============================================================================
+     Spacing Tokens
+     ============================================================================ */
+  --spacing-0: var(--space-0);
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-7: var(--space-7);
+  --spacing-8: var(--space-8);
+  --spacing-9: var(--space-9);
+  --spacing-10: var(--space-10);
+  --spacing-11: var(--space-11);
+  --spacing-12: var(--space-12);
+  --spacing-14: var(--space-14);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+  --spacing-28: var(--space-28);
+  --spacing-32: var(--space-32);
+  --spacing-36: var(--space-36);
+  --spacing-40: var(--space-40);
+  --spacing-44: var(--space-44);
+  --spacing-48: var(--space-48);
+  --spacing-52: var(--space-52);
+  --spacing-56: var(--space-56);
+  --spacing-60: var(--space-60);
+  --spacing-64: var(--space-64);
+  --spacing-72: var(--space-72);
+  --spacing-80: var(--space-80);
+  --spacing-96: var(--space-96);
+  --spacing-px: var(--space-px);
+  --spacing-0\.5: var(--space-0_5);
+  --spacing-1\.5: var(--space-1_5);
+  --spacing-2\.5: var(--space-2_5);
+  --spacing-3\.5: var(--space-3_5);
+
+  /* ============================================================================
+     Border Radius Tokens
+     ============================================================================ */
+  --radius-none: var(--radius-none);
+  --radius-sm: var(--radius-sm);
+  --radius-DEFAULT: var(--radius-base);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-3xl: var(--radius-3xl);
+  --radius-full: var(--radius-full);
+
+  /* ============================================================================
+     Shadow Tokens
+     ============================================================================ */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-DEFAULT: var(--shadow-base);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+  --shadow-inner: var(--shadow-inner);
+
+  /* ============================================================================
+     Font Tokens
+     ============================================================================ */
+  --font-family-sans: var(--font-font-sans), system-ui, sans-serif;
+  --font-family-mono: var(--font-font-mono), ui-monospace, monospace;
+
+  --font-size-xs: var(--font-text-xs);
+  --font-size-sm: var(--font-text-sm);
+  --font-size-base: var(--font-text-base);
+  --font-size-lg: var(--font-text-lg);
+  --font-size-xl: var(--font-text-xl);
+  --font-size-2xl: var(--font-text-2xl);
+  --font-size-3xl: var(--font-text-3xl);
+  --font-size-4xl: var(--font-text-4xl);
+  --font-size-5xl: var(--font-text-5xl);
+
+  --font-weight-light: var(--font-weight-light);
+  --font-weight-normal: var(--font-weight-normal);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-bold: var(--font-weight-bold);
+
+  --line-height-tight: var(--font-leading-tight);
+  --line-height-normal: var(--font-leading-normal);
+  --line-height-relaxed: var(--font-leading-relaxed);
 }
