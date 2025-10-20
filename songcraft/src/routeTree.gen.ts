@@ -32,7 +32,6 @@ import { Route as SongsSongIdMidiRouteImport } from './routes/songs/$songId/midi
 import { Route as SongsSongIdLyricsRouteImport } from './routes/songs/$songId/lyrics'
 import { Route as SongsSongIdCollabRouteImport } from './routes/songs/$songId/collab'
 import { Route as AdminAccountsRefactoredRouteImport } from './routes/admin/accounts.refactored'
-import { Route as SongsSongIdIndexRefactoredRouteImport } from './routes/songs/$songId/index.refactored'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -142,12 +141,6 @@ const AdminAccountsRefactoredRoute = AdminAccountsRefactoredRouteImport.update({
   path: '/refactored',
   getParentRoute: () => AdminAccountsRoute,
 } as any)
-const SongsSongIdIndexRefactoredRoute =
-  SongsSongIdIndexRefactoredRouteImport.update({
-    id: '/songs/$songId/index/refactored',
-    path: '/songs/$songId/index/refactored',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -176,7 +169,6 @@ export interface FileRoutesByFullPath {
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
   '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId': typeof SongsSongIdIndexRoute
-  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -200,7 +192,6 @@ export interface FileRoutesByTo {
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
   '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId': typeof SongsSongIdIndexRoute
-  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -225,7 +216,6 @@ export interface FileRoutesById {
   '/songs/$songId/record': typeof SongsSongIdRecordRoute
   '/songs/new/refactored': typeof SongsNewRefactoredRoute
   '/songs/$songId/': typeof SongsSongIdIndexRoute
-  '/songs/$songId/index/refactored': typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,7 +241,6 @@ export interface FileRouteTypes {
     | '/songs/$songId/record'
     | '/songs/new/refactored'
     | '/songs/$songId'
-    | '/songs/$songId/index/refactored'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -275,7 +264,6 @@ export interface FileRouteTypes {
     | '/songs/$songId/record'
     | '/songs/new/refactored'
     | '/songs/$songId'
-    | '/songs/$songId/index/refactored'
   id:
     | '__root__'
     | '/'
@@ -299,7 +287,6 @@ export interface FileRouteTypes {
     | '/songs/$songId/record'
     | '/songs/new/refactored'
     | '/songs/$songId/'
-    | '/songs/$songId/index/refactored'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,7 +308,6 @@ export interface RootRouteChildren {
   SongsSongIdPackageRoute: typeof SongsSongIdPackageRoute
   SongsSongIdRecordRoute: typeof SongsSongIdRecordRoute
   SongsSongIdIndexRoute: typeof SongsSongIdIndexRoute
-  SongsSongIdIndexRefactoredRoute: typeof SongsSongIdIndexRefactoredRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
@@ -494,13 +480,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountsRefactoredRouteImport
       parentRoute: typeof AdminAccountsRoute
     }
-    '/songs/$songId/index/refactored': {
-      id: '/songs/$songId/index/refactored'
-      path: '/songs/$songId/index/refactored'
-      fullPath: '/songs/$songId/index/refactored'
-      preLoaderRoute: typeof SongsSongIdIndexRefactoredRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -569,7 +548,6 @@ const rootRouteChildren: RootRouteChildren = {
   SongsSongIdPackageRoute: SongsSongIdPackageRoute,
   SongsSongIdRecordRoute: SongsSongIdRecordRoute,
   SongsSongIdIndexRoute: SongsSongIdIndexRoute,
-  SongsSongIdIndexRefactoredRoute: SongsSongIdIndexRefactoredRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
