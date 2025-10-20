@@ -1,10 +1,10 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, and } from "drizzle-orm";
 import { getClerkUserId } from "../lib/auth";
 import { ForbiddenError } from "../lib/errors";
 import { db } from "../db";
-import { users } from "../schema";
+import { users, memberships } from "../schema";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -24,6 +24,10 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
         // Validate that the authenticated user has access to this account
         const clerkId = await getClerkUserId(request);
 
+        fastify.log.info(
+          `Tenant context check: clerkId=${clerkId}, accountId=${accountId}`
+        );
+
         // Get user from database to check account membership
         const user = await db
           .select()
@@ -32,16 +36,42 @@ async function tenantContextPlugin(fastify: FastifyInstance) {
           .limit(1);
 
         if (user.length === 0) {
+          fastify.log.warn(`User not found in database: clerkId=${clerkId}`);
           throw new ForbiddenError("User not found");
         }
 
-        const userAccountIds = user[0].accountIds || [];
-        if (!userAccountIds.includes(accountId)) {
+        fastify.log.info(
+          `User found: id=${user[0].id}, email=${user[0].email}`
+        );
+
+        // Check if user has membership in the requested account
+        const membership = await db
+          .select()
+          .from(memberships)
+          .where(
+            and(
+              eq(memberships.userId, user[0].id),
+              eq(memberships.accountId, accountId)
+            )
+          )
+          .limit(1);
+
+        if (membership.length === 0) {
+          // Log all user memberships for debugging
+          const allMemberships = await db
+            .select()
+            .from(memberships)
+            .where(eq(memberships.userId, user[0].id));
+
           fastify.log.warn(
-            `User ${clerkId} attempted to access account ${accountId} without permission`
+            `User ${clerkId} (${user[0].email}) attempted to access account ${accountId} without permission. User has ${allMemberships.length} memberships: ${allMemberships.map((m) => m.accountId).join(", ")}`
           );
           throw new ForbiddenError("Access denied to this account");
         }
+
+        fastify.log.info(
+          `Membership found: user=${user[0].id}, account=${accountId}, role=${membership[0].role}`
+        );
 
         // Set the tenant context in the database session
         if (request.pgClient) {

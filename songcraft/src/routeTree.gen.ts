@@ -15,7 +15,6 @@ import { Route as UiSimpleRouteImport } from './routes/ui-simple'
 import { Route as ThemeTestRouteImport } from './routes/theme-test'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ThemeIndexRouteImport } from './routes/theme/index'
 import { Route as SongsIndexRouteImport } from './routes/songs/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
@@ -56,11 +55,6 @@ const SignInRoute = SignInRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ThemeIndexRoute = ThemeIndexRouteImport.update({
-  id: '/theme/',
-  path: '/theme/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SongsIndexRoute = SongsIndexRouteImport.update({
@@ -174,7 +168,6 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
-  '/theme': typeof ThemeIndexRoute
   '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -199,7 +192,6 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/songs': typeof SongsIndexRoute
-  '/theme': typeof ThemeIndexRoute
   '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -225,7 +217,6 @@ export interface FileRoutesById {
   '/projects/': typeof ProjectsIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/songs/': typeof SongsIndexRoute
-  '/theme/': typeof ThemeIndexRoute
   '/admin/accounts/refactored': typeof AdminAccountsRefactoredRoute
   '/songs/$songId/collab': typeof SongsSongIdCollabRoute
   '/songs/$songId/lyrics': typeof SongsSongIdLyricsRoute
@@ -252,7 +243,6 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sessions'
     | '/songs'
-    | '/theme'
     | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -277,7 +267,6 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sessions'
     | '/songs'
-    | '/theme'
     | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -302,7 +291,6 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/sessions/'
     | '/songs/'
-    | '/theme/'
     | '/admin/accounts/refactored'
     | '/songs/$songId/collab'
     | '/songs/$songId/lyrics'
@@ -327,7 +315,6 @@ export interface RootRouteChildren {
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
   SongsIndexRoute: typeof SongsIndexRoute
-  ThemeIndexRoute: typeof ThemeIndexRoute
   SongsSongIdCollabRoute: typeof SongsSongIdCollabRoute
   SongsSongIdLyricsRoute: typeof SongsSongIdLyricsRoute
   SongsSongIdMidiRoute: typeof SongsSongIdMidiRoute
@@ -386,13 +373,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/theme/': {
-      id: '/theme/'
-      path: '/theme'
-      fullPath: '/theme'
-      preLoaderRoute: typeof ThemeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/songs/': {
@@ -583,7 +563,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIndexRoute: ProjectsIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
   SongsIndexRoute: SongsIndexRoute,
-  ThemeIndexRoute: ThemeIndexRoute,
   SongsSongIdCollabRoute: SongsSongIdCollabRoute,
   SongsSongIdLyricsRoute: SongsSongIdLyricsRoute,
   SongsSongIdMidiRoute: SongsSongIdMidiRoute,

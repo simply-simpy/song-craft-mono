@@ -3,6 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { API_ENDPOINTS } from "../../lib/api";
 import { requireAuth } from "../../lib/requireAuth.server";
+import { useAuth } from "../../lib/auth";
+import { useAccountContext } from "../../lib/useAccountContext";
 
 // Import new reusable components
 import { PageContainer, PageHeader } from "../../components/layout/PageLayout";
@@ -24,6 +26,11 @@ export const Route = createFileRoute("/songs/new")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { user, getAuthHeaders, isLoaded } = useAuth();
+  const { currentContext, isLoading: isLoadingContext } = useAccountContext(
+    user?.id || ""
+  );
+
   const [formData, setFormData] = useState({
     title: "",
     artist: "",
@@ -42,8 +49,16 @@ function RouteComponent() {
 
   const createSong = useMutation({
     mutationFn: async (songData: typeof formData) => {
+      // Check if we have the required authentication and context
+      if (!isLoaded || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      if (isLoadingContext || !currentContext) {
+        throw new Error("Account context not loaded");
+      }
+
       const requestBody = {
-        ownerClerkId: "temp-user-id",
         title: songData.title,
         artist: songData.artist || undefined,
         bpm: songData.bpm ? Number.parseInt(songData.bpm) : undefined,
@@ -55,10 +70,23 @@ function RouteComponent() {
       };
 
       console.log("🚀 Frontend sending song data:", requestBody);
+      console.log("🔐 Auth headers:", getAuthHeaders());
+      console.log("🏢 Account context:", currentContext);
+
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "x-account-id": currentContext.currentAccountId,
+      };
+
+      // Add auth headers if they exist
+      if (authHeaders["x-clerk-user-id"]) {
+        headers["x-clerk-user-id"] = authHeaders["x-clerk-user-id"];
+      }
 
       const response = await fetch(API_ENDPOINTS.songs(), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(requestBody),
       });
 
@@ -84,6 +112,47 @@ function RouteComponent() {
       console.error("❌ Song creation failed:", error);
     },
   });
+
+  // Show loading state while auth/context is loading
+  if (!isLoaded || isLoadingContext) {
+    return (
+      <PageContainer maxWidth="2xl">
+        <PageHeader title="Create New Song" />
+        <div className="text-center py-8">
+          <div className="text-gray-500">
+            Loading authentication and account context...
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  // Show error if no user or context
+  if (!user) {
+    return (
+      <PageContainer maxWidth="2xl">
+        <PageHeader title="Create New Song" />
+        <div className="text-center py-8">
+          <div className="text-red-500">
+            User not authenticated. Please sign in.
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (!currentContext) {
+    return (
+      <PageContainer maxWidth="2xl">
+        <PageHeader title="Create New Song" />
+        <div className="text-center py-8">
+          <div className="text-red-500">
+            No account context available. Please contact support.
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer maxWidth="2xl">

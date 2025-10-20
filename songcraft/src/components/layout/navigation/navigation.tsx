@@ -31,9 +31,6 @@ function Navigation() {
             <NavItem to="/sessions">Sessions</NavItem>
           </li>
           <li>
-            <NavItem to="/theme">Theme Showcase</NavItem>
-          </li>
-          <li>
             <details open>
               <summary>Admin</summary>
               <ul>
