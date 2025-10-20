@@ -1,142 +1,334 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "../../../lib/api";
+import { useAuth } from "../../../lib/auth";
+import { useAccountContext } from "../../../lib/useAccountContext";
 
-interface LyricVersion {
-  id: string;
-  shortId: string;
-  songId: string;
-  versionName: string;
-  contentMd: string;
-  createdAt: string;
-}
+// Import new reusable components
+import {
+  PageContainer,
+  PageHeader,
+} from "../../../components/layout/PageLayout";
+import { FormButton, InfoBox } from "../../../components/forms/FormComponents";
+import {
+  LyricsEditor,
+  LyricsToolbar,
+} from "../../../components/editor/LyricsEditor";
 
 export const Route = createFileRoute("/songs/$songId/lyrics")({
-  component: RouteComponent,
+  component: LyricsPage,
 });
 
-function RouteComponent() {
+function LyricsPage() {
   const { songId } = useParams({ from: "/songs/$songId/lyrics" });
+  const { user, getAuthHeaders, isLoaded } = useAuth();
+  const { currentContext, isLoading: isLoadingContext } = useAccountContext(
+    user?.id || ""
+  );
 
-  // Basic validation - just check if songId exists
-  if (!songId) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center text-red-600">
-          <h1 className="text-2xl font-bold mb-4">Missing Song ID</h1>
-          <p>No song ID provided in the URL.</p>
-        </div>
-      </div>
-    );
-  }
+  const [lyricsContent, setLyricsContent] = useState<any[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const { data: versionsData, isLoading, error } = useQuery({
-    queryKey: ["lyricVersions", songId],
+  // Fetch song data
+  const {
+    data: songData,
+    isLoading: isLoadingSong,
+    error: songError,
+  } = useQuery({
+    queryKey: ["song", songId],
     queryFn: async () => {
-      const response = await fetch(API_ENDPOINTS.songVersions(songId));
-      if (!response.ok) {
-        throw new Error("Failed to fetch lyric versions");
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (authHeaders["x-clerk-user-id"]) {
+        headers["x-clerk-user-id"] = authHeaders["x-clerk-user-id"];
       }
+
+      if (currentContext?.currentAccountId) {
+        headers["x-account-id"] = currentContext.currentAccountId;
+      }
+
+      const response = await fetch(API_ENDPOINTS.songs(songId), {
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch song: ${response.status}`);
+      }
+
       return response.json();
+    },
+    enabled: isLoaded && !!currentContext,
+  });
+
+  // Fetch song versions (lyrics history)
+  const { data: versionsData, isLoading: isLoadingVersions } = useQuery({
+    queryKey: ["songVersions", songId],
+    queryFn: async () => {
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (authHeaders["x-clerk-user-id"]) {
+        headers["x-clerk-user-id"] = authHeaders["x-clerk-user-id"];
+      }
+
+      if (currentContext?.currentAccountId) {
+        headers["x-account-id"] = currentContext.currentAccountId;
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.songs(songId)}/versions`, {
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch song versions: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    enabled: isLoaded && !!currentContext,
+  });
+
+  // Save lyrics mutation
+  const saveLyrics = useMutation({
+    mutationFn: async (content: any[]) => {
+      if (!isLoaded || !user || !currentContext) {
+        throw new Error("User not authenticated or context not loaded");
+      }
+
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (authHeaders["x-clerk-user-id"]) {
+        headers["x-clerk-user-id"] = authHeaders["x-clerk-user-id"];
+      }
+
+      if (currentContext?.currentAccountId) {
+        headers["x-account-id"] = currentContext.currentAccountId;
+      }
+
+      // Convert Plate.js content to markdown or HTML for storage
+      const lyricsText = content
+        .map((block) => {
+          if (block.type === "p") {
+            return block.children.map((child: any) => child.text).join("");
+          }
+          return "";
+        })
+        .join("\n\n");
+
+      const response = await fetch(API_ENDPOINTS.songs(songId), {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({
+          lyrics: lyricsText,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save lyrics: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      setHasUnsavedChanges(false);
+    },
+    onError: (error) => {
+      console.error("Failed to save lyrics:", error);
     },
   });
 
-  if (isLoading) {
+  // Initialize lyrics content when song data loads
+  useEffect(() => {
+    if (songData?.song?.lyrics) {
+      // Convert lyrics text to Plate.js format
+      const lines = songData.song.lyrics.split("\n\n");
+      const plateContent = lines.map((line: string) => ({
+        type: "p",
+        children: [{ text: line }],
+      }));
+
+      if (plateContent.length === 0) {
+        plateContent.push({
+          type: "p",
+          children: [{ text: "" }],
+        });
+      }
+
+      setLyricsContent(plateContent);
+    }
+  }, [songData]);
+
+  const handleLyricsChange = (newContent: any[]) => {
+    setLyricsContent(newContent);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSave = () => {
+    saveLyrics.mutate(lyricsContent);
+  };
+
+  // Show loading state while auth/context is loading
+  if (!isLoaded || isLoadingContext) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center">Loading lyrics...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center text-red-600">
-          <h1 className="text-2xl font-bold mb-4">Error Loading Lyrics</h1>
-          <p>{error.message}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const versions = versionsData?.data || [];
-
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-500">
-              ID:{" "}
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                {songId}
-              </span>
-            </div>
+      <PageContainer maxWidth="4xl">
+        <PageHeader title="Song Lyrics" />
+        <div className="text-center py-8">
+          <div className="text-gray-500">
+            Loading authentication and account context...
           </div>
         </div>
-      </div>
+      </PageContainer>
+    );
+  }
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lyrics Editor */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold mb-4">Edit Lyrics</h2>
-            <textarea
-              className="text-black w-full h-64 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Enter your lyrics here..."
-            />
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                type="button"
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              >
-                Save Draft
-              </button>
-              <button
-                type="button"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Save Version
-              </button>
-            </div>
+  // Show error if no user or context
+  if (!user || !currentContext) {
+    return (
+      <PageContainer maxWidth="4xl">
+        <PageHeader title="Song Lyrics" />
+        <div className="text-center py-8">
+          <div className="text-red-500">
+            User not authenticated or no account context available.
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (isLoadingSong) {
+    return (
+      <PageContainer maxWidth="4xl">
+        <PageHeader title="Song Lyrics" />
+        <div className="text-center py-8">
+          <div className="text-gray-500">Loading song data...</div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (songError) {
+    return (
+      <PageContainer maxWidth="4xl">
+        <PageHeader title="Song Lyrics" />
+        <div className="text-center py-8">
+          <div className="text-red-500">
+            Error loading song: {songError.message}
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer maxWidth="4xl">
+      <PageHeader
+        title={`Lyrics: ${songData?.song?.title || "Untitled Song"}`}
+        subtitle={
+          songData?.song?.artist ? `by ${songData.song.artist}` : undefined
+        }
+      />
+
+      <InfoBox title="Lyrics Editor">
+        Write your song lyrics using the Notion-style block editor below. Use
+        the toolbar to add different song sections like verses, choruses, and
+        bridges.
+      </InfoBox>
+
+      <div className="space-y-4">
+        <LyricsToolbar />
+
+        <LyricsEditor
+          initialValue={lyricsContent}
+          onChange={handleLyricsChange}
+          placeholder="Start writing your lyrics... Use the toolbar above to add song sections."
+          className="w-full"
+        />
+
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-500">
+            {hasUnsavedChanges && "You have unsaved changes"}
+          </div>
+
+          <div className="flex gap-2">
+            <FormButton
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                // Reset to original content
+                if (songData?.song?.lyrics) {
+                  const lines = songData.song.lyrics.split("\n\n");
+                  const plateContent = lines.map((line: string) => ({
+                    type: "p",
+                    children: [{ text: line }],
+                  }));
+                  setLyricsContent(plateContent);
+                  setHasUnsavedChanges(false);
+                }
+              }}
+              disabled={!hasUnsavedChanges}
+            >
+              Reset
+            </FormButton>
+
+            <FormButton
+              type="button"
+              onClick={handleSave}
+              loading={saveLyrics.isPending}
+              disabled={!hasUnsavedChanges || saveLyrics.isPending}
+            >
+              {saveLyrics.isPending ? "Saving..." : "Save Lyrics"}
+            </FormButton>
           </div>
         </div>
 
         {/* Version History */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold mb-4">Version History</h3>
-            {versions.length === 0 ? (
-              <div className="text-gray-500 text-sm">No versions yet</div>
-            ) : (
-              <div className="space-y-3">
-                {versions.map((version: LyricVersion) => (
-                  <div
-                    key={version.id}
-                    className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium text-sm">
-                        {version.versionName}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {version.createdAt
-                          ? new Date(version.createdAt).toLocaleDateString()
-                          : "-"}
-                      </span>
+        {versionsData?.versions && versionsData.versions.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-lg font-medium mb-4">Version History</h3>
+            <div className="space-y-2">
+              {versionsData.versions.map((version: any, index: number) => (
+                <div
+                  key={version.id}
+                  className="p-3 border border-gray-200 rounded-lg bg-gray-50"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-medium">{version.versionName}</div>
+                      <div className="text-sm text-gray-500">
+                        {new Date(version.createdAt).toLocaleString()}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-600 line-clamp-2">
-                      {version.contentMd}
-                    </div>
+                    <button
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                      onClick={() => {
+                        // Load this version
+                        const lines = version.contentMd.split("\n\n");
+                        const plateContent = lines.map((line: string) => ({
+                          type: "p",
+                          children: [{ text: line }],
+                        }));
+                        setLyricsContent(plateContent);
+                        setHasUnsavedChanges(true);
+                      }}
+                    >
+                      Load Version
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
