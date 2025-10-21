@@ -1,5 +1,5 @@
-import type { FastifyInstance } from "fastify";
 import { z } from "@songcraft/shared";
+import type { FastifyInstance } from "fastify";
 import { GlobalRole, superUserManager } from "../lib/super-user";
 import { withErrorHandling } from "./_utils/route-helpers";
 

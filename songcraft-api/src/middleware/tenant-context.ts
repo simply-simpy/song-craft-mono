@@ -1,6 +1,6 @@
+import { sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { sql } from "drizzle-orm";
 
 declare module "fastify" {
 	interface FastifyRequest {

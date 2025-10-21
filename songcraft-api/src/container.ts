@@ -13,13 +13,13 @@ import { UserRepository } from "./repositories/user.repository";
 import { AdminService } from "./services/admin.service";
 import { ProjectService } from "./services/project.service";
 import {
-	type SongsService,
-	createSongsService,
-} from "./services/songs.service";
-import {
 	type SearchService,
 	createSearchService,
 } from "./services/search.service";
+import {
+	type SongsService,
+	createSongsService,
+} from "./services/songs.service";
 
 /**
  * Simple dependency injection container
