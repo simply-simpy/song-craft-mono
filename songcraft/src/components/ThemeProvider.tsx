@@ -62,6 +62,12 @@ export function ThemeProvider({ children, defaultTheme }: ThemeProviderProps) {
 
   // Initialize theme from localStorage on mount
   useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window === "undefined") {
+      setIsHydrated(true);
+      return;
+    }
+
     const savedColorScheme = localStorage.getItem(STORAGE_KEYS.colorScheme) as ColorScheme | null;
     const savedBrandSkin = localStorage.getItem(STORAGE_KEYS.brandSkin) as BrandSkin | null;
 
@@ -83,13 +89,18 @@ export function ThemeProvider({ children, defaultTheme }: ThemeProviderProps) {
     
     applyThemeToDOM(theme);
     
-    // Persist to localStorage
-    localStorage.setItem(STORAGE_KEYS.colorScheme, theme.colorScheme);
-    localStorage.setItem(STORAGE_KEYS.brandSkin, theme.brandSkin);
+    // Persist to localStorage (only on client side)
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.colorScheme, theme.colorScheme);
+      localStorage.setItem(STORAGE_KEYS.brandSkin, theme.brandSkin);
+    }
   }, [theme, isHydrated]);
 
   // Apply theme to DOM
   const applyThemeToDOM = (themeToApply: ThemeState) => {
+    // Only apply theme on client side
+    if (typeof window === "undefined") return;
+    
     const root = document.documentElement;
     
     // Set data attributes
