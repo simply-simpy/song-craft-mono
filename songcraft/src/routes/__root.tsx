@@ -19,11 +19,12 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { AccountContextDisplay } from "@/components/layout/navigation/AccountContextDisplay.tsx";
 import Navigation from "@/components/layout/navigation/navigation";
 import { Button, Input } from "@/components/ui";
-import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/tanstack-react-start";
 import { Navigate } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   head: () => ({
+    title: "SongCraft",
     meta: [
       {
         charSet: "utf-8",
@@ -31,9 +32,6 @@ export const Route = createRootRoute({
       {
         name: "viewport",
         content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "SongCraft",
       },
     ],
     links: [
@@ -79,9 +77,9 @@ function Root() {
       <head>
         <HeadContent />
       </head>
-      <ThemeProvider defaultTheme={{ colorScheme: "light", brandSkin: "blue" }}>
-        <ClerkProvider>
-          <body>
+      <body>
+        <ThemeProvider defaultTheme={{ colorScheme: "light", brandSkin: "blue" }}>
+          <ClerkProvider>
             {isAuthPage ? (
               <main className="p-6 min-h-screen grid place-items-center">
                 <Outlet />
@@ -144,9 +142,9 @@ function Root() {
               onClose={() => setCmdOpen(false)}
             />
             <Scripts />
-          </body>
-        </ClerkProvider>
-      </ThemeProvider>
+          </ClerkProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
