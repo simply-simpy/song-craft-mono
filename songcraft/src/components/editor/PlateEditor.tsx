@@ -1,0 +1,111 @@
+/**
+ * RichTextEditor Component
+ *
+ * A reusable rich text editor component using Tiptap with integration
+ * to the SongCraft design system and theme provider.
+ */
+
+import React from "react";
+import { useEditor, EditorContent, type AnyExtension } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { cn } from "../../lib/utils";
+import "./editor.css";
+
+// Import UI components
+import { RichTextToolbar } from "./RichTextToolbar";
+
+export interface RichTextEditorProps {
+  /**
+   * Initial value for the editor (HTML string)
+   */
+  value?: string;
+
+  /**
+   * Callback when editor content changes
+   */
+  onChange?: (value: string) => void;
+
+  /**
+   * Placeholder text when editor is empty
+   */
+  placeholder?: string;
+
+  /**
+   * Whether the editor is read-only
+   */
+  readOnly?: boolean;
+
+  /**
+   * Additional CSS classes
+   */
+  className?: string;
+
+  /**
+   * Whether to show the toolbar
+   */
+  showToolbar?: boolean;
+
+  /**
+   * Custom extensions to include
+   */
+  extensions?: AnyExtension[];
+}
+
+export function RichTextEditorComponent({
+  value = "",
+  onChange,
+  placeholder = "Start writing...",
+  readOnly = false,
+  className,
+  showToolbar = true,
+  extensions: customExtensions = [],
+}: RichTextEditorProps) {
+  // Create the editor with default extensions
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      ...customExtensions,
+    ],
+    content: value,
+    editable: !readOnly,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      onChange?.(html);
+    },
+    editorProps: {
+      attributes: {
+        class: cn(
+          "rich-text-editor",
+          "min-h-[200px] p-4 border border-gray-300 rounded-md",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          "prose prose-sm max-w-none",
+          // Theme integration
+          "bg-surface-base text-fg-primary",
+          "border-border-primary focus:ring-brand-primary",
+          "placeholder:text-fg-tertiary",
+          // Dark mode support
+          "dark:bg-surface-elevated dark:text-fg-primary",
+          "dark:border-border-secondary dark:focus:ring-brand-primary"
+        ),
+        "data-placeholder": placeholder,
+      },
+    },
+  });
+
+  // Update editor content when value prop changes
+  React.useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [editor, value]);
+
+  return (
+    <div className={cn("rich-text-editor-container", className)}>
+      {showToolbar && editor && <RichTextToolbar editor={editor} />}
+      <EditorContent editor={editor} />
+    </div>
+  );
+}
+
+// Export with a cleaner name
+export { RichTextEditorComponent as RichTextEditor };
