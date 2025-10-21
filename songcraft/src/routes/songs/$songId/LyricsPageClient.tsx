@@ -1,4 +1,5 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+// songcraft/src/routes/songs/$songId/LyricsPageClient.tsx
+import { useParams } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "../../../lib/api";
@@ -16,23 +17,7 @@ import {
   LyricsToolbar,
 } from "../../../components/editor/LyricsEditor";
 
-export const Route = createFileRoute("/songs/$songId/lyrics")({
-  component: LyricsPage,
-});
-
-// Hook to detect client-side rendering
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  return isClient;
-}
-
-// Client-only component that contains all the hooks
-function ClientOnlyLyricsPage() {
+export function LyricsPageClient() {
   const { songId } = useParams({ from: "/songs/$songId/lyrics" });
   const { user, getAuthHeaders, isLoaded } = useAuth();
   const { currentContext, isLoading: isLoadingContext } = useAccountContext(
@@ -178,10 +163,9 @@ function ClientOnlyLyricsPage() {
     },
   });
 
-  // Initialize lyrics content when song data loads
+  // Convert song data to Plate.js format when it loads
   useEffect(() => {
     if (songData?.song?.lyrics) {
-      // Convert lyrics text to Plate.js format
       const lines = songData.song.lyrics.split("\n\n");
       const plateContent = lines.map((line: string) => ({
         type: "p",
@@ -208,7 +192,19 @@ function ClientOnlyLyricsPage() {
     saveLyrics.mutate(lyricsContent);
   };
 
-  // Show loading state while auth/context is loading
+  const handleReset = () => {
+    if (songData?.song?.lyrics) {
+      const lines = songData.song.lyrics.split("\n\n");
+      const plateContent = lines.map((line: string) => ({
+        type: "p",
+        children: [{ text: line }],
+      }));
+      setLyricsContent(plateContent);
+      setHasUnsavedChanges(false);
+    }
+  };
+
+  // Loading states
   if (!isLoaded || isLoadingContext) {
     return (
       <div className="text-center py-8">
@@ -219,7 +215,6 @@ function ClientOnlyLyricsPage() {
     );
   }
 
-  // Show error if no user or context
   if (!user || !currentContext) {
     return (
       <div className="text-center py-8">
@@ -230,20 +225,20 @@ function ClientOnlyLyricsPage() {
     );
   }
 
-  if (isLoadingSong) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-gray-500">Loading song data...</div>
-      </div>
-    );
-  }
-
   if (songError) {
     return (
       <div className="text-center py-8">
         <div className="text-red-500">
           Error loading song: {songError.message}
         </div>
+      </div>
+    );
+  }
+
+  if (isLoadingSong) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-gray-500">Loading song data...</div>
       </div>
     );
   }
@@ -270,10 +265,9 @@ function ClientOnlyLyricsPage() {
           initialValue={lyricsContent}
           onChange={handleLyricsChange}
           placeholder="Start writing your lyrics... Use the toolbar above to add song sections."
-          className="w-full"
         />
 
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
           <div className="text-sm text-gray-500">
             {hasUnsavedChanges && "You have unsaved changes"}
           </div>
@@ -282,18 +276,7 @@ function ClientOnlyLyricsPage() {
             <FormButton
               type="button"
               variant="secondary"
-              onClick={() => {
-                // Reset to original content
-                if (songData?.song?.lyrics) {
-                  const lines = songData.song.lyrics.split("\n\n");
-                  const plateContent = lines.map((line: string) => ({
-                    type: "p",
-                    children: [{ text: line }],
-                  }));
-                  setLyricsContent(plateContent);
-                  setHasUnsavedChanges(false);
-                }
-              }}
+              onClick={handleReset}
               disabled={!hasUnsavedChanges}
             >
               Reset
@@ -302,7 +285,6 @@ function ClientOnlyLyricsPage() {
             <FormButton
               type="button"
               onClick={handleSave}
-              loading={saveLyrics.isPending}
               disabled={!hasUnsavedChanges || saveLyrics.isPending}
             >
               {saveLyrics.isPending ? "Saving..." : "Save Lyrics"}
@@ -356,28 +338,5 @@ function ClientOnlyLyricsPage() {
         )}
       </div>
     </>
-  );
-}
-
-// Main lyrics page component - SSR-safe wrapper
-function LyricsPage() {
-  const isClient = useIsClient();
-
-  if (!isClient) {
-    return (
-      <PageContainer maxWidth="4xl">
-        <PageHeader title="Song Lyrics" />
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
-          <div className="text-gray-500">Loading lyrics editor...</div>
-        </div>
-      </PageContainer>
-    );
-  }
-
-  return (
-    <PageContainer maxWidth="4xl">
-      <ClientOnlyLyricsPage />
-    </PageContainer>
   );
 }
