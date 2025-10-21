@@ -1,11 +1,11 @@
-import type { FastifyInstance } from "fastify";
-import fp from "fastify-plugin";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { FastifyInstance } from "fastify";
+import fp from "fastify-plugin";
 import type { PoolClient } from "pg";
 
-import { pool } from "../db";
 import { Container } from "../container";
+import { pool } from "../db";
 
 declare module "fastify" {
 	interface FastifyRequest {

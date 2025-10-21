@@ -7,8 +7,8 @@ import {
 } from "fastify-type-provider-zod";
 
 import { env } from "../config/env";
-import { superUserPlugin } from "../middleware/super-user";
 import requestDbPlugin from "../middleware/request-db";
+import { superUserPlugin } from "../middleware/super-user";
 import tenantContextPlugin from "../middleware/tenant-context";
 import { corsPlugin } from "../plugins/cors";
 import { documentationPlugin } from "../plugins/documentation";

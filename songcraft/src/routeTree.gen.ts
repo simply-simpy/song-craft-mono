@@ -8,8 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UiSimpleRouteImport } from './routes/ui-simple'
 import { Route as ThemeTestRouteImport } from './routes/theme-test'
@@ -34,9 +32,6 @@ import { Route as SongsSongIdLyricsRouteImport } from './routes/songs/$songId/ly
 import { Route as SongsSongIdCollabRouteImport } from './routes/songs/$songId/collab'
 import { Route as AdminAccountsRefactoredRouteImport } from './routes/admin/accounts.refactored'
 import { Route as SongsSongIdIndexRefactoredRouteImport } from './routes/songs/$songId/index.refactored'
-import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
-
-const rootServerRouteImport = createServerRootRoute()
 
 const UiSimpleRoute = UiSimpleRouteImport.update({
   id: '/ui-simple',
@@ -154,11 +149,6 @@ const SongsSongIdIndexRefactoredRoute =
     path: '/songs/$songId/index/refactored',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
-  id: '/api/trpc/$',
-  path: '/api/trpc/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -336,27 +326,6 @@ export interface RootRouteChildren {
   SongsSongIdIndexRoute: typeof SongsSongIdIndexRoute
   SongsSongIdIndexRefactoredRoute: typeof SongsSongIdIndexRefactoredRoute
 }
-export interface FileServerRoutesByFullPath {
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/trpc/$'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/trpc/$'
-  id: '__root__' | '/api/trpc/$'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
-}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -523,17 +492,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/trpc/$': {
-      id: '/api/trpc/$'
-      path: '/api/trpc/$'
-      fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
 
 interface SignInRouteChildren {
   SignInSsoCallbackRoute: typeof SignInSsoCallbackRoute
@@ -595,9 +553,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

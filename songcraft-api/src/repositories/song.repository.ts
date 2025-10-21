@@ -4,9 +4,9 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import {
 	lyricVersions,
-	songs,
 	songAccountLinks,
 	songProjectAssociations,
+	songs,
 } from "../schema";
 
 // Database types

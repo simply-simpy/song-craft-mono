@@ -1,5 +1,5 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "@songcraft/shared";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AppError } from "../../lib/errors";
 
