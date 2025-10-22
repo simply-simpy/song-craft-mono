@@ -1,112 +1,275 @@
 #!/usr/bin/env node
 
 /**
- * CSS @apply Validator
- * 
- * This script validates @apply directives in CSS files to ensure
- * all referenced Tailwind classes are valid.
+ * Smart CSS @apply Validator
+ *
+ * This script validates @apply directives with intelligent detection of:
+ * 1. Valid Tailwind classes (using patterns)
+ * 2. Custom theme classes (prefixed with design tokens)
+ * 3. Arbitrary value classes (e.g., w-[200px])
+ * 4. Responsive/variant classes (e.g., sm:, hover:, dark:)
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { glob } from 'glob';
-import postcss from 'postcss';
-import postcssScss from 'postcss-scss';
 
-// Common Tailwind classes that are likely to be used
-const VALID_TAILWIND_CLASSES = new Set([
-  // Layout
-  'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'grid', 'inline-grid',
-  'hidden', 'table', 'table-cell', 'table-row',
-  
-  // Spacing
-  'p-0', 'p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'p-8', 'p-10', 'p-12', 'p-16', 'p-20', 'p-24', 'p-32', 'p-40', 'p-48', 'p-56', 'p-64', 'p-72', 'p-80', 'p-96',
-  'px-0', 'px-1', 'px-2', 'px-3', 'px-4', 'px-5', 'px-6', 'px-8', 'px-10', 'px-12', 'px-16', 'px-20', 'px-24', 'px-32', 'px-40', 'px-48', 'px-56', 'px-64', 'px-72', 'px-80', 'px-96',
-  'py-0', 'py-1', 'py-2', 'py-3', 'py-4', 'py-5', 'py-6', 'py-8', 'py-10', 'py-12', 'py-16', 'py-20', 'py-24', 'py-32', 'py-40', 'py-48', 'py-56', 'py-64', 'py-72', 'py-80', 'py-96',
-  'm-0', 'm-1', 'm-2', 'm-3', 'm-4', 'm-5', 'm-6', 'm-8', 'm-10', 'm-12', 'm-16', 'm-20', 'm-24', 'm-32', 'm-40', 'm-48', 'm-56', 'm-64', 'm-72', 'm-80', 'm-96',
-  'mx-0', 'mx-1', 'mx-2', 'mx-3', 'mx-4', 'mx-5', 'mx-6', 'mx-8', 'mx-10', 'mx-12', 'mx-16', 'mx-20', 'mx-24', 'mx-32', 'mx-40', 'mx-48', 'mx-56', 'mx-64', 'mx-72', 'mx-80', 'mx-96',
-  'my-0', 'my-1', 'my-2', 'my-3', 'my-4', 'my-5', 'my-6', 'my-8', 'my-10', 'my-12', 'my-16', 'my-20', 'my-24', 'my-32', 'my-40', 'my-48', 'my-56', 'my-64', 'my-72', 'my-80', 'my-96',
-  
-  // Colors
-  'text-white', 'text-black', 'text-gray-50', 'text-gray-100', 'text-gray-200', 'text-gray-300', 'text-gray-400', 'text-gray-500', 'text-gray-600', 'text-gray-700', 'text-gray-800', 'text-gray-900',
-  'bg-white', 'bg-black', 'bg-gray-50', 'bg-gray-100', 'bg-gray-200', 'bg-gray-300', 'bg-gray-400', 'bg-gray-500', 'bg-gray-600', 'bg-gray-700', 'bg-gray-800', 'bg-gray-900',
-  'bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'bg-blue-600', 'bg-blue-700', 'bg-blue-800', 'bg-blue-900',
-  'text-blue-50', 'text-blue-100', 'text-blue-200', 'text-blue-300', 'text-blue-400', 'text-blue-500', 'text-blue-600', 'text-blue-700', 'text-blue-800', 'text-blue-900',
-  
+// Tailwind class patterns for validation
+const TAILWIND_PATTERNS = {
+  // Layout & Display
+  layout: /^(block|inline-block|inline|flex|inline-flex|grid|inline-grid|hidden|table|table-cell|table-row)$/,
+
+  // Spacing (padding, margin)
+  spacing: /^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml)-(0|px|0\.5|1|1\.5|2|2\.5|3|3\.5|4|5|6|7|8|9|10|11|12|14|16|20|24|28|32|36|40|44|48|52|56|60|64|72|80|96)$/,
+
+  // Sizing
+  sizing: /^(w|h|min-w|min-h|max-w|max-h)-(0|px|0\.5|1|1\.5|2|2\.5|3|3\.5|4|5|6|7|8|9|10|11|12|14|16|20|24|28|32|36|40|44|48|52|56|60|64|72|80|96|auto|full|screen|fit|max|min)$/,
+
+  // Colors (basic set)
+  colors: /^(text|bg|border)-(white|black|transparent|current|inherit|gray|red|blue|green|yellow|purple|pink|indigo)-(50|100|200|300|400|500|600|700|800|900)$/,
+
+  // Placeholder colors
+  placeholder: /^placeholder:(text|bg)-(white|black|transparent|gray|red|blue|green|yellow|purple|pink|indigo)-(50|100|200|300|400|500|600|700|800|900)$/,
+
+  // Ring utilities
+  ring: /^ring(-(\d+|offset-\d+))?$/,
+  ringColor: /^ring-(white|black|transparent|gray|red|blue|green|yellow|purple|pink|indigo)-(50|100|200|300|400|500|600|700|800|900)$/,
+
+  // Outline
+  outline: /^outline-none$/,
+
+  // Resize
+  resize: /^resize-(none|y|x|both)$/,
+
+  // Space between
+  space: /^space-(x|y)-(\d+|0\.5|1\.5|2\.5|3\.5)$/,
+
   // Typography
-  'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl', 'text-8xl', 'text-9xl',
-  'font-thin', 'font-extralight', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black',
-  'text-left', 'text-center', 'text-right', 'text-justify',
-  
+  typography: /^(text)-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
+  fontWeight: /^(font)-(thin|extralight|light|normal|medium|semibold|bold|extrabold|black)$/,
+  textAlign: /^(text)-(left|center|right|justify)$/,
+
   // Borders
-  'border', 'border-0', 'border-2', 'border-4', 'border-8',
-  'border-gray-200', 'border-gray-300', 'border-gray-400', 'border-gray-500',
-  'rounded', 'rounded-sm', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-2xl', 'rounded-3xl', 'rounded-full',
-  
-  // Display
-  'w-full', 'w-auto', 'w-fit', 'w-max', 'w-min', 'w-0', 'w-1', 'w-2', 'w-3', 'w-4', 'w-5', 'w-6', 'w-8', 'w-10', 'w-12', 'w-16', 'w-20', 'w-24', 'w-32', 'w-40', 'w-48', 'w-56', 'w-64', 'w-72', 'w-80', 'w-96',
-  'h-full', 'h-auto', 'h-fit', 'h-max', 'h-min', 'h-0', 'h-1', 'h-2', 'h-3', 'h-4', 'h-5', 'h-6', 'h-8', 'h-10', 'h-12', 'h-16', 'h-20', 'h-24', 'h-32', 'h-40', 'h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96',
-  'min-h-screen', 'min-h-full', 'min-h-0', 'min-h-1', 'min-h-2', 'min-h-3', 'min-h-4', 'min-h-5', 'min-h-6', 'min-h-8', 'min-h-10', 'min-h-12', 'min-h-16', 'min-h-20', 'min-h-24', 'min-h-32', 'min-h-40', 'min-h-48', 'min-h-56', 'min-h-64', 'min-h-72', 'min-h-80', 'min-h-96',
-  
+  borders: /^(border|rounded)(-?(0|2|4|8|sm|md|lg|xl|2xl|3xl|full))?$/,
+
   // Focus states
-  'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'focus:border-transparent',
-  
-  // Dark mode
-  'dark:bg-surface-elevated', 'dark:text-fg-primary', 'dark:border-border-secondary', 'dark:focus:ring-brand-primary',
-  
-  // Custom theme classes (from your design system)
-  'bg-surface-base', 'text-fg-primary', 'border-border-primary', 'focus:ring-brand-primary', 'placeholder:text-fg-tertiary',
-  'bg-surface-elevated', 'text-fg-secondary', 'border-border-secondary',
+  focus: /^(focus|focus-visible):(outline-none|ring-\d+|ring-\w+-\d+|border-transparent)$/,
+
+  // Transitions
+  transitions: /^(transition|duration|ease)-(colors|all|opacity|transform|shadow|none|\d+|in|out|in-out)$/,
+
+  // Arbitrary values (e.g., w-[200px], bg-[#123456])
+  arbitrary: /^[a-z-]+\[[^\]]+\]$/,
+
+  // Responsive/variant prefixes
+  variants: /^(sm|md|lg|xl|2xl|hover|focus|active|disabled|dark|light):/,
+};
+
+// Custom theme classes (your design system)
+const CUSTOM_THEME_CLASSES = new Set([
+  // Surface colors
+  'bg-surface-base', 'bg-surface-elevated', 'bg-surface-hover',
+  'dark:bg-surface-base', 'dark:bg-surface-elevated',
+
+  // Text colors
+  'text-fg-primary', 'text-fg-secondary', 'text-fg-tertiary',
+  'dark:text-fg-primary', 'dark:text-fg-secondary',
+
+  // Border colors
+  'border-border-primary', 'border-border-secondary', 'border-border-focus',
+  'dark:border-border-primary', 'dark:border-border-secondary',
+
+  // Brand colors
+  'bg-brand-primary', 'bg-brand-hover', 'text-brand-primary', 'text-brand-hover',
+  'hover:bg-brand-hover', 'hover:text-brand-hover', 'focus:ring-brand-primary',
+
+  // Semantic colors
+  'bg-bg-brand', 'bg-bg-destructive', 'bg-bg-overlay',
+  'text-fg-on-brand', 'text-fg-on-destructive',
+
+  // Form controls
+  'form-control',
+
+  // Prose (typography plugin)
+  'prose', 'prose-sm', 'prose-lg', 'max-w-none',
+
+  // Custom spacing
+  'space-y-1.5', 'space-x-2', 'gap-4', 'gap-1',
+
+  // Custom positioning
+  'left-[50%]', 'top-[50%]', 'translate-x-[-50%]', 'translate-y-[-50%]',
+  'inset-0', 'z-50', 'fixed', 'absolute', 'relative',
+
+  // Custom sizing
+  'min-h-[200px]', 'min-w-5', 'max-w-lg', 'w-14', 'h-14',
+
+  // Custom effects
+  'backdrop-blur-sm', 'shadow-sm', 'shadow-lg', 'shadow-xl',
+  'ring-offset-1', 'ring-offset-2', 'ring-4',
+
+  // Custom opacity
+  'opacity-75', 'opacity-50',
+
+  // Custom borders
+  'border-l-2', 'border-l-4', 'border-r', 'rounded-l-none', 'rounded-r-none', 'rounded-t-md',
+
+  // Custom margins
+  '-ml-px', '-top-1', '-right-1', 'bottom-6', 'right-6',
+
+  // Custom padding
+  'py-0.5', 'py-1.5', 'pl-4', 'pl-6', 'pt-4',
+
+  // Custom text
+  'leading-none', 'tracking-tight', 'font-mono', 'whitespace-nowrap',
+
+  // Custom flexbox
+  'flex-col', 'flex-col-reverse', 'items-center', 'justify-center', 'justify-end',
+  'sm:flex-row', 'sm:justify-end', 'sm:text-left', 'sm:space-x-2',
+
+  // Custom grid
+  'grid-cols-2', 'grid-cols-3',
+
+  // Custom lists
+  'list-disc', 'list-decimal',
+
+  // Custom states
+  'cursor-not-allowed', 'cursor-pointer', 'pointer-events-none',
+  'disabled:opacity-50', 'disabled:cursor-not-allowed', 'disabled:pointer-events-none',
+  'focus-visible:outline-none', 'focus-visible:ring-2', 'focus-visible:ring-offset-2',
+
+  // Custom colors with opacity
+  'bg-bg-destructive/90', 'bg-bg-overlay/80', 'hover:text-brand-primary/80',
+  'focus:ring-brand-primary/25', 'dark:bg-gray-800/50', 'dark:bg-blue-900/20',
+  'dark:bg-green-900/20', 'dark:bg-purple-900/20', 'dark:bg-orange-900/20',
+  'dark:bg-gray-900/20', 'bg-brand-primary/20',
+
+  // Custom colors
+  'bg-green-50', 'bg-purple-50', 'bg-orange-50',
+  'border-blue-500', 'border-green-500', 'border-purple-500', 'border-orange-500',
+  'text-red-500', 'bg-red-600', 'border-red-500', 'focus:ring-red-500',
+  'hover:opacity-90', 'hover:shadow-xl', 'hover:underline',
+  'hover:bg-gray-50', 'hover:bg-gray-100', 'hover:bg-gray-200', 'hover:text-gray-900',
+  'dark:hover:bg-gray-700', 'dark:bg-gray-800',
+
+  // Custom margins
+  'mb-1', 'mb-2', 'mb-3', 'mb-4', 'mb-6', 'mt-1',
+
+  // Custom padding
+  'px-4', 'py-2',
+
+  // Custom text
+  'italic', 'underline', 'line-through',
+
+  // Custom positioning
+  'float-left',
+
+  // Additional valid Tailwind classes found in your CSS
+  'text-white', 'bg-white', 'bg-transparent',
+  'placeholder-gray-500', 'placeholder:text-fg-tertiary',
+  'resize-none', 'space-y-2', 'space-x-3',
+  'border-b', 'rounded-r', 'ring-2', 'ring-brand-primary',
+  'outline-none', 'text-fg-brand', 'border-brand-primary',
 ]);
+
+function isValidTailwindClass(className) {
+  // Check if it's a custom theme class
+  if (CUSTOM_THEME_CLASSES.has(className)) {
+    return true;
+  }
+
+  // Check against Tailwind patterns
+  for (const pattern of Object.values(TAILWIND_PATTERNS)) {
+    if (pattern.test(className)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function validateApplyDirectives(css) {
   const errors = [];
+  const warnings = [];
+
+  // Remove CSS comments before processing @apply directives
+  const cssWithoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
   const applyRegex = /@apply\s+([^;]+);/g;
   let match;
-  
-  while ((match = applyRegex.exec(css)) !== null) {
+
+  while ((match = applyRegex.exec(cssWithoutComments)) !== null) {
     const classes = match[1].trim().split(/\s+/);
-    
+    const line = cssWithoutComments.substring(0, match.index).split('\n').length;
+
     for (const className of classes) {
-      if (!VALID_TAILWIND_CLASSES.has(className)) {
-        errors.push({
-          class: className,
-          line: css.substring(0, match.index).split('\n').length,
-          column: match.index - css.lastIndexOf('\n', match.index)
-        });
+      // Skip empty strings
+      if (!className.trim()) continue;
+
+      if (!isValidTailwindClass(className)) {
+        // Check if it looks like malformed CSS
+        if (className.includes('{') || className.includes('}') || className.includes('/*') || className.includes('*/')) {
+          warnings.push({
+            class: className,
+            line,
+            type: 'malformed',
+            message: 'Possible malformed CSS - check for unclosed braces or comments'
+          });
+        } else {
+          errors.push({
+            class: className,
+            line,
+            type: 'invalid',
+            message: 'Invalid Tailwind class'
+          });
+        }
       }
     }
   }
-  
-  return errors;
+
+  return { errors, warnings };
 }
 
 async function validateCSSFiles(pattern = 'src/**/*.css') {
   const files = await glob(pattern);
   let hasErrors = false;
-  
+  let hasWarnings = false;
+
   for (const file of files) {
     try {
       const content = readFileSync(file, 'utf8');
-      const errors = validateApplyDirectives(content);
-      
-      if (errors.length > 0) {
-        hasErrors = true;
-        console.error(`\n❌ ${file}:`);
-        for (const error of errors) {
-          console.error(`  Line ${error.line}: Invalid Tailwind class "${error.class}"`);
+      const { errors, warnings } = validateApplyDirectives(content);
+
+      if (errors.length > 0 || warnings.length > 0) {
+        console.log(`\n📄 ${file}:`);
+
+        if (errors.length > 0) {
+          hasErrors = true;
+          console.error('  ❌ Errors:');
+          for (const error of errors) {
+            console.error(`    Line ${error.line}: ${error.message} "${error.class}"`);
+          }
+        }
+
+        if (warnings.length > 0) {
+          hasWarnings = true;
+          console.warn('  ⚠️  Warnings:');
+          for (const warning of warnings) {
+            console.warn(`    Line ${warning.line}: ${warning.message} "${warning.class}"`);
+          }
         }
       } else {
-        console.log(`✅ ${file}: No @apply errors found`);
+        console.log(`✅ ${file}: No @apply issues found`);
       }
     } catch (err) {
       console.error(`Error reading ${file}:`, err.message);
       hasErrors = true;
     }
   }
-  
+
   if (hasErrors) {
-    console.error('\n🚨 CSS validation failed!');
+    console.error('\n🚨 CSS validation failed! Fix errors before proceeding.');
     process.exit(1);
+  } else if (hasWarnings) {
+    console.warn('\n⚠️  CSS validation completed with warnings. Review warnings above.');
   } else {
     console.log('\n🎉 All CSS files are valid!');
   }

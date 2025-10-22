@@ -20,7 +20,13 @@ const start = async () => {
 	}
 };
 
+let isShuttingDown = false;
+
 const shutdown = async (signal: string) => {
+	if (isShuttingDown) {
+		return;
+	}
+	isShuttingDown = true;
 	try {
 		server.log.info({ signal }, "Shutting down gracefully...");
 		await server.close();
@@ -32,7 +38,6 @@ const shutdown = async (signal: string) => {
 		process.exit(1);
 	}
 };
-
 process.on("SIGINT", () => void shutdown("SIGINT"));
 process.on("SIGTERM", () => void shutdown("SIGTERM"));
 
