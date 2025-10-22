@@ -1,22 +1,22 @@
 {
-  "name": "@songcraft/shared",
-  "version": "1.0.0",
-  "description": "Shared utilities, types, and configurations for Songcraft",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "private": true,
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.2"
-  },
-  "dependencies": {
-    "@esbuild-kit/core-utils": "^3.3.2",
-    "@esbuild-kit/esm-loader": "^2.6.5",
-    "nanoid": "^5.1.6",
-    "zod": "^4.1.11"
-  }
+	"name": "@songcraft/shared",
+	"version": "1.0.0",
+	"description": "Shared utilities, types, and configurations for Songcraft",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"private": true,
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"clean": "rm -rf dist"
+	},
+	"devDependencies": {
+		"typescript": "^5.9.2"
+	},
+	"dependencies": {
+		"@esbuild-kit/core-utils": "^3.3.2",
+		"@esbuild-kit/esm-loader": "^2.6.5",
+		"nanoid": "^5.1.6",
+		"zod": "^4.1.11"
+	}
 }

@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useState } from "react";
+import { RichTextEditor } from "../../../components/editor";
 import { API_ENDPOINTS } from "../../../lib/api";
 
 interface LyricVersion {
@@ -17,6 +19,7 @@ export const Route = createFileRoute("/songs/$songId/lyrics")({
 
 function RouteComponent() {
 	const { songId } = useParams({ from: "/songs/$songId/lyrics" });
+	const [lyricsContent, setLyricsContent] = useState("");
 
 	// Basic validation - just check if songId exists
 	if (!songId) {
@@ -87,9 +90,12 @@ function RouteComponent() {
 				<div className="lg:col-span-2">
 					<div className="bg-white rounded-lg border border-gray-200 p-6">
 						<h2 className="text-xl font-semibold mb-4">Edit Lyrics</h2>
-						<textarea
-							className="text-black w-full h-64 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+						<RichTextEditor
+							value={lyricsContent}
+							onChange={setLyricsContent}
 							placeholder="Enter your lyrics here..."
+							className="min-h-[300px]"
+							showToolbar={true}
 						/>
 						<div className="flex justify-end mt-4 space-x-3">
 							<button

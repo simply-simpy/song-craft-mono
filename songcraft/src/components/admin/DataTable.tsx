@@ -91,26 +91,29 @@ export function DataTable<TData>({
 
 	return (
 		<div className={`max-w-6xl mx-auto p-6 ${className}`}>
-			<h1 
+			<h1
 				className="text-2xl font-bold mb-6"
-				style={{ color: 'var(--fg-primary)' }}
+				style={{ color: "var(--fg-primary)" }}
 			>
 				{title}
 			</h1>
 
 			<div className="overflow-x-auto">
-				<table className="min-w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+				<table
+					className="min-w-full"
+					style={{ borderCollapse: "separate", borderSpacing: 0 }}
+				>
 					<thead>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<tr key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<th 
-										key={header.id} 
+									<th
+										key={header.id}
 										className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider border-b"
 										style={{
-											backgroundColor: 'var(--surface-elevated)',
-											color: 'var(--fg-secondary)',
-											borderBottomColor: 'var(--border-primary)'
+											backgroundColor: "var(--surface-elevated)",
+											color: "var(--fg-secondary)",
+											borderBottomColor: "var(--border-primary)",
 										}}
 									>
 										{flexRender(
@@ -124,25 +127,26 @@ export function DataTable<TData>({
 					</thead>
 					<tbody>
 						{table.getRowModel().rows.map((row) => (
-							<tr 
-								key={row.id} 
+							<tr
+								key={row.id}
 								className="border-b transition-colors"
 								style={{
-									backgroundColor: 'var(--surface-base)',
-									borderBottomColor: 'var(--border-secondary)'
+									backgroundColor: "var(--surface-base)",
+									borderBottomColor: "var(--border-secondary)",
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+									e.currentTarget.style.backgroundColor =
+										"var(--surface-hover)";
 								}}
 								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'var(--surface-base)';
+									e.currentTarget.style.backgroundColor = "var(--surface-base)";
 								}}
 							>
 								{row.getVisibleCells().map((cell) => (
-									<td 
-										key={cell.id} 
+									<td
+										key={cell.id}
 										className="px-6 py-4 whitespace-nowrap text-sm"
-										style={{ color: 'var(--fg-primary)' }}
+										style={{ color: "var(--fg-primary)" }}
 									>
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 									</td>
@@ -158,19 +162,21 @@ export function DataTable<TData>({
 				<button
 					type="button"
 					className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-					style={{
-						color: 'var(--fg-primary)',
-						backgroundColor: 'var(--surface-elevated)',
-						border: '1px solid var(--border-primary)',
-						'--tw-ring-color': 'var(--border-focus)',
-						'--tw-ring-offset-color': 'var(--surface-base)'
-					} as React.CSSProperties}
+					style={
+						{
+							color: "var(--fg-primary)",
+							backgroundColor: "var(--surface-elevated)",
+							border: "1px solid var(--border-primary)",
+							"--tw-ring-color": "var(--border-focus)",
+							"--tw-ring-offset-color": "var(--surface-base)",
+						} as React.CSSProperties
+					}
 					// TODO is casting safe?
 					onMouseEnter={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+						e.currentTarget.style.backgroundColor = "var(--surface-hover)";
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+						e.currentTarget.style.backgroundColor = "var(--surface-elevated)";
 					}}
 					onClick={() => table.firstPage()}
 					disabled={!table.getCanPreviousPage()}
@@ -180,18 +186,20 @@ export function DataTable<TData>({
 				<button
 					type="button"
 					className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-					style={{
-						color: 'var(--fg-primary)',
-						backgroundColor: 'var(--surface-elevated)',
-						border: '1px solid var(--border-primary)',
-						'--tw-ring-color': 'var(--border-focus)',
-						'--tw-ring-offset-color': 'var(--surface-base)'
-					} as React.CSSProperties}
+					style={
+						{
+							color: "var(--fg-primary)",
+							backgroundColor: "var(--surface-elevated)",
+							border: "1px solid var(--border-primary)",
+							"--tw-ring-color": "var(--border-focus)",
+							"--tw-ring-offset-color": "var(--surface-base)",
+						} as React.CSSProperties
+					}
 					onMouseEnter={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+						e.currentTarget.style.backgroundColor = "var(--surface-hover)";
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+						e.currentTarget.style.backgroundColor = "var(--surface-elevated)";
 					}}
 					onClick={() => table.previousPage()}
 					disabled={!table.getCanPreviousPage()}
@@ -201,19 +209,21 @@ export function DataTable<TData>({
 				<button
 					type="button"
 					className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-					style={{
-						color: 'var(--fg-primary)',
-						backgroundColor: 'var(--surface-elevated)',
-						border: '1px solid var(--border-primary)',
-						'--tw-ring-color': 'var(--border-focus)',
-						'--tw-ring-offset-color': 'var(--surface-base)'
-					} as React.CSSProperties}
+					style={
+						{
+							color: "var(--fg-primary)",
+							backgroundColor: "var(--surface-elevated)",
+							border: "1px solid var(--border-primary)",
+							"--tw-ring-color": "var(--border-focus)",
+							"--tw-ring-offset-color": "var(--surface-base)",
+						} as React.CSSProperties
+					}
 					// TODO is casting safe?
 					onMouseEnter={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+						e.currentTarget.style.backgroundColor = "var(--surface-hover)";
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+						e.currentTarget.style.backgroundColor = "var(--surface-elevated)";
 					}}
 					onClick={() => table.nextPage()}
 					disabled={!table.getCanNextPage()}
@@ -223,33 +233,41 @@ export function DataTable<TData>({
 				<button
 					type="button"
 					className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-					style={{
-						color: 'var(--fg-primary)',
-						backgroundColor: 'var(--surface-elevated)',
-						border: '1px solid var(--border-primary)',
-						'--tw-ring-color': 'var(--border-focus)',
-						'--tw-ring-offset-color': 'var(--surface-base)'
-					} as React.CSSProperties}
+					style={
+						{
+							color: "var(--fg-primary)",
+							backgroundColor: "var(--surface-elevated)",
+							border: "1px solid var(--border-primary)",
+							"--tw-ring-color": "var(--border-focus)",
+							"--tw-ring-offset-color": "var(--surface-base)",
+						} as React.CSSProperties
+					}
 					// TODO is casting safe?
 					onMouseEnter={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+						e.currentTarget.style.backgroundColor = "var(--surface-hover)";
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+						e.currentTarget.style.backgroundColor = "var(--surface-elevated)";
 					}}
 					onClick={() => table.lastPage()}
 					disabled={!table.getCanNextPage()}
 				>
 					{">>"}
 				</button>
-				<span className="flex items-center gap-1" style={{ color: 'var(--fg-primary)' }}>
+				<span
+					className="flex items-center gap-1"
+					style={{ color: "var(--fg-primary)" }}
+				>
 					<div>Page</div>
 					<strong>
 						{table.getState().pagination.pageIndex + 1} of{" "}
 						{table.getPageCount().toLocaleString()}
 					</strong>
 				</span>
-				<span className="flex items-center gap-1" style={{ color: 'var(--fg-primary)' }}>
+				<span
+					className="flex items-center gap-1"
+					style={{ color: "var(--fg-primary)" }}
+				>
 					| Go to page:
 					<input
 						type="number"
@@ -261,13 +279,15 @@ export function DataTable<TData>({
 							table.setPageIndex(page);
 						}}
 						className="w-16 px-2 py-1 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-						style={{
-							color: 'var(--fg-primary)',
-							backgroundColor: 'var(--surface-elevated)',
-							border: '1px solid var(--border-primary)',
-							'--tw-ring-color': 'var(--border-focus)',
-							'--tw-ring-offset-color': 'var(--surface-base)'
-						} as React.CSSProperties}
+						style={
+							{
+								color: "var(--fg-primary)",
+								backgroundColor: "var(--surface-elevated)",
+								border: "1px solid var(--border-primary)",
+								"--tw-ring-color": "var(--border-focus)",
+								"--tw-ring-offset-color": "var(--surface-base)",
+							} as React.CSSProperties
+						}
 					/>
 				</span>
 				<select
@@ -276,13 +296,15 @@ export function DataTable<TData>({
 						table.setPageSize(Number(e.target.value));
 					}}
 					className="px-2 py-1 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-					style={{
-						color: 'var(--fg-primary)',
-						backgroundColor: 'var(--surface-elevated)',
-						border: '1px solid var(--border-primary)',
-						'--tw-ring-color': 'var(--border-focus)',
-						'--tw-ring-offset-color': 'var(--surface-base)'
-					} as React.CSSProperties}
+					style={
+						{
+							color: "var(--fg-primary)",
+							backgroundColor: "var(--surface-elevated)",
+							border: "1px solid var(--border-primary)",
+							"--tw-ring-color": "var(--border-focus)",
+							"--tw-ring-offset-color": "var(--surface-base)",
+						} as React.CSSProperties
+					}
 				>
 					{pageSizeOptions.map((pageSize) => (
 						<option key={pageSize} value={pageSize}>
