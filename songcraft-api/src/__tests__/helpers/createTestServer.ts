@@ -15,13 +15,6 @@ interface AuthenticatedRequest extends FastifyRequest {
   };
 }
 
-interface RequestWithContainer<TContainer = unknown> {
-  container?: TContainer;
-}
-
-type AuthenticatedRequestWithContainer<TContainer = unknown> =
-  AuthenticatedRequest & RequestWithContainer<TContainer>;
-
 export type CreateServerOptions<TContainer = unknown> = {
   // The route register function (default export of a routes module)
   register: (fastify: FastifyInstance) => Promise<void> | void;
@@ -43,7 +36,7 @@ export function createTestServer<TContainer = unknown>(
   if (opts.decorateSuperUser) {
     server.decorate(
       "requireSuperUser",
-      (minRole?: GlobalRole) => async (request: AuthenticatedRequest) => {
+      (_minRole?: GlobalRole) => async (request: AuthenticatedRequest) => {
         request.user = {
           clerkId: opts.user?.clerkId ?? "user_123",
           globalRole: opts.user?.globalRole ?? GlobalRole.SUPER_ADMIN,

@@ -34,7 +34,7 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
   const ADMIN_LIMIT = { max: 50, timeWindow: "15 minutes" as const };
 
   function buildError(msg: string) {
-    const fn = (request: Request, context: Context) => ({
+    const fn = (_request: Request, context: Context) => ({
       success: false,
       error: msg,
       code: msg.toUpperCase().replace(/[^A-Z0-9]+/g, "_") as

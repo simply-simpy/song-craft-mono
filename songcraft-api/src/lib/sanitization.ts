@@ -41,7 +41,7 @@ export function sanitizeInput(input: string): string {
 
   return input
     .trim()
-    .replace(/[\x00-\x1F\x7F]/g, "") // Remove control characters
+    .replace(/[\p{Cc}\p{Cf}]/gu, "") // Remove control characters
     .replace(/\s+/g, " ") // Normalize whitespace
     .substring(0, 10000); // Limit length to prevent DoS
 }
