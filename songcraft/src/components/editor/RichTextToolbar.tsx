@@ -230,3 +230,5 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
     </div>
   );
 }
+
+export { RichTextToolbar };
