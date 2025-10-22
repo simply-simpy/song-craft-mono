@@ -7,146 +7,146 @@
 
 /* Editor Container */
 .rich-text-editor-container {
-	@apply w-full;
+  @apply w-full;
 }
 
 /* Editor Content Area */
 .rich-text-editor {
-	@apply min-h-[200px] p-4 border border-gray-300 rounded-md;
-	@apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-	@apply prose prose-sm max-w-none;
+  @apply min-h-[200px] p-4 border border-gray-300 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply max-w-none;
 
-	/* Theme integration */
-	@apply bg-surface-base text-fg-primary;
-	@apply border-border-primary focus:ring-brand-primary;
-	@apply placeholder:text-fg-tertiary;
+  /* Theme integration */
+  @apply bg-surface-base text-fg-primary;
+  @apply border-border-primary focus:ring-brand-primary;
+  @apply placeholder:text-fg-tertiary;
 
-	/* Dark mode support */
-	@apply dark:bg-surface-elevated dark:text-fg-primary;
-	@apply dark:border-border-secondary dark:focus:ring-brand-primary;
+  /* Dark mode support */
+  @apply dark:bg-surface-elevated dark:text-fg-primary;
+  @apply dark:border-border-secondary dark:focus:ring-brand-primary;
 }
 
 /* Toolbar Styles */
 .rich-text-toolbar {
-	@apply flex items-center gap-1 p-2 border-b border-gray-200 rounded-t-md;
-	@apply bg-surface-elevated;
-	@apply dark:border-border-secondary dark:bg-surface-base;
+  @apply flex items-center gap-1 p-2 border-b border-gray-200 rounded-t-md;
+  @apply bg-surface-elevated;
+  @apply dark:border-border-secondary dark:bg-surface-base;
 }
 
 /* Toolbar Button Styles */
 .rich-text-toolbar button {
-	@apply p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700;
-	@apply transition-colors duration-200;
-	@apply focus:outline-none focus:ring-2 focus:ring-brand-primary;
+  @apply p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700;
+  @apply transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-brand-primary;
 }
 
 /* Editor Content Styles */
 .rich-text-editor h1 {
-	@apply text-2xl font-bold text-fg-primary mb-4;
+  @apply text-2xl font-bold text-fg-primary mb-4;
 }
 
 .rich-text-editor h2 {
-	@apply text-xl font-semibold text-fg-primary mb-3;
+  @apply text-xl font-semibold text-fg-primary mb-3;
 }
 
 .rich-text-editor h3 {
-	@apply text-lg font-medium text-fg-primary mb-2;
+  @apply text-lg font-medium text-fg-primary mb-2;
 }
 
 .rich-text-editor p {
-	@apply text-fg-primary mb-2;
+  @apply text-fg-primary mb-2;
 }
 
 .rich-text-editor ul,
 .rich-text-editor ol {
-	@apply text-fg-primary mb-2 pl-6;
+  @apply text-fg-primary mb-2 pl-6;
 }
 
 .rich-text-editor li {
-	@apply text-fg-primary mb-1;
+  @apply text-fg-primary mb-1;
 }
 
 .rich-text-editor a {
-	@apply text-brand-primary hover:text-brand-primary/80 underline;
+  @apply text-brand-primary hover:text-brand-primary/80 underline;
 }
 
 .rich-text-editor strong {
-	@apply font-semibold text-fg-primary;
+  @apply font-semibold text-fg-primary;
 }
 
 .rich-text-editor em {
-	@apply italic text-fg-primary;
+  @apply italic text-fg-primary;
 }
 
 .rich-text-editor u {
-	@apply underline text-fg-primary;
+  @apply underline text-fg-primary;
 }
 
 .rich-text-editor s {
-	@apply line-through text-fg-secondary;
+  @apply line-through text-fg-secondary;
 }
 
 .rich-text-editor code {
-	@apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono;
-	@apply text-fg-primary;
+  @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+  @apply text-fg-primary;
 }
 
 /* Block Quote Styles */
 .rich-text-editor blockquote {
-	@apply border-l-4 border-brand-primary pl-4 italic text-fg-secondary;
-	@apply bg-gray-50 dark:bg-gray-800/50 py-2 rounded-r;
+  @apply border-l-4 border-brand-primary pl-4 italic text-fg-secondary;
+  @apply bg-gray-50 dark:bg-gray-800/50 py-2 rounded-r;
 }
 
 /* List Styles */
 .rich-text-editor ul {
-	@apply list-disc;
+  @apply list-disc;
 }
 
 .rich-text-editor ol {
-	@apply list-decimal;
+  @apply list-decimal;
 }
 
 /* Focus and Selection Styles */
 .rich-text-editor:focus {
-	@apply ring-2 ring-brand-primary ring-offset-1;
+  @apply ring-2 ring-brand-primary ring-offset-1;
 }
 
 .rich-text-editor ::selection {
-	@apply bg-brand-primary/20;
+  @apply bg-brand-primary/20;
 }
 
 /* Placeholder Styles */
 .rich-text-editor [data-placeholder] {
-	@apply text-fg-tertiary pointer-events-none;
+  @apply text-fg-tertiary pointer-events-none;
 }
 
 /* Tiptap specific styles */
 .rich-text-editor .ProseMirror {
-	@apply outline-none;
+  @apply outline-none;
 }
 
 .rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
-	@apply text-fg-tertiary pointer-events-none h-0 float-left;
-	content: attr(data-placeholder);
+  @apply text-fg-tertiary pointer-events-none h-0 float-left;
+  content: attr(data-placeholder);
 }
 
 /* Song-specific styles for future use */
 .song-section-verse {
-	@apply border-l-2 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-900/20;
+  @apply border-l-2 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-900/20;
 }
 
 .song-section-chorus {
-	@apply border-l-2 border-green-500 pl-4 bg-green-50 dark:bg-green-900/20;
+  @apply border-l-2 border-green-500 pl-4 bg-green-50 dark:bg-green-900/20;
 }
 
 .song-section-bridge {
-	@apply border-l-2 border-purple-500 pl-4 bg-purple-50 dark:bg-purple-900/20;
+  @apply border-l-2 border-purple-500 pl-4 bg-purple-50 dark:bg-purple-900/20;
 }
 
 .song-section-pre-chorus {
-	@apply border-l-2 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-900/20;
+  @apply border-l-2 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-900/20;
 }
 
 .song-section-outro {
-	@apply border-l-2 border-gray-500 pl-4 bg-gray-50 dark:bg-gray-900/20;
+  @apply border-l-2 border-gray-500 pl-4 bg-gray-50 dark:bg-gray-900/20;
 }

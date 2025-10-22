@@ -48,6 +48,7 @@
 @import "./styles/components/forms.css" layer(components);
 @import "./styles/components/radix-ui.css" layer(components);
 @import "./styles/components/radix-themed-components.css" layer(components);
+@import "./components/editor/editor.css" layer(components);
 
 /* ---------------------------
    6) Tailwind utilities
@@ -58,9 +59,9 @@
    7) App-specific base styles
    --------------------------- */
 body {
-	font-family: var(--font-font-sans);
-	font-weight: var(--font-weight-normal);
-	color: var(--fg-primary);
-	background-color: var(--bg-primary);
-	line-height: var(--font-leading-normal);
+  font-family: var(--font-font-sans);
+  font-weight: var(--font-weight-normal);
+  color: var(--fg-primary);
+  background-color: var(--bg-primary);
+  line-height: var(--font-leading-normal);
 }

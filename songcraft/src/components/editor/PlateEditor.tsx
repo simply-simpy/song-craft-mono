@@ -9,7 +9,6 @@ import { type AnyExtension, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
 import { cn } from "../../lib/utils";
-import "./editor.css";
 
 // Import UI components
 import { RichTextToolbar } from "./RichTextToolbar";
@@ -75,7 +74,7 @@ export function RichTextEditorComponent({
 					"rich-text-editor",
 					"min-h-[200px] p-4 border border-gray-300 rounded-md",
 					"focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-					"prose prose-sm max-w-none",
+					"max-w-none",
 					// Theme integration
 					"bg-surface-base text-fg-primary",
 					"border-border-primary focus:ring-brand-primary",
