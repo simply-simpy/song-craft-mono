@@ -30,7 +30,7 @@
     "test:watch:api": "npm run test:watch --workspace=songcraft-api",
     "test:coverage:api": "npm run test:coverage --workspace=songcraft-api",
     "check": "npm run check --workspace=songcraft && npm run check --workspace=songcraft-api",
-    "check:frontend": "npm run check --workspace=songcraft",
+    "check:frontend": "npm run check --workspace=songcraft && npm run lint:css --workspace=songcraft && npm run validate:css --workspace=songcraft",
     "check:api": "npm run check --workspace=songcraft-api",
     "check:fix": "npm run check --workspace=songcraft -- --fix --unsafe && npm run check --workspace=songcraft-api -- --fix --unsafe",
     "check:fix:frontend": "npm run check --workspace=songcraft -- --fix --unsafe",

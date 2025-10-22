@@ -11,6 +11,8 @@
 		"clean": "rm -rf dist"
 	},
 	"devDependencies": {
+		"stylelint": "^16.25.0",
+		"stylelint-config-tailwindcss": "^1.0.0",
 		"typescript": "^5.9.2"
 	},
 	"dependencies": {
