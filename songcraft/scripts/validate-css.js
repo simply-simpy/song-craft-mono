@@ -95,9 +95,9 @@ const CUSTOM_THEME_CLASSES = new Set([
   // Custom spacing
   'space-y-1.5', 'space-x-2', 'gap-4', 'gap-1',
 
-  // Custom positioning
-  'left-[50%]', 'top-[50%]', 'translate-x-[-50%]', 'translate-y-[-50%]',
-  'inset-0', 'z-50', 'fixed', 'absolute', 'relative',
+          // Custom positioning
+          'left-[50%]', 'top-[50%]', 'translate-x-[-50%]', 'translate-y-[-50%]',
+          'inset-0', 'z-50', 'z-10', 'fixed', 'absolute', 'relative',
 
   // Custom sizing
   'min-h-[200px]', 'min-w-5', 'max-w-lg', 'w-14', 'h-14',
@@ -106,8 +106,8 @@ const CUSTOM_THEME_CLASSES = new Set([
   'backdrop-blur-sm', 'shadow-sm', 'shadow-lg', 'shadow-xl',
   'ring-offset-1', 'ring-offset-2', 'ring-4',
 
-  // Custom opacity
-  'opacity-75', 'opacity-50',
+          // Custom opacity
+          'opacity-75', 'opacity-50', 'opacity-100',
 
   // Custom borders
   'border-l-2', 'border-l-4', 'border-r', 'rounded-l-none', 'rounded-r-none', 'rounded-t-md',
@@ -169,14 +169,20 @@ const CUSTOM_THEME_CLASSES = new Set([
   'border-b', 'rounded-r', 'ring-2', 'ring-brand-primary',
   'outline-none', 'text-fg-brand', 'border-brand-primary',
 
-  // Lyrics editor specific classes
-  'border-dashed', 'items-start', 'gap-3', 'scale-95',
-  'flex-shrink-0', 'cursor-grab', 'cursor-grabbing',
-  'flex-1', 'gap-2', 'uppercase', 'tracking-wide',
-  'ml-auto', 'border-none', 'leading-relaxed',
-  'bg-blue-50/30', 'bg-green-50/30', 'bg-purple-50/30',
-  'bg-orange-50/30', 'bg-gray-50/30', 'bg-gray-50/20',
-  'flex-wrap',
+          // Lyrics editor specific classes
+          'border-dashed', 'items-start', 'gap-3', 'scale-95',
+          'flex-shrink-0', 'cursor-grab', 'cursor-grabbing',
+          'flex-1', 'gap-2', 'uppercase', 'tracking-wide',
+          'ml-auto', 'border-none', 'leading-relaxed',
+          'bg-blue-50/30', 'bg-green-50/30', 'bg-purple-50/30',
+          'bg-orange-50/30', 'bg-gray-50/30', 'bg-gray-50/20',
+          'flex-wrap',
+
+          // Drag handle specific classes
+          'left-[-30px]', 'top-1/2', 'transform', '-translate-y-1/2',
+          'text-gray-400', 'text-sm', 'leading-none', 'select-none',
+          'opacity-0', 'transition-opacity', 'duration-200',
+          'hover:text-gray-600', 'dark:text-gray-500', 'dark:hover:text-gray-300',
 ]);
 
 function isValidTailwindClass(className) {

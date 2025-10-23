@@ -12,6 +12,7 @@ import { cn } from "../../lib/utils";
 
 // Import UI components
 import { RichTextToolbar } from "./RichTextToolbar";
+import { DragHandle } from "./DragHandle";
 
 export interface RichTextEditorProps {
 	/**
@@ -48,6 +49,11 @@ export interface RichTextEditorProps {
 	 * Custom extensions to include
 	 */
 	extensions?: AnyExtension[];
+
+	/**
+	 * Whether to show drag handles on each line
+	 */
+	showDragHandles?: boolean;
 }
 
 export function RichTextEditorComponent({
@@ -58,6 +64,7 @@ export function RichTextEditorComponent({
 	className,
 	showToolbar = true,
 	extensions: customExtensions = [],
+	showDragHandles = false,
 }: RichTextEditorProps) {
 	// Create the editor with default extensions
 	const editor = useEditor({
@@ -98,7 +105,18 @@ export function RichTextEditorComponent({
 	return (
 		<div className={cn("rich-text-editor-container", className)}>
 			{showToolbar && editor && <RichTextToolbar editor={editor} />}
-			<EditorContent editor={editor} />
+			<div className="relative">
+				<EditorContent editor={editor} />
+				{showDragHandles && editor && (
+					<DragHandle 
+						editor={editor}
+						show={showDragHandles}
+						onDragStart={(e) => console.log("🚀 Drag started", e)}
+						onDragEnd={(e) => console.log("🏁 Drag ended", e)}
+						onNodeChange={(params) => console.log("🎯 Node changed", params)}
+					/>
+				)}
+			</div>
 		</div>
 	);
 }

@@ -7,6 +7,80 @@
  * These styles complement the existing design tokens and Radix theme.
  */
 
+/* ProseMirror Base Styles - Required for proper editor functionality */
+.ProseMirror {
+  white-space: pre-wrap;
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0;
+}
+
+.ProseMirror p:not(:last-child) {
+  margin-bottom: 0.5em;
+}
+
+/* ProseMirror content styles */
+.ProseMirror strong {
+  font-weight: bold;
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
+
+.ProseMirror u {
+  text-decoration: underline;
+}
+
+.ProseMirror s {
+  text-decoration: line-through;
+}
+
+.ProseMirror code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.2em;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.ProseMirror h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.5em 0;
+}
+
+.ProseMirror h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 0.4em 0;
+}
+
+.ProseMirror h3 {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0.3em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror li {
+  margin: 0.2em 0;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid #ccc;
+  padding-left: 1em;
+  margin: 0.5em 0;
+  font-style: italic;
+}
+
 /* Editor Container */
 .rich-text-editor-container {
   @apply w-full;
@@ -151,4 +225,133 @@
 
 .song-section-outro {
   @apply border-l-2 border-gray-500 pl-4 bg-gray-50 dark:bg-gray-900/20;
+}
+
+/* Drag Handle Styles */
+.ProseMirror p[data-drag-handle="true"]::before,
+.ProseMirror h1[data-drag-handle="true"]::before,
+.ProseMirror h2[data-drag-handle="true"]::before,
+.ProseMirror h3[data-drag-handle="true"]::before,
+.ProseMirror h4[data-drag-handle="true"]::before,
+.ProseMirror h5[data-drag-handle="true"]::before,
+.ProseMirror h6[data-drag-handle="true"]::before {
+  content: "⋮⋮";
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: grab;
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.ProseMirror p[data-drag-handle="true"]:hover::before,
+.ProseMirror h1[data-drag-handle="true"]:hover::before,
+.ProseMirror h2[data-drag-handle="true"]:hover::before,
+.ProseMirror h3[data-drag-handle="true"]:hover::before,
+.ProseMirror h4[data-drag-handle="true"]:hover::before,
+.ProseMirror h5[data-drag-handle="true"]:hover::before,
+.ProseMirror h6[data-drag-handle="true"]:hover::before {
+  opacity: 1;
+  color: #6b7280;
+}
+
+/* Dark mode support for drag handles */
+.dark .ProseMirror p[data-drag-handle="true"]::before,
+.dark .ProseMirror h1[data-drag-handle="true"]::before,
+.dark .ProseMirror h2[data-drag-handle="true"]::before,
+.dark .ProseMirror h3[data-drag-handle="true"]::before,
+.dark .ProseMirror h4[data-drag-handle="true"]::before,
+.dark .ProseMirror h5[data-drag-handle="true"]::before,
+.dark .ProseMirror h6[data-drag-handle="true"]::before {
+  color: #9ca3af;
+}
+
+.dark .ProseMirror p[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h1[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h2[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h3[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h4[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h5[data-drag-handle="true"]:hover::before,
+.dark .ProseMirror h6[data-drag-handle="true"]:hover::before {
+  color: #d1d5db;
+}
+
+/* Ensure paragraphs have relative positioning for handles */
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  @apply relative;
+}
+
+/* Drag handle widget styles */
+.drag-handle-widget {
+  @apply absolute left-[-30px] top-1/2 transform -translate-y-1/2;
+  @apply cursor-grab text-gray-400 text-sm leading-none;
+  @apply select-none opacity-0 transition-opacity duration-200;
+  @apply hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300;
+  @apply z-10 p-1;
+  /* Debug styles - make handles more visible */
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  border-radius: 2px;
+}
+
+/* Debug: Make handles always visible for testing */
+.drag-handle-widget.debug {
+  opacity: 1 !important;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+}
+
+/* Make paragraphs draggable */
+.ProseMirror p[draggable="true"],
+.ProseMirror h1[draggable="true"],
+.ProseMirror h2[draggable="true"],
+.ProseMirror h3[draggable="true"],
+.ProseMirror h4[draggable="true"],
+.ProseMirror h5[draggable="true"],
+.ProseMirror h6[draggable="true"] {
+  @apply cursor-grab;
+}
+
+.ProseMirror p[draggable="true"]:hover,
+.ProseMirror h1[draggable="true"]:hover,
+.ProseMirror h2[draggable="true"]:hover,
+.ProseMirror h3[draggable="true"]:hover,
+.ProseMirror h4[draggable="true"]:hover,
+.ProseMirror h5[draggable="true"]:hover,
+.ProseMirror h6[draggable="true"]:hover {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+/* Official Drag Handle Styles */
+.drag-handle-official {
+  @apply flex items-center justify-center;
+  @apply w-6 h-6 rounded;
+  @apply bg-white border border-gray-300;
+  @apply cursor-grab hover:bg-gray-50;
+  @apply text-gray-500 hover:text-gray-700;
+  @apply transition-colors duration-200;
+  @apply shadow-sm hover:shadow-md;
+}
+
+.drag-handle-official:active {
+  @apply cursor-grabbing;
+}
+
+/* Dark mode support for official drag handle */
+.dark .drag-handle-official {
+  @apply bg-gray-800 border-gray-600;
+  @apply text-gray-400 hover:text-gray-200;
+  @apply hover:bg-gray-700;
 }

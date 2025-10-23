@@ -92,6 +92,7 @@ function RouteComponent() {
               placeholder="Enter your lyrics here..."
               className="min-h-[400px]"
               showToolbar={true}
+              showDragHandles={true}
             />
             <div className="flex justify-end mt-4 space-x-3">
               <button

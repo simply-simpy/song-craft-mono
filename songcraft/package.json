@@ -76,9 +76,14 @@
     "@tanstack/react-virtual": "^3.13.12",
     "@tanstack/router-plugin": "^1.121.2",
     "@tanstack/store": "^0.7.0",
+    "@tiptap/extension-collaboration": "^3.7.2",
+    "@tiptap/extension-drag-handle": "^3.7.2",
+    "@tiptap/extension-drag-handle-react": "^3.7.2",
+    "@tiptap/extension-node-range": "^3.7.2",
     "@tiptap/pm": "^3.7.2",
     "@tiptap/react": "^3.7.2",
     "@tiptap/starter-kit": "^3.7.2",
+    "@tiptap/y-tiptap": "^3.0.0",
     "@trpc/client": "^11.5.0",
     "@trpc/react-query": "^11.5.0",
     "@trpc/server": "^11.5.0",
@@ -101,6 +106,8 @@
     "tailwindcss": "^4.1.12",
     "tailwindcss-animate": "^1.0.7",
     "vite-tsconfig-paths": "^5.1.4",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27",
     "zod": "^3.25.76"
   },
   "devDependencies": {
