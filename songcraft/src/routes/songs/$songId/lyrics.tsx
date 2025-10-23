@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { LyricsEditor } from "../../../components/editor";
+import { RichTextEditor } from "../../../components/editor";
 import { API_ENDPOINTS } from "../../../lib/api";
 
 interface LyricVersion {
@@ -86,12 +86,12 @@ function RouteComponent() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-xl font-semibold mb-4">Edit Lyrics</h2>
-            <LyricsEditor
+            <RichTextEditor
               value={lyricsContent}
               onChange={setLyricsContent}
-              placeholder="Start writing your song lyrics..."
+              placeholder="Enter your lyrics here..."
               className="min-h-[400px]"
-              showDragHandles={true}
+              showToolbar={true}
             />
             <div className="flex justify-end mt-4 space-x-3">
               <button
