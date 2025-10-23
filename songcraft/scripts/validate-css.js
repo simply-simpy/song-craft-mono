@@ -168,6 +168,15 @@ const CUSTOM_THEME_CLASSES = new Set([
   'resize-none', 'space-y-2', 'space-x-3',
   'border-b', 'rounded-r', 'ring-2', 'ring-brand-primary',
   'outline-none', 'text-fg-brand', 'border-brand-primary',
+
+  // Lyrics editor specific classes
+  'border-dashed', 'items-start', 'gap-3', 'scale-95',
+  'flex-shrink-0', 'cursor-grab', 'cursor-grabbing',
+  'flex-1', 'gap-2', 'uppercase', 'tracking-wide',
+  'ml-auto', 'border-none', 'leading-relaxed',
+  'bg-blue-50/30', 'bg-green-50/30', 'bg-purple-50/30',
+  'bg-orange-50/30', 'bg-gray-50/30', 'bg-gray-50/20',
+  'flex-wrap',
 ]);
 
 function isValidTailwindClass(className) {

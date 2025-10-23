@@ -49,6 +49,7 @@
 @import "./styles/components/radix-ui.css" layer(components);
 @import "./styles/components/radix-themed-components.css" layer(components);
 @import "./components/editor/editor.css" layer(components);
+@import "./components/editor/lyrics-editor.css" layer(components);
 
 /* ---------------------------
    6) Tailwind utilities
