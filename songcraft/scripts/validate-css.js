@@ -89,8 +89,8 @@ const CUSTOM_THEME_CLASSES = new Set([
   // Form controls
   'form-control',
 
-  // Prose (typography plugin)
-  'prose', 'prose-sm', 'prose-lg', 'max-w-none',
+  // Custom sizing
+  'max-w-none',
 
   // Custom spacing
   'space-y-1.5', 'space-x-2', 'gap-4', 'gap-1',
